@@ -14,6 +14,39 @@ from .transformation import atom_to_predicate
 log = get_logger(__name__)
 
 
+def _nodes_to_str(nodes: list[Predicate]) -> str:
+    ret_str = "["
+    for i, n in enumerate(nodes):
+        if i > 0:
+            ret_str += ", "
+        ret_str += str(n)
+    ret_str += "]"
+    return ret_str
+
+
+def _edges_to_str(edges, data: bool = False) -> str:
+    ret_str = "["
+    for i, e in enumerate(edges):
+        if i > 0:
+            ret_str += ", "
+        if data:
+            ret_str += "((" + str(e[0]) + "," + str(e[1]) + "), " + str(e[2]["weight"]) + ")"
+        else:
+            ret_str += "(" + str(e[0]) + "," + str(e[1]) + ")"
+    ret_str += "]"
+    return ret_str
+
+
+def _cycles_to_str(cycles) -> str:
+    ret_str = "{"
+    for i, c in enumerate(cycles):
+        if i > 0:
+            ret_str += ", "
+        ret_str += _nodes_to_str(c)
+    ret_str += "}"
+    return ret_str
+
+
 def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicate]) -> bool:
     """
     Check if a program has enough visible atoms by checking a modified predicate dependency graph for negative cycles.
@@ -24,14 +57,14 @@ def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicat
 
     graph = graph_builder.graph
 
-    log.debug("Nodes: %s", graph.nodes)
-    log.debug("Edges: %s", graph.edges(data=True))
+    log.debug("Nodes: %s", _nodes_to_str(graph.nodes))
+    log.debug("Edges: %s", _edges_to_str(graph.edges(data=True), True))
 
     for scc in strongly_connected_components(graph):
         subgraph = graph.subgraph(scc)
         for _, _, data in subgraph.edges(data=True):
             if data.get("weight", 0) < 0:
-                log.debug("SCC with negative loop: %s", scc)
+                log.debug("SCC with negative loop: %s", _nodes_to_str(scc))
                 return False
 
     return True
@@ -48,10 +81,10 @@ def has_recursive_aggregates(program: list[AST]) -> bool:
     graph = graph_builder.graph
     cycles = list(simple_cycles(graph))
 
-    log.debug("Nodes: %s", graph.nodes)
-    log.debug("Edges: %s", graph.edges)
+    log.debug("Nodes: %s", _nodes_to_str(graph.nodes))
+    log.debug("Edges: %s", _edges_to_str(graph.edges))
     if cycles:
-        log.debug("Cycles: %s", cycles)
+        log.debug("Cycles: %s", _cycles_to_str(cycles))
     else:
         log.debug("No cycles found")
 
