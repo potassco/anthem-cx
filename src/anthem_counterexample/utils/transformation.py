@@ -84,7 +84,6 @@ def map_atom(atom: AST) -> AST:
             new_atom = SymbolicAtom(symbol=_map_function(term))
             return new_atom
         case ASTType.Pool:
-            log.debug(f"arguments of {term} with {len(term.arguments)} arguments")
             new_arguments = []
             for arg in term.arguments:
                 new_arguments.append(_map_function(arg))
@@ -111,6 +110,18 @@ def _map_function(function: AST) -> AST:
     return new_function
 
 
+def _unmap_function(function: AST) -> AST:
+    if function.ast_type is not ASTType.Function:
+        raise RuntimeError(f"Argument is not a function {function}")
+
+    return Function(
+        location=function.location,
+        name=function.name.removesuffix(PREDICATE_SUFFIX),
+        arguments=function.arguments,
+        external=function.external,
+    )
+
+
 def unmap_atom(atom: AST) -> AST:
     """
     Undo the mapping of a predicate to its auxiliary version.
@@ -118,19 +129,18 @@ def unmap_atom(atom: AST) -> AST:
     if atom.ast_type is not ASTType.SymbolicAtom:
         raise RuntimeError(f"Argument is not a symbolic atom {atom}")
 
-    fun = atom.symbol
-    new_name = fun.name.removesuffix(PREDICATE_SUFFIX)
+    term = atom.symbol
 
-    new_atom = SymbolicAtom(
-        symbol=Function(
-            location=fun.location,
-            name=new_name,
-            arguments=fun.arguments,
-            external=fun.external,
-        )
-    )
-
-    return new_atom
+    match term.ast_type:
+        case ASTType.Function:
+            return SymbolicAtom(symbol=_unmap_function(term))
+        case ASTType.Pool:
+            new_arguments = []
+            for arg in term.arguments:
+                new_arguments.append(_unmap_function(arg))
+            return SymbolicAtom(symbol=Pool(location=LOC, arguments=new_arguments))
+        case _:
+            raise RuntimeError(f"Term of atom is not a function or pool: {atom}")
 
 
 def is_mapped_predicate(atom: AST) -> bool:
@@ -140,8 +150,20 @@ def is_mapped_predicate(atom: AST) -> bool:
     if atom.ast_type is not ASTType.SymbolicAtom:
         raise RuntimeError(f"Argument is not a symbolic atom {atom}")
 
-    name: str = atom.symbol.name
-    return name.endswith(PREDICATE_SUFFIX)
+    term = atom.symbol
+
+    match term.ast_type:
+        case ASTType.Function:
+            name: str = term.name
+            return name.endswith(PREDICATE_SUFFIX)
+        case ASTType.Pool:
+            function = term.arguments[0]
+            name = function.name
+            return name.endswith(PREDICATE_SUFFIX)
+        case _:
+            log.error("term %s with unexpected type %s", term, term.ast_type)
+
+    return False
 
 
 def choice_rule_for_elements(elements: Sequence[AST], body: Sequence[AST]) -> AST:
