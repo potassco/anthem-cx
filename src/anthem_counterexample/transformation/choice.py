@@ -251,7 +251,6 @@ class ChoiceElementNormalizer(Transformer):
 
         # construct a new rule for each element of the choice
         for elem in head.elements:
-            log.debug(f"elem is {elem} of type {elem.ast_type}")
             # the new choice head
             choice = Aggregate(
                 location=LOC,

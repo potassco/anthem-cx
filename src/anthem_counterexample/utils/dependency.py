@@ -14,7 +14,7 @@ from .transformation import atom_to_predicate
 log = get_logger(__name__)
 
 
-def _nodes_to_str(nodes: list[Predicate]) -> str:
+def _nodes_to_str(nodes) -> str:  # type: ignore
     ret_str = "["
     for i, n in enumerate(nodes):
         if i > 0:
@@ -24,7 +24,7 @@ def _nodes_to_str(nodes: list[Predicate]) -> str:
     return ret_str
 
 
-def _edges_to_str(edges, data: bool = False) -> str:
+def _edges_to_str(edges, data: bool = False) -> str:  # type: ignore
     ret_str = "["
     for i, e in enumerate(edges):
         if i > 0:
@@ -37,7 +37,7 @@ def _edges_to_str(edges, data: bool = False) -> str:
     return ret_str
 
 
-def _cycles_to_str(cycles) -> str:
+def _cycles_to_str(cycles) -> str:  # type: ignore
     ret_str = "{"
     for i, c in enumerate(cycles):
         if i > 0:

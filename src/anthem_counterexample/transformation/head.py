@@ -125,7 +125,7 @@ class NormalizeHead(Transformer):
 
             return new_rule
 
-        elif head.atom.ast_type == ASTType.Comparison:
+        if head.atom.ast_type == ASTType.Comparison:
             empty_head = Disjunction(location=LOC, elements=[])
             new_body = node.body
             new_body.append(
