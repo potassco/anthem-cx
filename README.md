@@ -45,9 +45,9 @@ To restrict the direction in which to search for counterexamples add the option
 used).
 
 The starting domain size for counterexamples can be controlled using
-`--start n` where `n >= 0`. Note that if a starting domain size of `3` is used
-counterexamples of smaller size will still be found but there is no guarantee
-that the counterexample with smallest domain size is found first.
+`--start n` where `n >= 0`. Note that if a starting domain size of e.g. `3` is
+used counterexamples of smaller size will still be found but there is no
+guarantee that the counterexample with smallest domain size is found first.
 
 The maximal domain size to check can be configured with `--max n` for some
 number `n`. By default no such limit is used. If the programs are propositional
@@ -67,7 +67,7 @@ criterion the guess and check approach is automatically used.
 
 It is possible to force or disable the use of the guess and check method using
 the options `--guess-and-check` and `--no-guess-and-check` respectively. The
-use of guess and check should only be disable if EVA was manually verified for
+use of guess and check should only be disabled if EVA was manually verified for
 the programs. Otherwise incorrect counterexamples may be found.
 
 ## Examples
