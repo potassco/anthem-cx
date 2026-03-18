@@ -30,13 +30,20 @@ input: q/1.
 output: r/1.
 ```
 
-To get a full list of available options run
+### Output
+
+If a counterexample is found the output indicates the input for the
+counterexample as well as the external behavior of one program which is not an
+external behavior of the second program. For example
 
 ```bash
-anthem-counterexample -h
+...
+Found a counterexample for domain size 1 in the forward direction
+  Input for the counterexample:
+    start(1), edge(1,1)
+  External behavior of left:
+    path(1,1)
 ```
-
-Below we highlight some useful options.
 
 ### Useful options
 
@@ -56,6 +63,12 @@ a maximum of `0` should be used.
 Solving of the counterexample programs can be disabled with the option
 `--no-solve`. In this case the counterexample programs are printed to the
 console or saved to files (when using `--save-to-files`).
+
+To get a full list of available options run
+
+```bash
+anthem-counterexample -h
+```
 
 ### EVA condition and the guess and check approach
 
