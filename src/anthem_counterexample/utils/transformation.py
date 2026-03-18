@@ -25,12 +25,10 @@ from .logging import get_logger
 
 log = get_logger(__name__)
 
-# TODO: this has to be a new suffix (i.e. no predicate can end in this suffix)
-PREDICATE_SUFFIX = "'"
-# TODO: this needs to be a new predicate
-UNSAT_PREDICATE = "unsat"
-DIFF_PREDICATE = "diff"
-DOMAIN_PREDICATE = "dom"
+PREDICATE_SUFFIX = "__"
+UNSAT_PREDICATE = "__unsat"
+DIFF_PREDICATE = "__diff"
+DOMAIN_PREDICATE = "__dom"
 
 LOC = Location(Position("<string>", 1, 1), Position("<string>", 1, 1))
 
