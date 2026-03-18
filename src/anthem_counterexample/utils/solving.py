@@ -11,7 +11,6 @@ from guess_and_check import solve_guess_and_check
 
 from . import Predicate
 from .logging import get_logger
-from .transformation import DIFF_PREDICATE, PREDICATE_SUFFIX, UNSAT_PREDICATE
 
 log = get_logger(__name__)
 
@@ -25,17 +24,9 @@ def _on_model(direction: str, size: int, inputs: set[Predicate], outputs: set[Pr
     symbols = model.symbols(atoms=True)
     counterexample_input = []
     stable_model = []
-    model_public_reduct = []
 
     for symbol in symbols:
         pred = _symbol_to_predicate(symbol)
-
-        # filter out diff predicate
-        if pred.name == DIFF_PREDICATE:
-            continue
-
-        if pred.name == UNSAT_PREDICATE:
-            model_public_reduct.append(str(symbol))
 
         if pred in inputs:
             counterexample_input.append(str(symbol))
@@ -43,19 +34,11 @@ def _on_model(direction: str, size: int, inputs: set[Predicate], outputs: set[Pr
         if pred in outputs:
             stable_model.append(str(symbol))
 
-        if pred.name.endswith(PREDICATE_SUFFIX):
-            original_predicate = Predicate(pred.name.removesuffix(PREDICATE_SUFFIX), pred.arity)
-            if original_predicate in outputs:
-                model_public_reduct.append(str(symbol))
-
     print("  Input for the counterexample:")
     print("    " + ", ".join(counterexample_input))
 
-    print("  Stable model:")
+    print(f"  External behavior of {'left' if direction == 'forward' else 'right'}:")
     print("    " + ", ".join(stable_model))
-
-    print("  Model of the public reduct:")
-    print("    " + ", ".join(model_public_reduct))
 
 
 def _solve_with_size(eqt: str, direction: str, size: int, inputs: set[Predicate], outputs: set[Predicate]) -> bool:
