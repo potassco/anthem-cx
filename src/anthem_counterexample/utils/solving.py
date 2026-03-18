@@ -102,6 +102,34 @@ def _solve_gc_with_size(
     return solve_guess_and_check(["-c", f"domain_size={size}"], False, False, [guess_file.name], [check_file.name])
 
 
+def _get_holds(predicates: set[Predicate], undo: bool = False) -> str:
+    """
+    Get a program mapping all predicates into holds/1, or undoing this mapping.
+    """
+    prog = []
+
+    for pred in predicates:
+        variables = ""
+        for i in range(pred.arity):
+            if i > 0:
+                variables += ","
+            variables += f"X{i}"
+        if not undo:
+            if pred.arity == 0:
+                prog.append(f"holds({pred.name}) :- {pred.name}.")
+            else:
+                prog.append(f"holds({pred.name}({variables})) :- {pred.name}({variables}).")
+        else:
+            if pred.arity == 0:
+                prog.append(f"{pred.name} :- holds({pred.name}).")
+            else:
+                prog.append(f"{pred.name}({variables}) :- holds({pred.name}({variables})).")
+
+    prog_str = "\n".join(prog)
+
+    return prog_str
+
+
 def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-arguments
     forward_guess: str | None,
     forward_check: str | None,
@@ -115,6 +143,18 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
     """
     Solve the given guess and check EQT programs for counterexamples by increasing the domain size from start to max.
     """
+    holds = _get_holds(inputs | outputs)
+    undo_holds = _get_holds(inputs | outputs, undo=True)
+
+    if forward_guess:
+        forward_guess += holds
+    if forward_check:
+        forward_check += undo_holds
+    if backward_guess:
+        backward_guess += holds
+    if backward_check:
+        backward_check += undo_holds
+
     domain_size = domain_start
     while True:
         # stop if the domain size is larger than the limit
