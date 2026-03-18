@@ -98,7 +98,8 @@ def _solve_gc_with_size(
     ):
         guess_file.write(guess)
         check_file.write(check)
-        return solve_guess_and_check(["-c", f"domain_size={size}"], False, False, [guess_file.name], [check_file.name])
+
+    return solve_guess_and_check(["-c", f"domain_size={size}"], False, False, [guess_file.name], [check_file.name])
 
 
 def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-arguments
