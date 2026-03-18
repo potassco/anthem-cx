@@ -151,6 +151,32 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
     def _is_private(self, pred: Predicate) -> bool:
         return pred not in self._public_predicates
 
+    def visit_Rule(self, node: AST) -> AST:  # pylint: disable=invalid-name
+        """
+        Process each rule: add head predicate as node and process body.
+
+        If head is a choice add a self edge.
+        """
+        self.current_head = None
+
+        if node.head.ast_type == ASTType.Literal:
+            if node.head.atom.ast_type == ASTType.SymbolicAtom:
+                self._add_node_and_set_current(node.head.atom)
+                self.visit_sequence(node.body)
+
+        elif node.head.ast_type == ASTType.Aggregate:
+            if len(node.head.elements) > 1:
+                raise ValueError(f"Choice rule should not have more than 1 element: {node}")
+
+            pred = self._add_node_and_set_current(node.head.elements[0].atom)
+
+            if not self._is_private(pred):
+                self.graph.add_edge(pred, pred, weight=-1)
+
+            self.visit_sequence(node.body)
+
+        return node
+
     def visit_Literal(self, node: AST) -> AST:  # pylint: disable=invalid-name
         """
         Process body literals: add a edge for body predicats.
