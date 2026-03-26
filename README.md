@@ -12,7 +12,7 @@ pip install .
 
 ## Usage
 
-To check for counterexample for the equivalence of two programs `left.lp` and
+To check for counterexamples for the equivalence of two programs `left.lp` and
 `right.lp` run
 
 ```bash
@@ -51,6 +51,11 @@ Found a counterexample for domain size 1 in the forward direction
 ```
 
 ### Useful options
+
+Optionally an assumption program can be provided to restrict the generated
+inputs for the external equivalence. To do so use the option `--assumptions`.
+This program should only contain constraints or rules with input predicates in
+the head.
 
 To restrict the direction in which to search for counterexamples add the option
 `--direction` with value `forward` or `backward` (by default `universal` is

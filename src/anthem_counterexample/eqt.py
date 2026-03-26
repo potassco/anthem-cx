@@ -66,7 +66,7 @@ def _public_reduct(prog: list[AST], outputs: set[Predicate]) -> list[AST]:
     return prog
 
 
-def get_generate_program(inputs: set[Predicate]) -> str:
+def get_generate_program(inputs: set[Predicate], assumptions: str | None) -> str:
     """
     Get the program to generate inputs.
     """
@@ -93,6 +93,9 @@ def get_generate_program(inputs: set[Predicate]) -> str:
 
     # turn the list into a string
     prog_str = "\n".join(prog)
+
+    if assumptions:
+        prog_str += assumptions
 
     log.debug("Generate program")
     log.debug(prog_str + "\n")  # pylint: disable=logging-not-lazy

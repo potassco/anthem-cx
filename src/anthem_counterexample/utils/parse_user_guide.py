@@ -53,7 +53,13 @@ def parse_user_guide(filename: str) -> tuple[set[Predicate], set[Predicate]]:
             continue
 
         if ASSUMPTION_RE.match(entry):
-            log.warning("Assumptions are currently not supported: %s.", entry)
+            log.warning(
+                (
+                    "Assumptions in the user guide are not supported: %s."
+                    " Consider using the option --assumptions to pass an assumption program."
+                ),
+                entry,
+            )
             continue
 
         if PLACEHOLDER_RE.match(entry):

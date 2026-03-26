@@ -17,3 +17,18 @@ anthem-counterexample left.lp right.lp transitive.ug
 ```
 
 which is a graph with two nodes including a self-loop.
+
+## Including assumptions
+
+The program `assumptions.lp` contains some additional assumptions on the input.
+In particular it ensures that any `edge/2` atom only contains nodes as its
+arguments and it prevents self-edges (i.e. `edge(1,1)`).
+
+To check for counterexamples under these assumptions run
+
+```bash
+anthem-counterexample left.lp right.lp transitive.ug --assumptions assumptions.lp
+```
+
+Note that the generated counterexample is larger than the one generated without
+assumptions.
