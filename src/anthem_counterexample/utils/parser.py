@@ -77,6 +77,8 @@ def get_parser() -> ArgumentParser:
         ),
     )
 
+    parser.add_argument("--assumptions", "-a", type=str, help="a file containing an assumption program")
+
     parser.add_argument("left", type=str, help="the left program")
 
     parser.add_argument("right", type=str, help="the right program")

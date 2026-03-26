@@ -9,7 +9,7 @@ from .eqt import get_difference_program, get_generate_program, get_public_reduct
 from .utils import Direction, Options, Programs
 from .utils.dependency import has_enough_visible_atoms, has_recursive_aggregates
 from .utils.logging import configure_logging, get_logger
-from .utils.parse_program import parse_program
+from .utils.parse_program import parse_program, parse_program_as_str
 from .utils.parse_user_guide import parse_user_guide
 from .utils.parser import get_parser
 
@@ -59,11 +59,13 @@ def main() -> None:
         else:
             log.info("EVA condition was verified.")
 
+    assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
+
     # collect all program parts
     progs = Programs(
         left=parse_program(args.left),
         right=parse_program(args.right),
-        generate=get_generate_program(opts.inputs),
+        generate=get_generate_program(opts.inputs, assumptions),
         difference=get_difference_program(opts.outputs, opts.use_gc),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs) if opts.direction.includes_backward() else None
