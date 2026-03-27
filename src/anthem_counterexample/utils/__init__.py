@@ -155,6 +155,7 @@ class Auxiliaries:
         preds.add(Predicate(self.unsat, 0))
         preds.add(Predicate(self.diff, 0))
         preds.add(Predicate(self.domain, 1))
+        return preds
 
 
 @dataclass

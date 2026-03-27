@@ -15,10 +15,10 @@ def check_and_rename_auxiliaries(
     left: list[AST], right: list[AST], publics: set[Predicate], aux: Auxiliaries
 ) -> Auxiliaries:
     privates = _collect_privates(left + right, publics)
-    conflict_predicates = _conflicting_predicates(publics | privates, {aux.predicates})
+    conflict_predicates = _conflicting_predicates(publics | privates, aux.predicates())
     if conflict_predicates:
         log.error("Renaming of conflicting auxiliary predicates not yet supported")
-        raise RuntimeError(f"Found conflicting auxiliary predicates {conflict_predicates}")
+        raise RuntimeError(f"Found conflicting auxiliary predicates {[str(p) for p in conflict_predicates]}")
 
     placeholders = _collect_placeholders(left + right)
     if aux.size in placeholders:
@@ -43,7 +43,7 @@ def check_and_rename_privates(
     conflicts = _conflicting_predicates(privates_left, privates_right)
     if conflicts:
         log.error("Renaming of conflicting private predicates not yet supported")
-        raise RuntimeError(f"Found conflicting private predicates: {conflicts}")
+        raise RuntimeError(f"Found conflicting private predicates: {[str(p) for p in conflicts]}")
 
     return left, right
 
