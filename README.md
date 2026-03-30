@@ -54,8 +54,7 @@ Found a counterexample for domain size 1 in the forward direction
 
 Optionally an assumption program can be provided to restrict the generated
 inputs for the external equivalence. To do so use the option `--assumptions`.
-This program should only contain constraints or rules with input predicates in
-the head.
+This program should only make use of inputs predicates.
 
 To restrict the direction in which to search for counterexamples add the option
 `--direction` with value `forward` or `backward` (by default `universal` is
