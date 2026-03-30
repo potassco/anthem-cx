@@ -27,9 +27,8 @@ def check_and_rename_auxiliaries(
 
     placeholders = _collect_placeholders(left + right)
     if aux.size in placeholders:
-        log.error("Renaming of size placegolder not yet supported")
-        raise RuntimeError("Size placeholder conlficts with a placeholder in the programs")
         new_placeholder = _get_fresh_placeholder(aux.size, placeholders)
+        log.debug("new size placegolder is %s", new_placeholder)
         aux = aux.replace(size=new_placeholder)
 
     if _contains_suffix(publics | privates, aux.suffix):
@@ -50,6 +49,9 @@ def check_and_rename_privates(
     privates_right = _collect_privates(right, publics)
     conflicts = _conflicting_predicates(privates_left, privates_right)
     if conflicts:
+        for pred in conflicts:
+            log.warning("found conflicting private predicate %s", pred)
+
         replacements, _ = _get_replacements(conflicts, publics | privates_left | privates_right)
 
         right = _replace_predicates(right, replacements)
@@ -70,7 +72,13 @@ def _get_replacements(
 
 
 def _get_fresh_placeholder(base: str, placeholders: set[str]) -> str:
-    pass
+    i = 0
+    new = f"{base}__{i}"
+    while new in placeholders:
+        i += 1
+        new = f"{base}__{i}"
+
+    return new
 
 
 def _get_fresh_suffix(base: str, predicates: set[Predicate]) -> str:
@@ -107,8 +115,11 @@ def _replace_predicates(program: list[AST], replacements: dict[Predicate, Predic
 
 
 def _collect_placeholders(program: list[AST]) -> set[str]:
-    log.error("Collect placeholder not yet implemented")
-    return set()
+    collector = PlaceholderCollector()
+    for n in program:
+        collector(n)
+
+    return collector.placeholders
 
 
 def _collect_privates(program: list[AST], publics: set[Predicate]) -> set[Predicate]:
@@ -128,6 +139,23 @@ def _contains_suffix(predicates: set[Predicate], suffix: str) -> bool:
         if p.name.endswith(suffix):
             return True
     return False
+
+
+class PlaceholderCollector(Transformer):
+    """
+    Class to collect placeholders of a program.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.placeholders: set[str] = set()
+
+    def visit_Definition(self, node: AST) -> AST:  # pylint: disable=invalid-name
+        """
+        Add the placeholder to the set of all placeholders.
+        """
+        self.placeholders.add(node.name)
+        return node
 
 
 class PrivatePredicateCollector(Transformer):

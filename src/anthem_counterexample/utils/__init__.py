@@ -14,7 +14,7 @@ PREDICATE_SUFFIX = "__"
 UNSAT_PREDICATE = "__unsat"
 DIFF_PREDICATE = "__diff"
 DOMAIN_PREDICATE = "__dom"
-SIZE_PLACEHOLDER = "domain_size"
+SIZE_PLACEHOLDER = "__domain_size"
 
 
 def build_eqt(generate: str, left: list[AST], public_reduct: list[AST], difference: str, forward: bool = True) -> str:
