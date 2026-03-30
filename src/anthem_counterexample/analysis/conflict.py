@@ -50,7 +50,7 @@ def check_and_rename_privates(
     conflicts = _conflicting_predicates(privates_left, privates_right)
     if conflicts:
         for pred in conflicts:
-            log.warning("found conflicting private predicate %s", pred)
+            log.warning("found conflicting private predicate %s, applying renaming", pred)
 
         replacements, _ = _get_replacements(conflicts, publics | privates_left | privates_right)
 
