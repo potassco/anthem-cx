@@ -14,7 +14,7 @@ def assemble_and_execute(programs: Programs, options: Options) -> None:
     """
     Assemble the counterexample program from its components and execute/output it.
     """
-    if options.use_gc:
+    if options.eva.use_gc:
         _assemble_and_execute_gc(programs, options)
     else:
         _assemble_and_execute(programs, options)

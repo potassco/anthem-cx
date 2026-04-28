@@ -2,7 +2,7 @@
 The command line parser for the project.
 """
 
-from argparse import ArgumentParser, BooleanOptionalAction
+from argparse import ArgumentParser
 from importlib import metadata
 from textwrap import dedent
 from typing import Any, Optional, cast
@@ -69,12 +69,11 @@ def get_parser() -> ArgumentParser:
 
     parser.add_argument(
         "--guess-and-check",
-        action=BooleanOptionalAction,
-        default=None,
-        help=(
-            "enable/disable use of guess and check transformation, "
-            "otherwise the use of guess and check is determined automatically"
-        ),
+        "-gc",
+        type=str,
+        choices=["force", "disable", "auto", "syntax", "runtime"],
+        default="auto",
+        help="control whether the guess and check transformation is used [%(default)s]",
     )
 
     parser.add_argument("--assumptions", "-a", type=str, help="a file containing an assumption program")
