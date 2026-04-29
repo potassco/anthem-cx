@@ -11,7 +11,7 @@ from clingo.ast import AST
 from .output import program_to_str
 
 PREDICATE_SUFFIX = "__"
-UNSAT_PREDICATE = "__unsat"
+UNSAT_PREDICATE = "__bot"
 DIFF_PREDICATE = "__diff"
 DOMAIN_PREDICATE = "__dom"
 SIZE_PLACEHOLDER = "__domain_size"

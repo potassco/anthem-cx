@@ -64,7 +64,7 @@ def get_generate_program(inputs: set[Predicate], assumptions: str | None, aux: A
     Get the program to generate inputs.
     """
     # start constructing the program as a list of rules (represented as strings)
-    prog = [f"#const {aux.size}=0.", f"{aux.domain}(1..{aux.size})."]
+    prog = [f"#const {aux.size}=0.", f"{aux.domain}(0..{aux.size}-1)."]
 
     for pred in inputs:
         # construct list of variables (i.e. X0, X1, ...) and body (i.e. dom(X0), dom(X1), ...)

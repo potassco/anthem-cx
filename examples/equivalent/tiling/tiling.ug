@@ -1,0 +1,5 @@
+input: size/1.
+output: h/2.
+output: v/2.
+output: place/3.
+assumption: exists X (size(X) and forall Y (size(Y) -> X = Y)).

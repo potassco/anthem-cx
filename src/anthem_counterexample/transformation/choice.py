@@ -59,7 +59,11 @@ class ChoicePoolNormalizer(Transformer):
                 new_rules.append(
                     Rule(
                         location=LOC,
-                        head=SymbolicAtom(symbol=arg),
+                        head=Literal(
+                            location=LOC,
+                            sign=Sign.NoSign,
+                            atom=SymbolicAtom(symbol=arg),
+                        ),
                         body=node.body,
                     )
                 )

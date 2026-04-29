@@ -1,0 +1,3 @@
+input: max/1.
+output: prime/1.
+assumption: exists X (max(X) and forall Y (max(Y) -> X = Y)).

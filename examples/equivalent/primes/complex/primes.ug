@@ -1,0 +1,5 @@
+input: min/1.
+input: max/1.
+output: prime/1.
+assumption: exists X (min(X) and forall Y (min(Y) -> X = Y)).
+assumption: exists X (max(X) and forall Y (max(Y) -> X = Y)).
