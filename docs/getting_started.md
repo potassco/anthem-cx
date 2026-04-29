@@ -10,14 +10,14 @@ hide:
 === "Pip"
 
     ```console
-    pip install anthem-counterexample
+    pip install anthem-cx
     ```
 
 === "Development mode"
 
     ```console
-    git clone https://github.com/potassco/anthem-counterexample.git/
-    cd anthem-counterexample
+    git clone https://github.com/potassco/anthem-cx.git/
+    cd anthem-cx
     pip install -e .[all]
     ```
 
@@ -31,5 +31,5 @@ hide:
 Details about the command line usage can be found with:
 
 ```console
-anthem_counterexample -h
+anthem-cx -h
 ```

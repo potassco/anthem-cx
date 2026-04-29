@@ -9,7 +9,7 @@ The two programs `left.lp` and `right.lp` are not externally equivalent. To
 generate a counterexample run the command
 
 ```bash
-anthem-counterexample left.lp right.lp frame.ug
+anthem-cx left.lp right.lp frame.ug
 ```
 
 Only under the addition of two assumptions the two programs become equivalent.

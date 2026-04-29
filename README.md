@@ -1,4 +1,4 @@
-# anthem-counterexample
+# anthem-cx
 
 A tool to automatically find counterexamples to external equivalence problems.
 
@@ -16,7 +16,7 @@ To check for counterexamples for the equivalence of two programs `left.lp` and
 `right.lp` run
 
 ```bash
-anthem-counterexample left.lp right.lp guide.ug
+anthem-cx left.lp right.lp guide.ug
 ```
 
 where `guide.ug` is the user guide declaring the input and output predicates.
@@ -76,7 +76,7 @@ console or saved to files (when using `--save-to-files`).
 To get a full list of available options run
 
 ```bash
-anthem-counterexample -h
+anthem-cx -h
 ```
 
 Any additional arguments are passed along to clingo while solving.

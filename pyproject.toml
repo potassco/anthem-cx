@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anthem-counterexample"
+name = "anthem-cx"
 authors = [{ name = "Jan Heuer", email = "jan.heuer@uni-potsdam.de" }]
 description = "A tool to automatically find counterexamples to external equivalence problems."
 requires-python = ">=3.12"
@@ -17,7 +17,7 @@ dynamic = ["version"]
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/potassco/anthem-counterexample.git"
+Homepage = "https://github.com/potassco/anthem-cx.git"
 
 [project.optional-dependencies]
 format = ["black", "isort", "autoflake"]
@@ -25,10 +25,10 @@ lint_pylint = ["pylint"]
 typecheck = ["types-setuptools", "mypy", "types-networkx"]
 test = ["coverage[toml]"]
 doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]", "mkdoclingo"]
-dev = ["anthem_counterexample[test,typecheck,lint_pylint]"]
+dev = ["anthem_cx[test,typecheck,lint_pylint]"]
 
 [project.scripts]
-anthem-counterexample = "anthem_counterexample.__main__:main"
+anthem-cx = "anthem_cx.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -71,8 +71,8 @@ variable-rgx = "^[a-z][a-z0-9]*((_[a-z0-9]+)*_?)?$"
 good-names = ["_"]
 
 [tool.coverage.run]
-source = ["anthem_counterexample", "tests"]
-omit = ["*/anthem_counterexample/__main__.py"]
+source = ["anthem_cx", "tests"]
+omit = ["*/anthem_cx/__main__.py"]
 
 [tool.coverage.report]
 exclude_lines = ["assert", "nocoverage"]

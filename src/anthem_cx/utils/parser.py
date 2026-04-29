@@ -11,7 +11,7 @@ from . import logging
 
 __all__ = ["get_parser"]
 
-VERSION = metadata.version("anthem-counterexample")
+VERSION = metadata.version("anthem-cx")
 
 
 def get_parser() -> ArgumentParser:
@@ -19,7 +19,7 @@ def get_parser() -> ArgumentParser:
     Return the parser for command line options.
     """
     parser = ArgumentParser(
-        prog="anthem-counterexample",
+        prog="anthem-cx",
         description=dedent(
             """\
             Find counterexamples to external equivalence problems

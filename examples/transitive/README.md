@@ -13,7 +13,7 @@ Of course this is not an equivalent transformation as witnessed by the
 counterexample produced with
 
 ```bash
-anthem-counterexample left.lp right.lp transitive.ug
+anthem-cx left.lp right.lp transitive.ug
 ```
 
 which is a graph with two nodes including a self-loop.
@@ -27,7 +27,7 @@ arguments and it prevents self-edges (i.e. `edge(1,1)`).
 To check for counterexamples under these assumptions run
 
 ```bash
-anthem-counterexample left.lp right.lp transitive.ug --assumptions assumptions.lp
+anthem-cx left.lp right.lp transitive.ug --assumptions assumptions.lp
 ```
 
 Note that the generated counterexample is larger than the one generated without

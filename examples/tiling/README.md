@@ -13,7 +13,7 @@ are assumptions are given as constraints in `assumptions.lp`.
 The two programs are not externally equivalent. Running the command
 
 ```bash
-anthem-counterexample left.lp right.lp tiling.ug --assumptions assumptions.lp
+anthem-cx left.lp right.lp tiling.ug --assumptions assumptions.lp
 ```
 
 finds a counterexample of size 6.

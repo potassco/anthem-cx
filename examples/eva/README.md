@@ -17,7 +17,7 @@ The example consists of programs `1-left.lp` and `1-right.lp`. Here the EVA
 condition can be verified using the syntactic criterion. Running the command
 
 ```bash
-anthem-counterexample 1-left.lp 1-right.lp eva.ug --max 0
+anthem-cx 1-left.lp 1-right.lp eva.ug --max 0
 ```
 
 does not produce any counterexamples.
@@ -29,7 +29,7 @@ condition can not be verified using the syntactic criterion. As a result the
 guess and check approach is automatically used. Running the command
 
 ```bash
-anthem-counterexample 2-left.lp 2-right.lp eva.ug --max 0
+anthem-cx 2-left.lp 2-right.lp eva.ug --max 0
 ```
 
 prints a warning that the EVA condition could not be verified causing the use
@@ -41,7 +41,7 @@ check approach by adding the option `--no-guess-and-check`. As expected running
 the command
 
 ```bash
-anthem-counterexample 2-left.lp 2-right.lp eva.ug --max 0 --no-guess-and-check
+anthem-cx 2-left.lp 2-right.lp eva.ug --max 0 --no-guess-and-check
 ```
 
 also does not produce a counterexample.
@@ -53,7 +53,7 @@ condition does not hold. Thus, the check of the syntactic criterion fails
 causing the use of the guess and check transformation. Running the command
 
 ```bash
-anthem-counterexample 3-left.lp 3-right.lp eva.ug --max 0
+anthem-cx 3-left.lp 3-right.lp eva.ug --max 0
 ```
 
 does not result in a counterexample.
@@ -62,7 +62,7 @@ If we disable the use of the guess and check approach by running the following
 command
 
 ```bash
-anthem-counterexample 3-left.lp 3-right.lp eva.ug --max 0 --no-guess-and-check
+anthem-cx 3-left.lp 3-right.lp eva.ug --max 0 --no-guess-and-check
 ```
 
 an incorrect counterexample is produced.

@@ -16,7 +16,7 @@ values from `q` to `p` if there are two distinct elements for which `q` holds.
 Running the command
 
 ```bash
-anthem-counterexample left.lp right.lp two-elements.ug
+anthem-cx left.lp right.lp two-elements.ug
 ```
 
 produces a counterexample of size 1. (For size 0 the programs are trivially
@@ -30,7 +30,7 @@ a constraint forbidding that `p` holds for two different values.
 Running the command
 
 ```bash
-anthem-counterexample left.lp right-inverted.lp two-elements.ug
+anthem-cx left.lp right-inverted.lp two-elements.ug
 ```
 
 produces a counterexample of size 2.

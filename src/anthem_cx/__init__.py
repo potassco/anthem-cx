@@ -1,5 +1,5 @@
 """
-The anthem_counterexample project.
+The anthem_cx project.
 """
 
 from .utils import Options, Programs, build_eqt, build_eqt_gc

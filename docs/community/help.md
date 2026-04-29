@@ -39,5 +39,5 @@ icon: material/help-circle
 [mailing_list]: https://sourceforge.net/p/potassco/mailman/potassco-users/
 [subscribe]: https://sourceforge.net/projects/potassco/lists/potassco-users/
 [support_page]: https://potassco.org/support/
-[new_issue]: https://github.com/potassco/anthem-counterexample/issues/new
-[issues]: https://github.com/potassco/anthem-counterexample/issues
+[new_issue]: https://github.com/potassco/anthem-cx/issues/new
+[issues]: https://github.com/potassco/anthem-cx/issues

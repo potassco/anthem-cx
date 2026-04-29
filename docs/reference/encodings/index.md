@@ -5,7 +5,7 @@ icon: material/file-code
 # Encodings
 
 
-<!-- ::: src/anthem_counterexample/encodings/test.lp
+<!-- ::: src/anthem_cx/encodings/test.lp
     handler: asp
     options:
         glossary: true

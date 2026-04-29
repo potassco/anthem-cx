@@ -16,7 +16,7 @@ is reached.
 By running
 
 ```bash
-anthem-counterexample forward.lp backward.lp path.ug
+anthem-cx forward.lp backward.lp path.ug
 ```
 
 we find a counterexample of size 1.

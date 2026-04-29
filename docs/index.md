@@ -4,7 +4,7 @@ hide:
   - toc
 ---
 
-# anthem-counterexample
+# anthem-cx
 
 !!! info
-    *anthem-counterexample* is part of the [Potassco](https://potassco.org) suite.
+    *anthem-cx* is part of the [Potassco](https://potassco.org) suite.

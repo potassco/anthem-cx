@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering a contribution to anthem-counterexample. ❤️
+Thanks for considering a contribution to anthem-cx. ❤️
 
 ## How to get help or discuss possible contributions
 
@@ -12,8 +12,8 @@ To avoid duplicating issues, please search our [issue tracker][issues] and our
 
 ## How to make a contribution
 
-- Fork the [anthem-counterexample][project_url] repository and create a branch
-  for your changes.
+- Fork the [anthem-cx][project_url] repository and create a branch for your
+  changes.
 - Submit a pull request to the master branch with your changes.
 - Respond to feedback on your pull request.
 - If everything is fine your pull request is merged. 🥳
@@ -24,8 +24,8 @@ When contributing to this project, you agree that you have authored 100% of the
 content, that you have the necessary rights to the content and that the content
 you contribute may be provided under the project license.
 
-[issues]: https://github.com/potassco/anthem-counterexample.gitissues/
+[issues]: https://github.com/potassco/anthem-cx.gitissues/
 [mailing_list]: https://sourceforge.net/p/potassco/mailman/potassco-users/
-[new_issue]: https://github.com/potassco/anthem-counterexample.gitissues/new/
-[project_url]: https://github.com/potassco/anthem-counterexample.git
+[new_issue]: https://github.com/potassco/anthem-cx.gitissues/new/
+[project_url]: https://github.com/potassco/anthem-cx.git
 [subscribe]: https://sourceforge.net/projects/potassco/lists/potassco-users/

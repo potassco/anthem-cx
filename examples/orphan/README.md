@@ -12,7 +12,7 @@ there exists a counterexample of domain size 1.
 To generate this counterexample run
 
 ```bash
-anthem-counterexample left.lp right.lp orphan.ug
+anthem-cx left.lp right.lp orphan.ug
 ```
 
 Only under an additional assumption the two programs are equivalent.

@@ -26,4 +26,4 @@ Your participation keeps our project thriving. Thank you for being part of our
 community!
 
 !!! info
-    *anthem-counterexample* is part of the [Potassco](https://potassco.org) suite.
+    *anthem-cx* is part of the [Potassco](https://potassco.org) suite.

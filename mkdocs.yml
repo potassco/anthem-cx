@@ -1,8 +1,8 @@
-site_name: anthem-counterexample
-site_url: https://potassco.org/anthem-counterexample
+site_name: anthem-cx
+site_url: https://potassco.org/anthem-cx
 site_description:
-repo_name: potassco/anthem-counterexample
-repo_url: https://github.com/potassco/anthem-counterexample
+repo_name: potassco/anthem-cx
+repo_url: https://github.com/potassco/anthem-cx
 copyright: Copyright &copy; 2024 Potassco
 
 extra_css:
@@ -61,7 +61,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/potassco/anthem-counterexample
+      link: https://github.com/potassco/anthem-cx
     - icon: potassco-logo
       link: https://potassco.org
   generator: false

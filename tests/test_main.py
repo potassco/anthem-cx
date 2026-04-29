@@ -5,9 +5,9 @@ Test cases for main application functionality.
 from io import StringIO
 from unittest import TestCase
 
-from anthem_counterexample.utils import logging
-from anthem_counterexample.utils.logging import configure_logging, get_logger
-from anthem_counterexample.utils.parser import get_parser
+from anthem_cx.utils import logging
+from anthem_cx.utils.logging import configure_logging, get_logger
+from anthem_cx.utils.parser import get_parser
 
 
 class TestMain(TestCase):
