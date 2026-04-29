@@ -108,6 +108,53 @@ class Direction(Enum):
                 raise ValueError(f"Invalid direction: {value}")
 
 
+@dataclass
+class EVAData:
+    """
+    Dataclass storing info about EVA and EVA checks.
+
+    use_gc determines whether GC should be used (bool) or if check need to be run (None).
+    The use of which checks is determined by use_syntax and use_runtime.
+    """
+
+    use_gc: bool | None
+    use_syntax: bool
+    use_runtime: bool
+
+    @classmethod
+    def from_string(cls, value: str) -> "EVAData":
+        """Create an EVAData object from a string."""
+        match value:
+            case "disable":
+                return cls(False, False, False)
+            case "force":
+                return cls(True, False, False)
+            case "auto":
+                return cls(None, True, True)
+            case "syntax":
+                return cls(None, True, False)
+            case "runtime":
+                return cls(None, False, True)
+            case _:
+                raise ValueError(f"Invalid EVA data value: {value}")
+
+    def success(self) -> "EVAData":
+        """Update data after successful check."""
+        return replace(self, use_gc=False)
+
+    def syntax_failure(self) -> "EVAData":
+        """Update data after failed syntactic check."""
+        # failure of syntax check only relevant if we do not use the runtime check
+        if not self.use_runtime:
+            return replace(self, use_gc=True)
+
+        return self
+
+    def runtime_failure(self) -> "EVAData":
+        """Update data after failed runtime check."""
+        return replace(self, use_gc=True)
+
+
 @dataclass(frozen=True)
 class Predicate:
     """
@@ -190,7 +237,7 @@ class Options:  # pylint: disable=too-many-instance-attributes
     solve: bool
     start: int
     max_size: int | None
-    use_gc: bool
+    eva: EVAData
     inputs: set[Predicate]
     outputs: set[Predicate]
     clingo_args: list[str]

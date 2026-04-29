@@ -85,14 +85,14 @@ Any additional arguments are passed along to clingo while solving.
 
 The so-called enough visible atoms (EVA) condition limits the use of private
 predicates. In the case that the EVA condition is not fulfilled, guess and
-check answer set programming has to be used. To check the EVA condition we use
-a sufficient syntactic criterion. If EVA can not be verified using this
-criterion the guess and check approach is automatically used.
+check answer set programming has to be used.
 
-It is possible to force or disable the use of the guess and check method using
-the options `--guess-and-check` and `--no-guess-and-check` respectively. The
-use of guess and check should only be disabled if EVA was manually verified for
-the programs. Otherwise incorrect counterexamples may be found.
+The use of the guess and check transformation can be controlled via the option
+`--guess-and-check`. By default a combination of two checks (`syntax` and
+`runtime`) is used. It is possible to only use one of these checks or
+alternatively to force or disable the use of the guess and check method. The
+disable option should only be used if EVA was manually verified. Otherwise
+incorrect counterexamples may be found.
 
 ## Examples
 
