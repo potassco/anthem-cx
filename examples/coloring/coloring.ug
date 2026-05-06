@@ -1,0 +1,4 @@
+input: node/1.
+input: edge/2.
+input: color/1.
+output: colored/2.

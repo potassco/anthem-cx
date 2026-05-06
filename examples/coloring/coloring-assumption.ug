@@ -1,0 +1,5 @@
+input: node/1.
+input: edge/2.
+input: color/1.
+output: colored/2.
+assumption: forall X (exists Z Z1 (Z = X and Z1 = X and edge(Z, Z1)) -> #false).
