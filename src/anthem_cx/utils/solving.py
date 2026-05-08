@@ -20,7 +20,7 @@ def _symbol_to_predicate(symbol: Symbol) -> Predicate:
 
 
 def _on_model(direction: str, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model) -> None:
-    print(f"Found a counterexample for domain size {size} in the {direction} direction")
+    print(f"Found a counterexample of size {size} in the {direction} direction")
     symbols = model.symbols(atoms=True)
     counterexample_input = []
     stable_model = []

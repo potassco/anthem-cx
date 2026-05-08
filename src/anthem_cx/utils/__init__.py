@@ -125,15 +125,15 @@ class EVAData:
     def from_string(cls, value: str) -> "EVAData":
         """Create an EVAData object from a string."""
         match value:
-            case "disable":
+            case "skip":
                 return cls(False, False, False)
-            case "force":
+            case "fail":
                 return cls(True, False, False)
             case "auto":
                 return cls(None, True, True)
-            case "syntax":
+            case "stratification":
                 return cls(None, True, False)
-            case "runtime":
+            case "local":
                 return cls(None, False, True)
             case _:
                 raise ValueError(f"Invalid EVA data value: {value}")

@@ -1,0 +1,3 @@
+input: node/1.
+input: edge/2.
+output: in/1.

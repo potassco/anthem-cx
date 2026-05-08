@@ -68,12 +68,12 @@ def get_parser() -> ArgumentParser:
     parser.add_argument("--max", "-m", type=int, help="optional limit for the domain size")
 
     parser.add_argument(
-        "--guess-and-check",
-        "-gc",
+        "--uniqueness-check",
+        "-u",
         type=str,
-        choices=["force", "disable", "auto", "syntax", "runtime"],
+        choices=["skip", "fail", "auto", "stratification", "local"],
         default="auto",
-        help="control whether the guess and check transformation is used [%(default)s]",
+        help="control which uniqueness check is used [%(default)s]",
     )
 
     parser.add_argument("--assumptions", "-a", type=str, help="a file containing an assumption program")

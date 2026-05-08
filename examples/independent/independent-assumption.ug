@@ -1,0 +1,4 @@
+input: node/1.
+input: edge/2.
+output: in/1.
+assumption: forall X Y (exists Z Z1 (Z = X and Z1 = Y and edge(Z, Z1)) and exists Z Z1 (Z = Y and Z1 = X and not edge(Z, Z1)) -> #false).

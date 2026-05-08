@@ -59,13 +59,13 @@ def main() -> None:
 
     if opts.eva.use_gc is None and opts.eva.use_syntax:
         if not has_enough_visible_atoms(left_normalized, inputs | outputs):
-            log.info("Syntactic EVA check for left program failed (skip checking right)")
+            log.info("Stratification check for left program failed (skip checking right)")
             opts.eva.syntax_failure()
         elif not has_enough_visible_atoms(right_normalized, inputs | outputs):
-            log.info("Syntactic EVA check for right program failed")
+            log.info("Stratification check for right program failed")
             opts.eva.syntax_failure()
         else:
-            log.info("Syntactic EVA check for both program succeeded")
+            log.info("Stratification check for both program succeeded")
             opts.eva.success()
 
     assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
