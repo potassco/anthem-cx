@@ -37,7 +37,7 @@ def main() -> None:
     ground_terms = collect_ground_terms(left + right)
 
     auxiliaries = Auxiliaries.default()
-    auxiliaries = check_and_rename_auxiliaries(left, right, inputs | outputs, auxiliaries)
+    auxiliaries = check_and_rename_auxiliaries(left, right, inputs | outputs, auxiliaries, ground_terms)
 
     left_normalized = normalize_program(deepcopy(left))
     right_normalized = normalize_program(deepcopy(right))

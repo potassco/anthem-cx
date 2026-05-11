@@ -24,7 +24,7 @@ def collect_ground_terms(program: list[AST]) -> set[str]:
 
 
 def check_and_rename_auxiliaries(
-    left: list[AST], right: list[AST], publics: set[Predicate], aux: Auxiliaries
+    left: list[AST], right: list[AST], publics: set[Predicate], aux: Auxiliaries, ground_terms: set[str]
 ) -> Auxiliaries:
     """
     Check the auxiliaries for conflicts with the two programs.
@@ -37,8 +37,8 @@ def check_and_rename_auxiliaries(
         aux = aux.replace_values(replacements)
 
     placeholders = _collect_placeholders(left + right)
-    if aux.size in placeholders:
-        new_placeholder = _get_fresh_placeholder(aux.size, placeholders)
+    if aux.size in placeholders or aux.size in ground_terms:
+        new_placeholder = _get_fresh_placeholder(aux.size, placeholders | ground_terms)
         log.debug("new size placegolder is %s", new_placeholder)
         aux = aux.replace(size=new_placeholder)
 
