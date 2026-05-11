@@ -6,7 +6,7 @@ import sys
 from copy import deepcopy
 
 from . import assemble_and_execute
-from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates
+from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
 from .analysis.dependency import has_enough_visible_atoms, has_recursive_aggregates
 from .eqt import get_difference_program, get_generate_program, get_public_reduct, normalize_program
 from .utils import Auxiliaries, Direction, EVAData, Options, Programs
@@ -34,8 +34,10 @@ def main() -> None:
 
     left, right = check_and_rename_privates(left, right, inputs | outputs)
 
+    ground_terms = collect_ground_terms(left + right)
+
     auxiliaries = Auxiliaries.default()
-    auxiliaries = check_and_rename_auxiliaries(left, right, inputs | outputs, auxiliaries)
+    auxiliaries = check_and_rename_auxiliaries(left, right, inputs | outputs, auxiliaries, ground_terms)
 
     left_normalized = normalize_program(deepcopy(left))
     right_normalized = normalize_program(deepcopy(right))
@@ -50,7 +52,7 @@ def main() -> None:
         solve=not args.no_solve,
         start=args.start,
         max_size=args.max,
-        eva=EVAData.from_string(args.guess_and_check),
+        eva=EVAData.from_string(args.uniqueness_check),
         inputs=inputs,
         outputs=outputs,
         clingo_args=clingo_args,
@@ -74,7 +76,7 @@ def main() -> None:
     progs = Programs(
         left=left,
         right=right,
-        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries),
+        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
         difference=get_difference_program(opts.outputs, bool(opts.eva.use_gc), opts.auxiliaries),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs, opts.auxiliaries)

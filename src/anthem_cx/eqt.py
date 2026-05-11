@@ -59,12 +59,17 @@ def _public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Auxili
     return prog
 
 
-def get_generate_program(inputs: set[Predicate], assumptions: str | None, aux: Auxiliaries) -> str:
+def get_generate_program(
+    inputs: set[Predicate], assumptions: str | None, aux: Auxiliaries, ground_terms: set[str]
+) -> str:
     """
     Get the program to generate inputs.
     """
     # start constructing the program as a list of rules (represented as strings)
     prog = [f"#const {aux.size}=0.", f"{aux.domain}(0..{aux.size}-1)."]
+
+    for term in ground_terms:
+        prog.append(f"{aux.domain}({term}).")
 
     for pred in inputs:
         # construct list of variables (i.e. X0, X1, ...) and body (i.e. dom(X0), dom(X1), ...)
