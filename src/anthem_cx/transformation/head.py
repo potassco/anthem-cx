@@ -16,8 +16,8 @@ def _remove_negation(sign: Sign) -> Sign:
     """
     match sign:
         case Sign.NoSign:
-            log.warning("Unexpected no sign")
-            return sign
+            log.warning("Unexpected no sign")  # nocoverage
+            return sign  # nocoverage
         case Sign.Negation:
             return Sign.NoSign
         case Sign.DoubleNegation:
@@ -48,7 +48,8 @@ class RemoveHeadCondition(Transformer):
 
         # ensure that the head only has one (disjunctive) element
         if len(head.elements) > 1:
-            log.warning("Unexpected disjunctive rule %s", node)
+            log.error("Unexpected disjunctive rule %s", node)
+            raise RuntimeError(f"Unexpected disjunctive rule {node}")
 
         conditional = head.elements[0]
 
