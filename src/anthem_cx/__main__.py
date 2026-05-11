@@ -74,7 +74,7 @@ def main() -> None:
     progs = Programs(
         left=left,
         right=right,
-        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries),
+        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
         difference=get_difference_program(opts.outputs, bool(opts.eva.use_gc), opts.auxiliaries),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs, opts.auxiliaries)
