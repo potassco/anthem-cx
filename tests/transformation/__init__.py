@@ -17,9 +17,9 @@ def parse_program(program: str) -> list[AST]:
 
 
 def _normalize(rule_str: str) -> str:
-    """Normalize constraints to use emtpy head (instead of false constant)."""
+    """Normalize constraints to use empty head (instead of false constant)."""
     # AST represents constraints as `#false :- body.`,
-    # but transformation instead use an empty disjunction, i.e., `:- body.`
+    # but transformations use an empty disjunction, i.e., `:- body.`
     return rule_str.replace("#false :- ", " :- ")
 
 
