@@ -8,6 +8,7 @@ from clingo.ast import (
     ASTType,
     Comparison,
     ComparisonOperator,
+    ConditionalLiteral,
     Guard,
     Literal,
     Location,
@@ -59,10 +60,21 @@ class ChoicePoolNormalizer(Transformer):
                 new_rules.append(
                     Rule(
                         location=LOC,
-                        head=Literal(
+                        head=Aggregate(
                             location=LOC,
-                            sign=Sign.NoSign,
-                            atom=SymbolicAtom(symbol=arg),
+                            left_guard=None,
+                            elements=[
+                                ConditionalLiteral(
+                                    location=LOC,
+                                    literal=Literal(
+                                        location=LOC,
+                                        sign=Sign.NoSign,
+                                        atom=SymbolicAtom(symbol=arg),
+                                    ),
+                                    condition=[],
+                                )
+                            ],
+                            right_guard=None,
                         ),
                         body=node.body,
                     )
