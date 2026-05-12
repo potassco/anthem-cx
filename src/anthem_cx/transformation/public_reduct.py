@@ -159,7 +159,7 @@ class TransformRuleHeads(Transformer):
                 original_atom = unmap_atom(atom, self.suffix)
                 original_literal = Literal(
                     location=LOC,
-                    sign=Sign.NoSign,
+                    sign=Sign.DoubleNegation,
                     atom=original_atom,
                 )
                 new_body.append(original_literal)

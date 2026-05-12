@@ -70,7 +70,7 @@ TRANSFORM_RULE_HEADS_CASES = [
     # mapped predicate in choice head becomes a normal rule with original atom in body
     (
         "{ p__(X) } :- q(X).",
-        "p__(X) :- q(X), p(X).",
+        "p__(X) :- q(X), not not p(X).",
     ),
     # unmapped predicate in choice head passes through unchanged
     (
