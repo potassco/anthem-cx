@@ -158,6 +158,7 @@ class _VariableChecker(Transformer):
         self.has_variable: bool = False
 
     def visit_Variable(self, node: AST) -> AST:  # pylint: disable=invalid-name
+        """If visiting a variable set the has_varibale to True."""
         self.has_variable = True
         return node
 
