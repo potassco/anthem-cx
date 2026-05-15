@@ -1,0 +1,6 @@
+input: maleHeadOf/2.
+input: femaleHeadOf/2.
+input: headOf/2.
+input: professor/1.
+input: fullProfessor/1.
+output: ans1/1.

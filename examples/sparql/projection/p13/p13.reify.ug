@@ -1,0 +1,6 @@
+input: student/1.
+input: name/2.
+input: email/2.
+input: takesCourse/2.
+input: shortName/2.
+output: ans1/2.
