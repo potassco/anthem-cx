@@ -1,0 +1,6 @@
+input: graduateStudent/1.
+input: department/1.
+input: memberOf/2.
+input: subOrganizationOf/2.
+input: email/2.
+output: ans1/3.

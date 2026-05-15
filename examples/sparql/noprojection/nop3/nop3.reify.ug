@@ -1,0 +1,4 @@
+input: professor/1.
+input: graduatedFrom/2.
+input: memeberOf/2.
+output: ans1/2.

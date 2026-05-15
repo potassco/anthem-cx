@@ -1,0 +1,12 @@
+input: student/1.
+input: name/2.
+input: nickName/2.
+input: telephone/2.
+input: ssn/2.
+input: age/2.
+input: sex/2.
+input: emailAddress/2.
+input: memberOf/2.
+input: takesCourse/2.
+input: masterDegreeFrom/2.
+output: ans1/10.

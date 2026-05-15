@@ -1,0 +1,7 @@
+input: student/1.
+input: registeredAt/2.
+input: university/1.
+input: placeOfBirth/2.
+input: city/1.
+input: locatedAt/2.
+output: ans1/3.

@@ -1,0 +1,8 @@
+input: graduateStudent/1.
+input: undergradStudent/1.
+input: takesCourse/2.
+input: telephone/2.
+input: sex/2.
+input: courseName/2.
+input: student/1.
+output: ans1/1.

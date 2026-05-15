@@ -1,0 +1,5 @@
+input: undergradStudent/1.
+input: graduateStudent/1.
+input: takesCourse/2.
+input: csCourse/1.
+output: ans1/2.
