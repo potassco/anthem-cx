@@ -134,13 +134,12 @@ class TransformRuleHeads(Transformer):
         # 3: choice rule
         if head.ast_type == ASTType.Aggregate and len(head.elements) == 1:
             # the choice rue should contain exactly one element and no guards
-            # TODO: these cases should be errors as they should be completely removed by previous transformations
             if len(head.elements) != 1:  # nocoverage
-                log.warning("Unexpected choice rule with multiple elements %s", node)  # nocoverage
-                return node  # nocoverage
+                log.error("Unexpected choice rule with multiple elements %s", node)
+                raise RuntimeError(f"Unexpected choice rule with multiple elements {node}")
             if head.left_guard is not None or head.right_guard is not None:  # nocoverage
-                log.warning("Unexpected choice rule with guards %s", node)  # nocoverage
-                return node  # nocoverage
+                log.error("Unexpected choice rule with guards %s", node)
+                raise RuntimeError(f"Unexpected choice rule with guards {node}")
 
             element = head.elements[0]
             if element.ast_type == ASTType.ConditionalLiteral:
