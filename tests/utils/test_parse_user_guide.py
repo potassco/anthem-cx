@@ -53,6 +53,7 @@ class TestParseUserGuide(TestCase):
                 os.unlink(path)
 
     def test_unsupported_warning(self) -> None:
+        """Test cases with unsupported user guide features."""
         for content, inputs, outputs, warning in [
             ("assumption: a > b.", set(), set(), "Assumptions"),
             ("input: n -> int.", set(), set(), "Placeholders"),

@@ -42,6 +42,7 @@ class TestStringHelpers(TestCase):
             self.assertEqual(_edges_to_str(edges, data), expected)
 
     def test_cycles_to_str(self) -> None:
+        """Test conversion of cycles to str."""
         for cycles, expected in [
             ([], "{}"),
             ([["a", "b"]], "{[a, b]}"),
@@ -71,6 +72,7 @@ class TestHasEnoughVisibleAtoms(TestCase):
         for prog, publics in [
             ("{a}.", set()),
             ("a :- not b. b :- not a.", set()),
+            ("a :- not a. b :- a.", {Predicate("b", 0)}),
         ]:
             self.assertFalse(has_enough_visible_atoms(parse_program(prog), publics))
 
