@@ -103,7 +103,7 @@ class DependencyGraphBuilder(Transformer, ABC):
 
     def _add_node_and_set_current(self, atom: AST) -> Predicate:
         if atom.ast_type != ASTType.SymbolicAtom:
-            raise RuntimeError(f"Unexpected atom {atom}")
+            raise RuntimeError(f"Unexpected atom {atom}")  # nocoverage
 
         pred = atom_to_predicate(atom)
         self.graph.add_node(pred)
@@ -126,7 +126,16 @@ class DependencyGraphBuilder(Transformer, ABC):
             if len(node.head.elements) > 1:
                 raise ValueError(f"Choice rule should not have more than 1 element: {node}")
 
-            self._add_node_and_set_current(node.head.elements[0].atom)
+            element = node.head.elements[0]
+
+            match element.ast_type:
+                case ASTType.ConditionalLiteral:
+                    self._add_node_and_set_current(element.literal.atom)
+                case ASTType.Literal:  # nocoverage
+                    self._add_node_and_set_current(element.atom)
+                case _:  # nocoverage
+                    raise ValueError(f"Unexpected choice element: {element}")
+
             self.visit_sequence(node.body)
 
         return node
@@ -136,7 +145,7 @@ class DependencyGraphBuilder(Transformer, ABC):
         """
         Subclasses implement adding dependencies for literals.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # nocoverage
 
 
 class SignedDependencyGraphBuilder(DependencyGraphBuilder):
@@ -168,7 +177,15 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
             if len(node.head.elements) > 1:
                 raise ValueError(f"Choice rule should not have more than 1 element: {node}")
 
-            pred = self._add_node_and_set_current(node.head.elements[0].atom)
+            element = node.head.elements[0]
+
+            match element.ast_type:
+                case ASTType.ConditionalLiteral:
+                    pred = self._add_node_and_set_current(element.literal.atom)
+                case ASTType.Literal:  # nocoverage
+                    pred = self._add_node_and_set_current(element.atom)
+                case _:  # nocoverage
+                    raise ValueError(f"Unexpected choice element: {element}")
 
             if self._is_private(pred):
                 self.graph.add_edge(pred, pred, weight=-1)
@@ -217,7 +234,7 @@ class AggregateDependencyGraphBuilder(DependencyGraphBuilder):
         Extend a set of predicates by the predicate of a literal.
         """
         if node.ast_type != ASTType.Literal:
-            raise ValueError(f"The AST node is not a literal: {node}")
+            raise ValueError(f"The AST node is not a literal: {node}")  # nocoverage
 
         atom = node.atom
         if atom.ast_type == ASTType.SymbolicAtom:
@@ -241,7 +258,7 @@ class AggregateDependencyGraphBuilder(DependencyGraphBuilder):
 
                     for lit in elem.condition:
                         preds = self._extend_predicates_by_literal(lit, preds)
-            case _:
+            case _:  # nocoverage
                 raise ValueError(f"The AST node is not an aggregate: {node}")
 
         return preds
