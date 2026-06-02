@@ -46,7 +46,7 @@ def _assemble_and_execute(programs: Programs, options: Options) -> None:
     else:
         if options.out_dir:
             save_eqt_to_file(forward, options.out_dir)
-            save_eqt_to_file(backward, options.out_dir)
+            save_eqt_to_file(backward, options.out_dir, False)
         else:
             print(f"{forward}\n")
             print(f"{backward}\n")

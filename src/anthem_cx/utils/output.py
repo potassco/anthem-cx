@@ -27,7 +27,7 @@ def save_eqt_to_file(eqt: str | None, out_dir: str, forward: bool = True, postfi
     if eqt:
         direction = "forward" if forward else "backward"
         os.makedirs(out_dir, exist_ok=True)
-        outfile = os.path.join(out_dir, f"{direction}{postfix}.lp")
+        outfile = os.path.join(out_dir, f"{direction}{postfix if postfix else ""}.lp")
         log.info("Writing %s program to %s", direction, outfile)
         with open(outfile, "w", encoding="utf-8") as f:
             f.write(eqt)
