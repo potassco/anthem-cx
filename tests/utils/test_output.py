@@ -8,13 +8,97 @@ from unittest import TestCase
 
 from clingo.ast import AST, parse_string
 
-from anthem_cx.utils.output import program_to_str, save_eqt_gc_to_file, save_eqt_to_file
+from anthem_cx.utils.output import build_eqt, build_eqt_gc, program_to_str, save_eqt_gc_to_file, save_eqt_to_file
 
 
 def _parse(src: str) -> list[AST]:
     nodes: list[AST] = []
     parse_string(src, nodes.append)
     return nodes
+
+
+class TestBuild(TestCase):
+    """Tests for function building the counterexample programs."""
+
+    def setUp(self) -> None:
+        """Parse simple programs for use in tests."""
+        self.left = _parse("a :- b.")
+        self.right = _parse("b :- a.")
+
+    def test_build_eqt(self) -> None:
+        """Test building counterexample programs."""
+        for forward, expected in [
+            (
+                True,
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT forward\n"
+                    "% input generation\n\n\n"
+                    "% left program\n"
+                    "#program base.\na :- b.\n\n"
+                    "% public reduct of right program\n"
+                    "#program base.\nb :- a.\n\n"
+                    "% difference detection\n"
+                ),
+            ),
+            (
+                False,
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT backward\n"
+                    "% input generation\n\n\n"
+                    "% right program\n"
+                    "#program base.\na :- b.\n\n"
+                    "% public reduct of left program\n"
+                    "#program base.\nb :- a.\n\n"
+                    "% difference detection\n"
+                ),
+            ),
+        ]:
+            result = build_eqt("", self.left, self.right, "", forward=forward)
+            self.assertEqual(result, expected)
+
+    def test_build_eqt_gc(self) -> None:
+        """Test building guess and check counterexample programs."""
+        for forward, expected_guess, expected_check in [
+            (
+                True,
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT forward guess\n"
+                    "% input generation\n\n\n"
+                    "% left program\n"
+                    "#program base.\na :- b.\n"
+                ),
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT forward check\n"
+                    "% public reduct of right program\n"
+                    "#program base.\nb :- a.\n\n"
+                    "% difference detection\n"
+                ),
+            ),
+            (
+                False,
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT backward guess\n"
+                    "% input generation\n\n\n"
+                    "% right program\n"
+                    "#program base.\na :- b.\n"
+                ),
+                (
+                    "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+                    "% EQT backward check\n"
+                    "% public reduct of left program\n"
+                    "#program base.\nb :- a.\n\n"
+                    "% difference detection\n"
+                ),
+            ),
+        ]:
+            guess, check = build_eqt_gc("", self.left, self.right, "", forward=forward)
+            self.assertEqual(guess, expected_guess)
+            self.assertEqual(check, expected_check)
 
 
 class TestOutput(TestCase):
