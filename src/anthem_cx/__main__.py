@@ -9,7 +9,7 @@ from . import assemble_and_execute
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
 from .analysis.dependency import has_enough_visible_atoms, has_recursive_aggregates
 from .eqt import get_difference_program, get_generate_program, get_public_reduct, normalize_program
-from .utils import Auxiliaries, Direction, EVAData, Options, Programs
+from .utils.data import Auxiliaries, Direction, EVAData, Options, Programs
 from .utils.logging import configure_logging, get_logger
 from .utils.parse_program import parse_program, parse_program_as_str
 from .utils.parse_user_guide import parse_user_guide

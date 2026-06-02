@@ -4,7 +4,7 @@ Module for parsing user guides.
 
 import re
 
-from . import Predicate
+from .data import Predicate
 from .logging import get_logger
 
 log = get_logger(__name__)

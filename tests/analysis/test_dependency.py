@@ -15,7 +15,7 @@ from anthem_cx.analysis.dependency import (
     has_enough_visible_atoms,
     has_recursive_aggregates,
 )
-from anthem_cx.utils import Predicate
+from anthem_cx.utils.data import Predicate
 
 from . import parse_program
 

@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from clingo.ast import AST, ASTType, Sign, Transformer
 from networkx import MultiDiGraph, simple_cycles, strongly_connected_components
 
-from ..utils import Predicate
+from ..utils.data import Predicate
 from ..utils.logging import get_logger
 from ..utils.transformation import atom_to_predicate
 

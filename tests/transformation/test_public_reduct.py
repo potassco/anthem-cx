@@ -8,7 +8,7 @@ from anthem_cx.transformation import (
     ReplacePositiveOutputPredicates,
     TransformRuleHeads,
 )
-from anthem_cx.utils import Auxiliaries, Predicate
+from anthem_cx.utils.data import Auxiliaries, Predicate
 
 from . import assert_transform
 
