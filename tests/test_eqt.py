@@ -45,7 +45,7 @@ class TestNormalizeProgram(TestCase):
 class TestCounterexampleProgramComponents(TestCase):
     """Tests for the componentes of the counterexample program."""
 
-    def test_get_generate_program(self):
+    def test_get_generate_program(self) -> None:
         """Tests for get_generate_program."""
         for inputs, assumptions, terms, expected in [
             ({Predicate("a", 0)}, None, set(), f"#const {AUX.size}=0.\n{AUX.domain}(0..{AUX.size}-1).\n{{ a }}."),
@@ -57,7 +57,7 @@ class TestCounterexampleProgramComponents(TestCase):
             result = get_generate_program(inputs, assumptions, AUX, terms)
             self.assertIn(expected, result)
 
-    def test_get_difference_program(self):
+    def test_get_difference_program(self) -> None:
         """Tests for get_difference_program."""
         for outputs, expected in [
             (set(), [f":- not {AUX.diff}.", f"#defined {AUX.unsat}/0.", f"{AUX.diff} :- {AUX.unsat}."]),
@@ -81,7 +81,7 @@ class TestCounterexampleProgramComponents(TestCase):
         self.assertIn(f":- {AUX.diff}.", get_difference_program(set(), True, AUX))
         self.assertNotIn(f":- not {AUX.diff}.", get_difference_program(set(), True, AUX))
 
-    def test_get_public_reduct(self):
+    def test_get_public_reduct(self) -> None:
         """Tests for get_public_reduct."""
         for prg, outputs, expected in [
             ("p(X) :- q(X).", {Predicate("p", 1)}, "p__(X) :- q(X)."),
