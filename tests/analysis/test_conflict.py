@@ -20,7 +20,7 @@ from anthem_cx.analysis.conflict import (
     check_and_rename_privates,
     collect_ground_terms,
 )
-from anthem_cx.utils import Auxiliaries, Predicate
+from anthem_cx.utils.data import Auxiliaries, Predicate
 from anthem_cx.utils.transformation import LOC, apply_transformer
 
 from . import parse_program

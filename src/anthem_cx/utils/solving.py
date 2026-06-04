@@ -9,7 +9,7 @@ from clingo.solving import Model
 from clingo.symbol import Symbol
 from guess_and_check import solve_guess_and_check
 
-from . import Predicate
+from .data import Predicate
 from .logging import get_logger
 
 log = get_logger(__name__)

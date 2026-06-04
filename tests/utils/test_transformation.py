@@ -11,7 +11,7 @@ from unittest import TestCase
 
 from clingo.ast import Aggregate, ASTType, Function, Literal, Sign
 
-from anthem_cx.utils import Predicate
+from anthem_cx.utils.data import Predicate
 from anthem_cx.utils.transformation import (
     LOC,
     aggregate_constraint,

@@ -2,9 +2,9 @@
 The anthem_cx project.
 """
 
-from .utils import Options, Programs, build_eqt, build_eqt_gc
+from .utils.data import Options, Programs
 from .utils.logging import get_logger
-from .utils.output import save_eqt_gc_to_file, save_eqt_to_file
+from .utils.output import build_eqt, build_eqt_gc, save_eqt_gc_to_file, save_eqt_to_file
 from .utils.solving import solve_for_counterexample, solve_gc_for_counterexample
 
 log = get_logger(__name__)
@@ -46,7 +46,7 @@ def _assemble_and_execute(programs: Programs, options: Options) -> None:
     else:
         if options.out_dir:
             save_eqt_to_file(forward, options.out_dir)
-            save_eqt_to_file(backward, options.out_dir)
+            save_eqt_to_file(backward, options.out_dir, False)
         else:
             print(f"{forward}\n")
             print(f"{backward}\n")

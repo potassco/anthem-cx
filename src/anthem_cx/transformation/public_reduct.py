@@ -4,7 +4,7 @@ Module to transform a program into its public reduct.
 
 from clingo.ast import AST, ASTType, Function, Literal, Rule, Sign, SymbolicAtom, Transformer
 
-from ..utils import Auxiliaries, Predicate
+from ..utils.data import Auxiliaries, Predicate
 from ..utils.logging import get_logger
 from ..utils.transformation import (
     LOC,

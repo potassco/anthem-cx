@@ -27,7 +27,7 @@ def save_eqt_to_file(eqt: str | None, out_dir: str, forward: bool = True, postfi
     if eqt:
         direction = "forward" if forward else "backward"
         os.makedirs(out_dir, exist_ok=True)
-        outfile = os.path.join(out_dir, f"{direction}{postfix}.lp")
+        outfile = os.path.join(out_dir, f"{direction}{postfix if postfix else ""}.lp")
         log.info("Writing %s program to %s", direction, outfile)
         with open(outfile, "w", encoding="utf-8") as f:
             f.write(eqt)
@@ -44,3 +44,49 @@ def program_to_str(prog: list[AST], newline: bool = False) -> str:
         string += "\n"
 
     return string
+
+
+def build_eqt(generate: str, left: list[AST], public_reduct: list[AST], difference: str, forward: bool = True) -> str:
+    """
+    Build the EQT program as a string from the components.
+    """
+    eqt = (
+        "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+        + f"% EQT {'forward' if forward else 'backward'}\n"
+        + "% input generation\n"
+        + generate
+        + f"\n\n% {'left' if forward else 'right'} program\n"
+        + program_to_str(left, True)
+        + f"\n% public reduct of {'right' if forward else 'left'} program\n"
+        + program_to_str(public_reduct, True)
+        + "\n% difference detection\n"
+        + difference
+    )
+
+    return eqt
+
+
+def build_eqt_gc(
+    generate: str, left: list[AST], public_reduct: list[AST], difference: str, forward: bool = True
+) -> tuple[str, str]:
+    """
+    Build the guess and check EQT program as a string for the components.
+    """
+    eqt_guess = (
+        "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+        + f"% EQT {'forward' if forward else 'backward'} guess\n"
+        + "% input generation\n"
+        + generate
+        + f"\n\n% {'left' if forward else 'right'} program\n"
+        + program_to_str(left, True)
+    )
+    eqt_check = (
+        "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+        + f"% EQT {'forward' if forward else 'backward'} check\n"
+        + f"% public reduct of {'right' if forward else 'left'} program\n"
+        + program_to_str(public_reduct, True)
+        + "\n% difference detection\n"
+        + difference
+    )
+
+    return eqt_guess, eqt_check

@@ -6,7 +6,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from anthem_cx.utils import Predicate
+from anthem_cx.utils.data import Predicate
 from anthem_cx.utils.parse_user_guide import _split_entries, parse_user_guide
 
 
