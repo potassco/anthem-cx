@@ -7,6 +7,7 @@ from enum import Enum, auto
 from typing import Any
 
 from clingo.ast import AST
+from clingo.solving import Model
 
 PREDICATE_SUFFIX = "__"
 UNSAT_PREDICATE = "__bot"
@@ -25,6 +26,7 @@ class Programs:
     right: list[AST]
     generate: str
     difference: str
+    constraint: str
     public_reduct_left: list[AST] | None
     public_reduct_right: list[AST] | None
 
@@ -194,3 +196,45 @@ class Options:  # pylint: disable=too-many-instance-attributes
     outputs: set[Predicate]
     clingo_args: list[str]
     auxiliaries: Auxiliaries
+
+
+@dataclass
+class Counterexample:
+    """
+    Dataclass representing counterexamples.
+    """
+
+    size: int
+    direction: str
+    input: list[str]
+    output: list[str]
+
+    def __str__(self) -> str:
+        """Obtain a string representation of the counterexample."""
+        rep = f"Found a counterexample of size {self.size} in the {self.direction} direction\n"
+        rep += "  Input for the counterexample:\n"
+        rep += "    " + ", ".join(self.input) + "\n"
+        rep += f"  External behavior of {'left' if self.direction == 'forward' else 'right'}:\n"
+        rep += "    " + ", ".join(self.output)
+
+        return rep
+
+    @classmethod
+    def from_model(  # pylint: disable=too-many-positional-arguments
+        cls, direction: str, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model
+    ) -> "Counterexample":
+        """Create a Counterexample object from a model."""
+        symbols = model.symbols(atoms=True)
+        input_atoms = []
+        output_atoms = []
+
+        for symbol in symbols:
+            pred = Predicate(symbol.name, len(symbol.arguments))
+
+            if pred in inputs:
+                input_atoms.append(str(symbol))
+
+            if pred in outputs:
+                output_atoms.append(str(symbol))
+
+        return Counterexample(size, direction, input_atoms, output_atoms)

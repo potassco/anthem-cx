@@ -46,7 +46,9 @@ def program_to_str(prog: list[AST], newline: bool = False) -> str:
     return string
 
 
-def build_eqt(generate: str, left: list[AST], public_reduct: list[AST], difference: str, forward: bool = True) -> str:
+def build_eqt(  # pylint: disable=too-many-positional-arguments
+    generate: str, left: list[AST], public_reduct: list[AST], difference: str, constraint: str, forward: bool = True
+) -> str:
     """
     Build the EQT program as a string from the components.
     """
@@ -61,13 +63,15 @@ def build_eqt(generate: str, left: list[AST], public_reduct: list[AST], differen
         + program_to_str(public_reduct, True)
         + "\n% difference detection\n"
         + difference
+        + "\n% enforce counterexample\n"
+        + constraint
     )
 
     return eqt
 
 
-def build_eqt_gc(
-    generate: str, left: list[AST], public_reduct: list[AST], difference: str, forward: bool = True
+def build_eqt_gc(  # pylint: disable=too-many-positional-arguments
+    generate: str, left: list[AST], public_reduct: list[AST], difference: str, constraint: str, forward: bool = True
 ) -> tuple[str, str]:
     """
     Build the guess and check EQT program as a string for the components.
@@ -87,6 +91,8 @@ def build_eqt_gc(
         + program_to_str(public_reduct, True)
         + "\n% difference detection\n"
         + difference
+        + "\n% enforce counterexample\n"
+        + constraint
     )
 
     return eqt_guess, eqt_check

@@ -4,8 +4,11 @@ Tests for utils/data.py: Direction, EVAData, Auxiliaries, Predicate.
 
 from unittest import TestCase
 
+from clingo.control import Control
+
 from anthem_cx.utils.data import (
     Auxiliaries,
+    Counterexample,
     Direction,
     EVAData,
     Predicate,
@@ -104,3 +107,33 @@ class TestDataUtils(TestCase):
 
         preds = aux.predicates()
         self.assertEqual(preds, {Predicate("__bot", 0), Predicate("__diff", 0), Predicate("__dom", 1)})
+
+    def test_counterexample_from_model(self) -> None:
+        """from_model collects input and output atoms from the model and __str__ reports them."""
+        ctl = Control()
+        ctl.add("a. b(1). c(2,3).")
+        ctl.ground()
+
+        inputs = {Predicate("a", 0)}
+        outputs = {Predicate("b", 1)}
+        counterexample: Counterexample | None = None
+
+        def build_counterexample(model: object) -> None:
+            nonlocal counterexample
+            counterexample = Counterexample.from_model("forward", 2, inputs, outputs, model)  # type: ignore[arg-type]
+
+        ctl.solve(on_model=build_counterexample)
+        assert counterexample is not None
+        self.assertEqual(counterexample.size, 2)
+        self.assertEqual(counterexample.direction, "forward")
+        self.assertEqual(counterexample.input, ["a"])
+        self.assertEqual(counterexample.output, ["b(1)"])
+
+        rep = str(counterexample)
+        self.assertIn("Found a counterexample of size 2 in the forward direction", rep)
+        self.assertIn("a", rep)
+        self.assertIn("b(1)", rep)
+        self.assertIn("left", rep)
+
+        # the backward direction reports the right program's behavior
+        self.assertIn("right", str(Counterexample(1, "backward", [], [])))

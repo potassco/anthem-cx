@@ -8,7 +8,13 @@ from copy import deepcopy
 from . import assemble_and_execute
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
 from .analysis.dependency import has_enough_visible_atoms, has_recursive_aggregates
-from .eqt import get_difference_program, get_generate_program, get_public_reduct, normalize_program
+from .eqt import (
+    get_difference_constraint,
+    get_difference_program,
+    get_generate_program,
+    get_public_reduct,
+    normalize_program,
+)
 from .utils.data import Auxiliaries, Direction, EVAData, Options, Programs
 from .utils.logging import configure_logging, get_logger
 from .utils.parse_program import parse_program, parse_program_as_str
@@ -67,7 +73,7 @@ def main() -> None:
             log.info("Stratification check for right program failed")
             opts.eva.syntax_failure()
         else:
-            log.info("Stratification check for both program succeeded")
+            log.info("Stratification check for both programs succeeded")
             opts.eva.success()
 
     assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
@@ -77,7 +83,8 @@ def main() -> None:
         left=left,
         right=right,
         generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
-        difference=get_difference_program(opts.outputs, bool(opts.eva.use_gc), opts.auxiliaries),
+        difference=get_difference_program(opts.outputs, opts.auxiliaries),
+        constraint=get_difference_constraint(bool(opts.eva.use_gc), opts.auxiliaries),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs, opts.auxiliaries)
             if opts.direction.includes_backward()
@@ -90,7 +97,14 @@ def main() -> None:
         ),
     )
 
-    assemble_and_execute(progs, opts)
+    counterexample = assemble_and_execute(progs, opts)
+
+    # report the final result if solving
+    if opts.solve:
+        if counterexample:
+            print(counterexample)
+        else:
+            print(f"No counterexample was found for the domain size max of {opts.max_size}")
 
 
 if __name__ == "__main__":

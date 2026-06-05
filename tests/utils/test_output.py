@@ -39,6 +39,8 @@ class TestBuild(TestCase):
                     "% public reduct of right program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
+                    "\n% enforce counterexample\n"
+                    ":- not __diff."
                 ),
             ),
             (
@@ -52,10 +54,12 @@ class TestBuild(TestCase):
                     "% public reduct of left program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
+                    "\n% enforce counterexample\n"
+                    ":- not __diff."
                 ),
             ),
         ]:
-            result = build_eqt("", self.left, self.right, "", forward=forward)
+            result = build_eqt("", self.left, self.right, "", ":- not __diff.", forward=forward)
             self.assertEqual(result, expected)
 
     def test_build_eqt_gc(self) -> None:
@@ -76,6 +80,8 @@ class TestBuild(TestCase):
                     "% public reduct of right program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
+                    "\n% enforce counterexample\n"
+                    ":- __diff."
                 ),
             ),
             (
@@ -93,10 +99,12 @@ class TestBuild(TestCase):
                     "% public reduct of left program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
+                    "\n% enforce counterexample\n"
+                    ":- __diff."
                 ),
             ),
         ]:
-            guess, check = build_eqt_gc("", self.left, self.right, "", forward=forward)
+            guess, check = build_eqt_gc("", self.left, self.right, "", ":- __diff.", forward=forward)
             self.assertEqual(guess, expected_guess)
             self.assertEqual(check, expected_check)
 

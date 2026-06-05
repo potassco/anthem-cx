@@ -18,7 +18,7 @@ from .transformation import (
     TransformRuleHeads,
 )
 from .utils.data import Auxiliaries, Predicate
-from .utils.logging import get_logger
+from .utils.logging import TRACE, get_logger
 from .utils.output import program_to_str
 from .utils.transformation import apply_transformer
 
@@ -41,20 +41,26 @@ def normalize_program(prog: list[AST]) -> list[AST]:
         NormalizeHead,
     ]:
         prog = apply_transformer(t(), prog)
-        log.debug("Program after applying %s", t.__name__)
-        log.debug(program_to_str(prog, True))
+        log.log(TRACE, "Program after applying %s", t.__name__)
+        log.log(TRACE, program_to_str(prog, True))
+
+    log.debug("Normalized program")
+    log.debug(program_to_str(prog, True))
 
     return prog
 
 
-def _public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Auxiliaries) -> list[AST]:
+def get_public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Auxiliaries) -> list[AST]:
     """
     Compute the public reduct of a program with respest to a set of output predicates.
     """
     for t in [ReplacePositiveOutputPredicates, TransformRuleHeads]:
         prog = apply_transformer(t(outputs, auxiliaries), prog)
-        log.debug("Program after applying %s", t.__name__)
-        log.debug(program_to_str(prog, True))
+        log.log(TRACE, "Program after applying %s", t.__name__)
+        log.log(TRACE, program_to_str(prog, True))
+
+    log.debug("Public reduct")
+    log.debug(program_to_str(prog, True))
 
     return prog
 
@@ -101,7 +107,22 @@ def get_generate_program(
     return prog_str
 
 
-def get_difference_program(outputs: set[Predicate], use_gc: bool, aux: Auxiliaries) -> str:
+def get_difference_constraint(use_gc: bool, aux: Auxiliaries) -> str:
+    """
+    Get the difference constraint.
+    """
+    if not use_gc:
+        constraint = f":- not {aux.diff}."
+    else:
+        constraint = f":- {aux.diff}."
+
+    log.debug("Difference constraint")
+    log.debug(constraint + "\n")  # pylint: disable=logging-not-lazy
+
+    return constraint
+
+
+def get_difference_program(outputs: set[Predicate], aux: Auxiliaries) -> str:
     """
     Get the program to detect differences in outputs.
     """
@@ -131,12 +152,6 @@ def get_difference_program(outputs: set[Predicate], use_gc: bool, aux: Auxiliari
     prog.append(f"#defined {aux.unsat}/0.")
     prog.append(f"{aux.diff} :- {aux.unsat}.")
 
-    # enforce a counterexample
-    if not use_gc:
-        prog.append(f":- not {aux.diff}.")
-    else:
-        prog.append(f":- {aux.diff}.")
-
     # represent the program as a string
     prog_str = "\n".join(prog)
 
@@ -144,10 +159,3 @@ def get_difference_program(outputs: set[Predicate], use_gc: bool, aux: Auxiliari
     log.debug(prog_str + "\n")  # pylint: disable=logging-not-lazy
 
     return prog_str
-
-
-def get_public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Auxiliaries) -> list[AST]:
-    """
-    Get the public reduct of the program in filename.
-    """
-    return _public_reduct(prog, outputs, auxiliaries)

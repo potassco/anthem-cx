@@ -15,6 +15,9 @@ WARNING = logging.WARNING
 ERROR = logging.ERROR
 CRITICAL = logging.CRITICAL
 
+TRACE = 5
+logging.addLevelName(TRACE, "TRACE")
+
 COLORS = {
     "GREY": "\033[90m",
     "BLUE": "\033[94m",
@@ -22,6 +25,7 @@ COLORS = {
     "YELLOW": "\033[93m",
     "RED": "\033[91m",
     "NORMAL": "\033[0m",
+    "MAGENTA": "\033[95m",
 }
 
 
@@ -52,7 +56,7 @@ def configure_logging(stream: TextIO, level: int, use_color: bool) -> None:
 
     def format_str(color: str) -> str:
         if use_color:
-            return f"{COLORS[color]}%(levelname)s:{COLORS['GREY']}  - %(message)s{COLORS['NORMAL']}"
+            return f"{COLORS[color]}%(levelname)s:{COLORS['GREY']} %(message)s{COLORS['NORMAL']}"
         return "%(levelname)s:  - %(message)s"  # nocoverage
 
     def make_handler(level: int, color: str) -> "logging.StreamHandler[TextIO]":
@@ -68,6 +72,7 @@ def configure_logging(stream: TextIO, level: int, use_color: bool) -> None:
         make_handler(logging.WARNING, "YELLOW"),
         make_handler(logging.DEBUG, "BLUE"),
         make_handler(logging.ERROR, "RED"),
+        make_handler(TRACE, "MAGENTA"),
     ]
     logging.basicConfig(handlers=handlers, level=level)
 
