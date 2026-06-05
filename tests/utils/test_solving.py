@@ -2,38 +2,25 @@
 Tests for utils/solving.py.
 """
 
-from contextlib import redirect_stdout
-from functools import partial
-from io import StringIO
 from unittest import TestCase
 from unittest.mock import patch
 
-from clingo.control import Control
-from clingo.symbol import Function as SymFunction
-
-from anthem_cx.utils.data import Predicate
+from anthem_cx.utils.data import Counterexample, Predicate
 from anthem_cx.utils.solving import (
     _get_holds,
-    _on_model,
     _solve_gc_with_size,
     _solve_with_size,
-    _symbol_to_predicate,
     solve_for_counterexample,
     solve_gc_for_counterexample,
 )
 
 
-class TestSymbolToPredicate(TestCase):
-    """Tests for _symbol_to_predicate."""
+class _FakeModel:
+    """Minimal stand-in for a clingo Model that yields no symbols."""
 
-    def test_symbol_to_predicate(self) -> None:
-        """Symbol maps to Predicate with matching arity."""
-        for name, args, expected in [
-            ("fact", [], Predicate("fact", 0)),
-            ("p", [SymFunction("a", [], True)], Predicate("p", 1)),
-        ]:
-            sym = SymFunction(name, args, True)
-            self.assertEqual(_symbol_to_predicate(sym), expected)
+    def symbols(self, **_kwargs: object) -> list[object]:
+        """Return no symbols."""
+        return []
 
 
 class TestGetHolds(TestCase):
@@ -54,109 +41,92 @@ class TestGetHolds(TestCase):
             self.assertIn(expected, _get_holds(preds, undo=undo))
 
 
-class TestOnModel(TestCase):
-    """Tests for _on_model via a real Clingo solve."""
-
-    def test_on_model(self) -> None:
-        """Model output contains counterexample size, direction label, and predicate values."""
-        for direction, size, program, inputs, outputs, expected in [
-            ("forward", 1, "a.", set(), set(), ["Found a counterexample of size 1 in the forward direction", "left"]),
-            ("backward", 1, "a.", set(), set(), ["right"]),
-            (
-                "forward",
-                3,
-                "a. b(1). b(2).",
-                {Predicate("a", 0)},
-                {Predicate("b", 1)},
-                ["Found a counterexample of size 3 in the forward direction", "a", "b(1)"],
-            ),
-        ]:
-            ctl = Control(["0"])
-            ctl.add(program)
-            ctl.ground()
-            out = StringIO()
-            with redirect_stdout(out):
-                ctl.solve(on_model=partial(_on_model, direction, size, inputs, outputs))
-            text = out.getvalue()
-            for label in expected:
-                self.assertIn(label, text)
-
-
 class TestSolve(TestCase):
     """Tests for solving the counterexample program."""
 
     def test_solve_with_size(self) -> None:
-        """Tests for _solve_with_size."""
-        # SAT programs return True, UNSAT return False; domain-size constant is substituted
-        for prog, size, expected in [
+        """SAT programs return a counterexample, UNSAT return None; domain-size constant is substituted."""
+        for prog, size, sat in [
             ("a.", 0, True),
             (":- #true.", 0, False),
             ("#const n=0. a :- n > 1.", 2, True),
         ]:
-            self.assertEqual(_solve_with_size(prog, "forward", size, set(), set(), [], "n"), expected)
+            result = _solve_with_size(prog, "forward", size, set(), set(), [], "n")
+            if sat:
+                self.assertIsInstance(result, Counterexample)
+            else:
+                self.assertIsNone(result)
 
-        out = StringIO()
-        with redirect_stdout(out):
-            _solve_with_size("a.", "forward", 0, {Predicate("a", 0)}, set(), [], "n")
-        self.assertIn("Found a counterexample", out.getvalue())
+        # the returned counterexample carries the size, direction, and matching input atoms
+        result = _solve_with_size("a.", "forward", 0, {Predicate("a", 0)}, set(), [], "n")
+        assert result is not None
+        self.assertEqual(result.size, 0)
+        self.assertEqual(result.direction, "forward")
+        self.assertEqual(result.input, ["a"])
 
     def test_solve_for_counterexample(self) -> None:
-        """Tests for solve_for_counterexample."""
-        # loop exits or finds counterexample depending on programs and domain size bounds
-        for fwd, bwd, start, max_size, expected in [
-            (None, None, 2, 1, ["No counterexample"]),
-            (None, None, 0, 0, ["No counterexample"]),
-            (None, None, 0, 1, ["No counterexample", "Solving for counterexample of domain size 0"]),
-            ("a.", None, 0, None, ["Solving for counterexample of domain size 0"]),
-            (":- #true.", "a.", 0, None, ["Solving for counterexample of domain size 0"]),
+        """The loop returns a counterexample when found and None when the domain size max is exhausted."""
+        # no programs: returns None once the domain size max is exceeded, including across several sizes
+        for fwd, bwd, start, max_size in [
+            (None, None, 2, 1),
+            (None, None, 0, 0),
+            (None, None, 0, 3),
         ]:
-            out = StringIO()
-            with redirect_stdout(out):
-                solve_for_counterexample(fwd, bwd, set(), set(), start, max_size, [], "n")
-            text = out.getvalue()
-            for e in expected:
-                self.assertIn(e, text)
+            self.assertIsNone(solve_for_counterexample(fwd, bwd, set(), set(), start, max_size, [], "n"))
+
+        # a satisfiable program yields a counterexample in the corresponding direction
+        for fwd, bwd, direction in [
+            ("a.", None, "forward"),
+            (":- #true.", "a.", "backward"),
+        ]:
+            result = solve_for_counterexample(fwd, bwd, set(), set(), 0, None, [], "n")
+            assert result is not None
+            self.assertEqual(result.direction, direction)
 
 
 class TestSolveGC(TestCase):
     """Tests for solving the guess and check counterexample program."""
 
     def test_solve_gc_with_size(self) -> None:
-        """Tests for _solve_gc_with_size."""
-        # return value mirrors the underlying solver's SAT/UNSAT result
-        for sat, expected in [
-            (True, True),
-            (False, False),
-        ]:
-            with patch("anthem_cx.utils.solving.solve_guess_and_check", return_value=sat):
-                self.assertEqual(_solve_gc_with_size("a.", "b.", "forward", 0, set(), set(), [], "n"), expected)
+        """A counterexample is returned only when the underlying solver reports a model."""
+        for model_found in [True, False]:
+
+            def fake_solve(*_args: object, on_model: object = None, **_kwargs: object) -> bool:
+                # pylint: disable=cell-var-from-loop
+                if model_found and on_model is not None:
+                    on_model(_FakeModel())  # type: ignore[operator]
+                return model_found
+
+            with patch("anthem_cx.utils.solving.solve_guess_and_check", side_effect=fake_solve):
+                result = _solve_gc_with_size("a.", "b.", "forward", 0, set(), set(), [], "n")
+            if model_found:
+                self.assertIsInstance(result, Counterexample)
+            else:
+                self.assertIsNone(result)
 
     def test_solve_gc_for_counterexample(self) -> None:
-        """Tests for solve_gc_for_counterexample."""
-        # loop exits or finds counterexample based on programs and domain size bounds
-        for fg, fc, bg, bc, start, max_size, expected in [
-            (None, None, None, None, 2, 1, "No counterexample"),
-            (None, None, None, None, 0, 0, "No counterexample"),
+        """The loop returns a counterexample when found and None when the domain size max is exhausted."""
+        # no programs: returns None once the domain size max is exceeded
+        for fg, fc, bg, bc, start, max_size in [
+            (None, None, None, None, 2, 1),
+            (None, None, None, None, 0, 0),
         ]:
-            out = StringIO()
-            with redirect_stdout(out):
-                solve_gc_for_counterexample(fg, fc, bg, bc, set(), set(), start, max_size, [], "n")
-            self.assertIn(expected, out.getvalue())
+            result = solve_gc_for_counterexample(fg, fc, bg, bc, set(), set(), start, max_size, [], "n")
+            self.assertIsNone(result)
 
-        with patch("anthem_cx.utils.solving._solve_gc_with_size", return_value=True):
+        # a found counterexample is returned in the corresponding direction
+        cex = Counterexample(0, "forward", [], [])
+        with patch("anthem_cx.utils.solving._solve_gc_with_size", return_value=cex):
             for fg, fc, bg, bc in [
                 ("g.", "c.", None, None),
                 (None, None, "bg.", "bc."),
             ]:
-                out = StringIO()
-                with redirect_stdout(out):
-                    solve_gc_for_counterexample(fg, fc, bg, bc, set(), set(), 0, None, [], "n")
-                self.assertIn("Solving for counterexample of domain size 0", out.getvalue())
+                result = solve_gc_for_counterexample(fg, fc, bg, bc, set(), set(), 0, None, [], "n")
+                self.assertIs(result, cex)
 
-        with patch("anthem_cx.utils.solving._solve_gc_with_size", return_value=False):
-            out = StringIO()
-            with redirect_stdout(out):
-                solve_gc_for_counterexample(
-                    "g.", "c.", "bg.", "bc.", {Predicate("a", 0)}, {Predicate("b", 1)}, 0, 0, [], "n"
-                )
-            self.assertIn("No counterexample", out.getvalue())
+        # nothing found within the domain size max returns None
+        with patch("anthem_cx.utils.solving._solve_gc_with_size", return_value=None):
+            result = solve_gc_for_counterexample(
+                "g.", "c.", "bg.", "bc.", {Predicate("a", 0)}, {Predicate("b", 1)}, 0, 0, [], "n"
+            )
+        self.assertIsNone(result)
