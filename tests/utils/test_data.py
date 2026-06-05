@@ -130,7 +130,7 @@ class TestDataUtils(TestCase):
         self.assertEqual(counterexample.output, ["b(1)"])
 
         rep = str(counterexample)
-        self.assertIn("Counterexample of size 2 in the forward direction", rep)
+        self.assertIn("Found a counterexample of size 2 in the forward direction", rep)
         self.assertIn("a", rep)
         self.assertIn("b(1)", rep)
         self.assertIn("left", rep)

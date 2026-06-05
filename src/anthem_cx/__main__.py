@@ -73,7 +73,7 @@ def main() -> None:
             log.info("Stratification check for right program failed")
             opts.eva.syntax_failure()
         else:
-            log.info("Stratification check for both program succeeded")
+            log.info("Stratification check for both programs succeeded")
             opts.eva.success()
 
     assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
