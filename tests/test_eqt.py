@@ -8,6 +8,7 @@ from unittest import TestCase
 from clingo.ast import AST, parse_string
 
 from anthem_cx.eqt import (
+    get_difference_constraint,
     get_difference_program,
     get_generate_program,
     get_public_reduct,
@@ -60,7 +61,7 @@ class TestCounterexampleProgramComponents(TestCase):
     def test_get_difference_program(self) -> None:
         """Tests for get_difference_program."""
         for outputs, expected in [
-            (set(), [f":- not {AUX.diff}.", f"#defined {AUX.unsat}/0.", f"{AUX.diff} :- {AUX.unsat}."]),
+            (set(), [f"#defined {AUX.unsat}/0.", f"{AUX.diff} :- {AUX.unsat}."]),
             (
                 {Predicate("a", 0)},
                 [f"{AUX.diff} :- a, not a{AUX.suffix}.", f"{AUX.diff} :- not a, a{AUX.suffix}."],
@@ -73,13 +74,20 @@ class TestCounterexampleProgramComponents(TestCase):
                 ],
             ),
         ]:
-            result = get_difference_program(outputs, False, AUX)
+            result = get_difference_program(outputs, AUX)
             for e in expected:
                 self.assertIn(e, result)
 
-        # test gc
-        self.assertIn(f":- {AUX.diff}.", get_difference_program(set(), True, AUX))
-        self.assertNotIn(f":- not {AUX.diff}.", get_difference_program(set(), True, AUX))
+        self.assertNotIn(f":- not {AUX.diff}.", get_difference_program(set(), AUX))
+        self.assertNotIn(f":- {AUX.diff}.", get_difference_program(set(), AUX))
+
+    def test_get_difference_constraint(self) -> None:
+        """Tests for get_difference_constraint."""
+        # standard mode enforces that a difference exists
+        self.assertEqual(get_difference_constraint(False, AUX), f":- not {AUX.diff}.")
+
+        # guess and check mode rejects models with a difference
+        self.assertEqual(get_difference_constraint(True, AUX), f":- {AUX.diff}.")
 
     def test_get_public_reduct(self) -> None:
         """Tests for get_public_reduct."""

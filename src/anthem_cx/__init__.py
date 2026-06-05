@@ -25,11 +25,20 @@ def _assemble_and_execute(programs: Programs, options: Options) -> None:
     backward = None
     if options.direction.includes_forward():
         forward = build_eqt(
-            programs.generate, programs.left, programs.public_reduct_right, programs.difference  # type: ignore
+            programs.generate,
+            programs.left,
+            programs.public_reduct_right,  # type: ignore
+            programs.difference,
+            programs.constraint,
         )
     if options.direction.includes_backward():
         backward = build_eqt(
-            programs.generate, programs.right, programs.public_reduct_left, programs.difference, False  # type: ignore
+            programs.generate,
+            programs.right,
+            programs.public_reduct_left,  # type: ignore
+            programs.difference,
+            programs.constraint,
+            False,
         )
 
     if options.solve:
@@ -57,11 +66,20 @@ def _assemble_and_execute_gc(programs: Programs, options: Options) -> None:
     backward_guess, backward_check = None, None
     if options.direction.includes_forward():
         forward_guess, forward_check = build_eqt_gc(
-            programs.generate, programs.left, programs.public_reduct_right, programs.difference  # type: ignore
+            programs.generate,
+            programs.left,
+            programs.public_reduct_right,  # type: ignore
+            programs.difference,
+            programs.constraint,
         )
     if options.direction.includes_backward():
         backward_guess, backward_check = build_eqt_gc(
-            programs.generate, programs.right, programs.public_reduct_left, programs.difference, False  # type: ignore
+            programs.generate,
+            programs.right,
+            programs.public_reduct_left,  # type: ignore
+            programs.difference,
+            programs.constraint,
+            False,
         )
 
     if options.solve:

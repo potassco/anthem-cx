@@ -53,7 +53,8 @@ def _make_programs(direction: Direction = Direction.FORWARD) -> Programs:
         left=left,
         right=right,
         generate="#const __domain_size=0.\n__dom(0..__domain_size-1).\n",
-        difference="__diff :- __bot.\n#defined __bot/0.\n:- not __diff.",
+        difference="__diff :- __bot.\n#defined __bot/0.",
+        constraint=":- not __diff.",
         public_reduct_left=reduct if direction != Direction.FORWARD else None,
         public_reduct_right=reduct if direction != Direction.BACKWARD else None,
     )
