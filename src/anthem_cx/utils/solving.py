@@ -6,39 +6,12 @@ from tempfile import NamedTemporaryFile
 
 from clingo.control import Control
 from clingo.solving import Model
-from clingo.symbol import Symbol
 from guess_and_check import solve_guess_and_check
 
-from .data import Predicate
+from .data import Counterexample, Predicate
 from .logging import get_logger
 
 log = get_logger(__name__)
-
-
-def _symbol_to_predicate(symbol: Symbol) -> Predicate:
-    return Predicate(symbol.name, len(symbol.arguments))
-
-
-def _on_model(direction: str, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model) -> None:
-    print(f"Found a counterexample of size {size} in the {direction} direction")
-    symbols = model.symbols(atoms=True)
-    counterexample_input = []
-    stable_model = []
-
-    for symbol in symbols:
-        pred = _symbol_to_predicate(symbol)
-
-        if pred in inputs:
-            counterexample_input.append(str(symbol))
-
-        if pred in outputs:
-            stable_model.append(str(symbol))
-
-    print("  Input for the counterexample:")
-    print("    " + ", ".join(counterexample_input))
-
-    print(f"  External behavior of {'left' if direction == 'forward' else 'right'}:")
-    print("    " + ", ".join(stable_model))
 
 
 def _solve_with_size(  # pylint: disable=too-many-positional-arguments
@@ -49,16 +22,23 @@ def _solve_with_size(  # pylint: disable=too-many-positional-arguments
     outputs: set[Predicate],
     clingo_args: list[str],
     size_placeholder: str,
-) -> bool:
+) -> Counterexample | None:
     """
-    Solve an EQT program with the given domain size and return whether a counterexample was found.
+    Solve an EQT program with the given domain size and return a counterexample if one is found.
     """
     ctl = Control(["-c", f"{size_placeholder}={size}"] + clingo_args)
     ctl.add(eqt)
     ctl.ground()
-    ret = ctl.solve(on_model=lambda m: _on_model(direction, size, inputs, outputs, m))
 
-    return bool(ret.satisfiable)
+    counterexample: Counterexample | None = None
+
+    def on_model(model: Model) -> None:
+        nonlocal counterexample
+        counterexample = Counterexample.from_model(direction, size, inputs, outputs, model)
+
+    ctl.solve(on_model=on_model)
+
+    return counterexample
 
 
 def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
@@ -70,30 +50,37 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
     domain_max: int | None,
     clingo_args: list[str],
     size_placeholder: str,
-) -> None:
+) -> Counterexample | None:
     """
     Solve the given EQT programs for counterexamples by increasing the domain size from start to max.
+
+    Returns the counterexample if one is found, otherwise None.
     """
-    log.info("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
-    log.info("forward program:\n%s", eqt_forward)
-    log.info("backward program:\n%s", eqt_backward)
+    log.debug("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
+    log.debug("forward program:\n%s", eqt_forward)
+    log.debug("backward program:\n%s", eqt_backward)
 
     domain_size = domain_start
     while True:
         # stop if the domain size is larger than the limit
         if domain_max is not None and domain_size > domain_max:
-            print(f"No counterexample was found for the domain size max of {domain_max}")
-            break
+            return None
 
-        print(f"Solving for counterexample of domain size {domain_size}")
+        log.info("Solving for counterexample of domain size %s", domain_size)
 
         if eqt_forward:
-            if _solve_with_size(eqt_forward, "forward", domain_size, inputs, outputs, clingo_args, size_placeholder):
-                break
+            counterexample = _solve_with_size(
+                eqt_forward, "forward", domain_size, inputs, outputs, clingo_args, size_placeholder
+            )
+            if counterexample:
+                return counterexample
 
         if eqt_backward:
-            if _solve_with_size(eqt_backward, "backward", domain_size, inputs, outputs, clingo_args, size_placeholder):
-                break
+            counterexample = _solve_with_size(
+                eqt_backward, "backward", domain_size, inputs, outputs, clingo_args, size_placeholder
+            )
+            if counterexample:
+                return counterexample
 
         domain_size += 1
 
@@ -107,7 +94,10 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
     outputs: set[Predicate],
     clingo_args: list[str],
     size_placeholder: str,
-) -> bool:
+) -> Counterexample | None:
+    """
+    Solve a guess and check EQT program with the given domain size and return a counterexample if one is found.
+    """
     with (
         NamedTemporaryFile(mode="w", delete=False) as guess_file,
         NamedTemporaryFile(mode="w", delete=False) as check_file,
@@ -115,14 +105,22 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
         guess_file.write(guess)
         check_file.write(check)
 
-    return solve_guess_and_check(  # type: ignore[no-any-return]
+    counterexample: Counterexample | None = None
+
+    def on_model(model: Model) -> None:
+        nonlocal counterexample
+        counterexample = Counterexample.from_model(direction, size, inputs, outputs, model)
+
+    solve_guess_and_check(
         ["-c", f"{size_placeholder}={size}"] + clingo_args,
         False,
         False,
         [guess_file.name],
         [check_file.name],
-        on_model=lambda m: _on_model(direction, size, inputs, outputs, m),
+        on_model=on_model,
     )
+
+    return counterexample
 
 
 def _get_holds(predicates: set[Predicate], undo: bool = False) -> str:
@@ -164,13 +162,15 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
     domain_max: int | None,
     clingo_args: list[str],
     size_placeholder: str,
-) -> None:
+) -> Counterexample | None:
     """
     Solve the given guess and check EQT programs for counterexamples by increasing the domain size from start to max.
+
+    Returns the counterexample if one is found, otherwise None.
     """
     log.debug("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
     log.debug("forward program:\n%s\n%s", forward_guess, forward_check)
-    log.debug("backward program:\n%s\n%s", backward_guess, forward_check)
+    log.debug("backward program:\n%s\n%s", backward_guess, backward_check)
 
     holds = _get_holds(inputs | outputs)
     undo_holds = _get_holds(inputs | outputs, undo=True)
@@ -188,21 +188,22 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
     while True:
         # stop if the domain size is larger than the limit
         if domain_max is not None and domain_size > domain_max:
-            print(f"No counterexample was found for the domain size max of {domain_max}")
-            break
+            return None
 
-        print(f"Solving for counterexample of domain size {domain_size}")
+        log.info("Solving for counterexample of domain size %s", domain_size)
 
         if forward_guess and forward_check:
-            if _solve_gc_with_size(
+            counterexample = _solve_gc_with_size(
                 forward_guess, forward_check, "forward", domain_size, inputs, outputs, clingo_args, size_placeholder
-            ):
-                break
+            )
+            if counterexample:
+                return counterexample
 
         if backward_guess and backward_check:
-            if _solve_gc_with_size(
+            counterexample = _solve_gc_with_size(
                 backward_guess, backward_check, "backward", domain_size, inputs, outputs, clingo_args, size_placeholder
-            ):
-                break
+            )
+            if counterexample:
+                return counterexample
 
         domain_size += 1

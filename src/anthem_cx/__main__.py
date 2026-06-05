@@ -97,7 +97,14 @@ def main() -> None:
         ),
     )
 
-    assemble_and_execute(progs, opts)
+    counterexample = assemble_and_execute(progs, opts)
+
+    # report the final result if solving
+    if opts.solve:
+        if counterexample:
+            print(counterexample)
+        else:
+            print(f"No counterexample was found for the domain size max of {opts.max_size}")
 
 
 if __name__ == "__main__":
