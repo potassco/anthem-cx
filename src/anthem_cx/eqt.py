@@ -18,7 +18,7 @@ from .transformation import (
     TransformRuleHeads,
 )
 from .utils.data import Auxiliaries, Predicate
-from .utils.logging import get_logger
+from .utils.logging import TRACE, get_logger
 from .utils.output import program_to_str
 from .utils.transformation import apply_transformer
 
@@ -41,8 +41,11 @@ def normalize_program(prog: list[AST]) -> list[AST]:
         NormalizeHead,
     ]:
         prog = apply_transformer(t(), prog)
-        log.debug("Program after applying %s", t.__name__)
-        log.debug(program_to_str(prog, True))
+        log.log(TRACE, "Program after applying %s", t.__name__)
+        log.log(TRACE, program_to_str(prog, True))
+
+    log.debug("Normalized program")
+    log.debug(program_to_str(prog, True))
 
     return prog
 
@@ -53,8 +56,11 @@ def get_public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Aux
     """
     for t in [ReplacePositiveOutputPredicates, TransformRuleHeads]:
         prog = apply_transformer(t(outputs, auxiliaries), prog)
-        log.debug("Program after applying %s", t.__name__)
-        log.debug(program_to_str(prog, True))
+        log.log(TRACE, "Program after applying %s", t.__name__)
+        log.log(TRACE, program_to_str(prog, True))
+
+    log.debug("Public reduct")
+    log.debug(program_to_str(prog, True))
 
     return prog
 

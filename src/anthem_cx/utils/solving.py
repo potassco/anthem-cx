@@ -168,9 +168,9 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
     """
     Solve the given guess and check EQT programs for counterexamples by increasing the domain size from start to max.
     """
-    log.info("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
-    log.info("forward program:\n%s\n%s", forward_guess, forward_check)
-    log.info("backward program:\n%s\n%s", backward_guess, forward_check)
+    log.debug("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
+    log.debug("forward program:\n%s\n%s", forward_guess, forward_check)
+    log.debug("backward program:\n%s\n%s", backward_guess, forward_check)
 
     holds = _get_holds(inputs | outputs)
     undo_holds = _get_holds(inputs | outputs, undo=True)

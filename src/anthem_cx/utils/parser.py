@@ -31,6 +31,7 @@ def get_parser() -> ArgumentParser:
         ("warning", logging.WARNING),
         ("info", logging.INFO),
         ("debug", logging.DEBUG),
+        ("trace", logging.TRACE),
     ]
 
     def get(levels: list[tuple[str, int]], name: str) -> Optional[int]:
@@ -41,7 +42,7 @@ def get_parser() -> ArgumentParser:
 
     parser.add_argument(
         "--log",
-        default="warning",
+        default="info",
         choices=[val for _, val in levels],
         metavar=f"{{{','.join(key for key, _ in levels)}}}",
         help="set the log level [%(default)s]",
