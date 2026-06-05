@@ -25,6 +25,7 @@ class Programs:
     right: list[AST]
     generate: str
     difference: str
+    constraint: str
     public_reduct_left: list[AST] | None
     public_reduct_right: list[AST] | None
 
