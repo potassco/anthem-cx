@@ -2,12 +2,53 @@
 The anthem_cx project.
 """
 
-from .utils.data import Counterexample, Options, Programs
+from clingo.ast import AST
+
+from .analysis.dependency import has_negative_cycle, has_odd_negative_cycle, has_recursive_aggregates
+from .utils.data import Counterexample, Options, Predicate, Programs
 from .utils.logging import get_logger
 from .utils.output import build_eqt, build_eqt_gc, save_eqt_gc_to_file, save_eqt_to_file
 from .utils.solving import solve_for_counterexample, solve_gc_for_counterexample
 
 log = get_logger(__name__)
+
+
+def run_syntactic_checks(
+    left: list[AST], right: list[AST], opts: Options, public_predicates: set[Predicate]
+) -> Options:
+    """
+    Run all syntactic checks: recrusive aggregates, negative cycle (if required), odd negative cycles (if required).
+
+    Returns a changed options object, changes are result of failed/succeeded checks.
+    """
+    if has_recursive_aggregates(left) or has_recursive_aggregates(right):
+        raise RuntimeError("Recursive aggregates are not supported.")
+
+    if opts.gc.use_gc is None and opts.gc.use_syntax:
+        skip_local = False
+        if opts.gc.use_syntax:
+            if has_negative_cycle(left, public_predicates):
+                log.info("Stratification check for left program failed (skip checking right)")
+                opts.gc.syntax_failure()
+            elif has_negative_cycle(right, public_predicates):
+                log.info("Stratification check for right program failed")
+                opts.gc.syntax_failure()
+            else:
+                skip_local = True
+                log.info("Stratification check for both programs succeeded")
+                opts.gc.success()
+
+        if not skip_local and opts.gc.use_local:
+            if has_odd_negative_cycle(left, public_predicates):
+                log.info("Local uniqueness precondition for left program failed (skip checking right)")
+                opts.gc.local_condition_failure()
+            elif has_odd_negative_cycle(right, public_predicates):
+                log.info("Local uniqueness precondition for right program failed")
+                opts.gc.local_condition_failure()
+            else:
+                log.info("Local uniqueness precondition for both programs succeeded")
+
+    return opts
 
 
 def assemble_and_execute(programs: Programs, options: Options) -> Counterexample | None:
