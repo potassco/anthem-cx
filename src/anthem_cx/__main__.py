@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from . import assemble_and_execute
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
-from .analysis.dependency import has_negative_cycle, has_recursive_aggregates
+from .analysis.dependency import has_negative_cycle, has_odd_negative_cycle, has_recursive_aggregates
 from .eqt import (
     get_difference_constraint,
     get_difference_program,
@@ -66,15 +66,29 @@ def main() -> None:
     )
 
     if opts.gc.use_gc is None and opts.gc.use_syntax:
-        if has_negative_cycle(left_normalized, inputs | outputs):
-            log.info("Stratification check for left program failed (skip checking right)")
-            opts.gc.syntax_failure()
-        elif has_negative_cycle(right_normalized, inputs | outputs):
-            log.info("Stratification check for right program failed")
-            opts.gc.syntax_failure()
-        else:
-            log.info("Stratification check for both programs succeeded")
-            opts.gc.success()
+        if opts.gc.use_syntax:
+            skip_local = False
+
+            if has_negative_cycle(left_normalized, inputs | outputs):
+                log.info("Stratification check for left program failed (skip checking right)")
+                opts.gc.syntax_failure()
+            elif has_negative_cycle(right_normalized, inputs | outputs):
+                log.info("Stratification check for right program failed")
+                opts.gc.syntax_failure()
+            else:
+                skip_local = True
+                log.info("Stratification check for both programs succeeded")
+                opts.gc.success()
+
+        if not skip_local and opts.gc.use_local:
+            if has_odd_negative_cycle(left_normalized, inputs | outputs):
+                log.info("Local uniqueness precondition for left program failed (skip checking right)")
+                opts.gc.local_condition_failure()
+            elif has_odd_negative_cycle(right_normalized, inputs | outputs):
+                log.info("Local uniqueness precondition for right program failed")
+                opts.gc.local_condition_failure()
+            else:
+                log.info("Local uniqueness precondition for both programs succeeded")
 
     assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
 
