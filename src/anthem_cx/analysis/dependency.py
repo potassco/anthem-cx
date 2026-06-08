@@ -47,9 +47,9 @@ def _cycles_to_str(cycles) -> str:  # type: ignore
     return ret_str
 
 
-def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicate]) -> bool:
+def has_negative_cycle(program: list[AST], public_predicates: set[Predicate]) -> bool:
     """
-    Check if a program has enough visible atoms by checking a modified predicate dependency graph for negative cycles.
+    Check if a program fulfills uniqueness by checking a modified predicate dependency graph for negative cycles.
     """
     graph_builder = SignedDependencyGraphBuilder(public_predicates)
     for n in program:
@@ -65,9 +65,9 @@ def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicat
         for _, _, data in subgraph.edges(data=True):
             if data.get("weight", 0) < 0:
                 log.debug("SCC with negative loop: %s", _nodes_to_str(scc))
-                return False
+                return True
 
-    return True
+    return False
 
 
 def has_recursive_aggregates(program: list[AST]) -> bool:

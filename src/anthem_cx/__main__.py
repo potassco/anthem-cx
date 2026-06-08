@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from . import assemble_and_execute
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
-from .analysis.dependency import has_enough_visible_atoms, has_recursive_aggregates
+from .analysis.dependency import has_negative_cycle, has_recursive_aggregates
 from .eqt import (
     get_difference_constraint,
     get_difference_program,
@@ -66,10 +66,10 @@ def main() -> None:
     )
 
     if opts.gc.use_gc is None and opts.gc.use_syntax:
-        if not has_enough_visible_atoms(left_normalized, inputs | outputs):
+        if has_negative_cycle(left_normalized, inputs | outputs):
             log.info("Stratification check for left program failed (skip checking right)")
             opts.gc.syntax_failure()
-        elif not has_enough_visible_atoms(right_normalized, inputs | outputs):
+        elif has_negative_cycle(right_normalized, inputs | outputs):
             log.info("Stratification check for right program failed")
             opts.gc.syntax_failure()
         else:
