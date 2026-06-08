@@ -16,9 +16,9 @@ from anthem_cx import assemble_and_execute
 from anthem_cx.utils.data import (
     Auxiliaries,
     Direction,
-    EVAData,
     Options,
     Programs,
+    UniquenessData,
 )
 
 
@@ -35,7 +35,7 @@ def _make_options(**kwargs: Any) -> Options:
         "solve": False,
         "start": 0,
         "max_size": 0,
-        "eva": EVAData(False, False, False),
+        "gc": UniquenessData(False, False, False),
         "inputs": set(),
         "outputs": set(),
         "clingo_args": [],
@@ -65,16 +65,16 @@ class TestAssembleAndExecute(TestCase):
 
     def test_prints_direction(self) -> None:
         """Direction label(s) appear in stdout output for both standard and GC modes."""
-        for direction, eva, expected in [
-            (Direction.FORWARD, EVAData(False, False, False), ["forward"]),
-            (Direction.BACKWARD, EVAData(False, False, False), ["backward"]),
-            (Direction.UNIVERSAL, EVAData(False, False, False), ["forward", "backward"]),
-            (Direction.FORWARD, EVAData(True, False, False), ["forward"]),
-            (Direction.BACKWARD, EVAData(True, False, False), ["backward"]),
-            (Direction.UNIVERSAL, EVAData(True, False, False), ["forward", "backward"]),
+        for direction, gc, expected in [
+            (Direction.FORWARD, UniquenessData(False, False, False), ["forward"]),
+            (Direction.BACKWARD, UniquenessData(False, False, False), ["backward"]),
+            (Direction.UNIVERSAL, UniquenessData(False, False, False), ["forward", "backward"]),
+            (Direction.FORWARD, UniquenessData(True, False, False), ["forward"]),
+            (Direction.BACKWARD, UniquenessData(True, False, False), ["backward"]),
+            (Direction.UNIVERSAL, UniquenessData(True, False, False), ["forward", "backward"]),
         ]:
             programs = _make_programs(direction)
-            options = _make_options(direction=direction, eva=eva)
+            options = _make_options(direction=direction, gc=gc)
             out = StringIO()
             with redirect_stdout(out):
                 assemble_and_execute(programs, options)
@@ -85,28 +85,28 @@ class TestAssembleAndExecute(TestCase):
     def test_saves_to_file_when_out_dir_set(self) -> None:
         """When out_dir is set the EQT is written to disk instead of stdout."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            for direction, eva, expected_files in [
-                (Direction.FORWARD, EVAData(False, False, False), ["forward.lp"]),
+            for direction, gc, expected_files in [
+                (Direction.FORWARD, UniquenessData(False, False, False), ["forward.lp"]),
                 (
                     Direction.UNIVERSAL,
-                    EVAData(True, False, False),
+                    UniquenessData(True, False, False),
                     ["forward_guess.lp", "forward_check.lp", "backward_guess.lp", "backward_check.lp"],
                 ),
             ]:
                 programs = _make_programs(direction)
-                options = _make_options(direction=direction, eva=eva, out_dir=tmpdir)
+                options = _make_options(direction=direction, gc=gc, out_dir=tmpdir)
                 assemble_and_execute(programs, options)
                 for f in expected_files:
                     self.assertTrue(os.path.exists(os.path.join(tmpdir, f)))
 
     def test_solve_calls_solver(self) -> None:
         """With solve=True the appropriate solver function is invoked."""
-        for eva, patch_target in [
-            (EVAData(False, False, False), "anthem_cx.solve_for_counterexample"),
-            (EVAData(True, False, False), "anthem_cx.solve_gc_for_counterexample"),
+        for gc, patch_target in [
+            (UniquenessData(False, False, False), "anthem_cx.solve_for_counterexample"),
+            (UniquenessData(True, False, False), "anthem_cx.solve_gc_for_counterexample"),
         ]:
             programs = _make_programs(Direction.FORWARD)
-            options = _make_options(direction=Direction.FORWARD, solve=True, eva=eva)
+            options = _make_options(direction=Direction.FORWARD, solve=True, gc=gc)
             with patch(patch_target) as mock_solve:
                 assemble_and_execute(programs, options)
                 mock_solve.assert_called_once()

@@ -63,21 +63,21 @@ class Direction(Enum):
 
 
 @dataclass
-class EVAData:
+class UniquenessData:
     """
-    Dataclass storing info about EVA and EVA checks.
+    Dataclass storing info about uniqueness and uniqueness checks
 
-    use_gc determines whether GC should be used (bool) or if check need to be run (None).
-    The use of which checks is determined by use_syntax and use_runtime.
+    use_gc determines whether GC should be used (bool) or if checks need to be run (None).
+    The use of which checks is determined by use_syntax and use_local.
     """
 
     use_gc: bool | None
     use_syntax: bool
-    use_runtime: bool
+    use_local: bool
 
     @classmethod
-    def from_string(cls, value: str) -> "EVAData":
-        """Create an EVAData object from a string."""
+    def from_string(cls, value: str) -> "UniquenessData":
+        """Create a UniquenessData object from a string."""
         match value:
             case "skip":
                 return cls(False, False, False)
@@ -90,22 +90,26 @@ class EVAData:
             case "local":
                 return cls(None, False, True)
             case _:
-                raise ValueError(f"Invalid EVA data value: {value}")
+                raise ValueError(f"Invalid uniqueness data value: {value}")
 
-    def success(self) -> "EVAData":
+    def success(self) -> "UniquenessData":
         """Update data after successful check."""
         return replace(self, use_gc=False)
 
-    def syntax_failure(self) -> "EVAData":
+    def syntax_failure(self) -> "UniquenessData":
         """Update data after failed syntactic check."""
-        # failure of syntax check only relevant if we do not use the runtime check
-        if not self.use_runtime:
+        # failure of syntax check only relevant if we do not use the local check
+        if not self.use_local:
             return replace(self, use_gc=True)
 
         return self
 
-    def runtime_failure(self) -> "EVAData":
-        """Update data after failed runtime check."""
+    def local_condition_failure(self) -> "UniquenessData":
+        """Update data after failed check for local precondition (no odd cycles)."""
+        return replace(self, use_gc=True, use_local=False)
+
+    def local_failure(self) -> "UniquenessData":
+        """Update data after failed local check."""
         return replace(self, use_gc=True)
 
 
@@ -191,7 +195,7 @@ class Options:  # pylint: disable=too-many-instance-attributes
     solve: bool
     start: int
     max_size: int | None
-    eva: EVAData
+    gc: UniquenessData
     inputs: set[Predicate]
     outputs: set[Predicate]
     clingo_args: list[str]

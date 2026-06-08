@@ -16,7 +16,7 @@ def assemble_and_execute(programs: Programs, options: Options) -> Counterexample
 
     Returns the counterexample if solving is enabled and one is found, otherwise None.
     """
-    if options.eva.use_gc:
+    if options.gc.use_gc:
         return _assemble_and_execute_gc(programs, options)
 
     return _assemble_and_execute(programs, options)
