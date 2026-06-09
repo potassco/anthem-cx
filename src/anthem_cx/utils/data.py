@@ -92,25 +92,24 @@ class UniquenessData:
             case _:
                 raise ValueError(f"Invalid uniqueness data value: {value}")
 
-    def success(self) -> "UniquenessData":
+    def success(self) -> None:
         """Update data after successful check."""
-        return replace(self, use_gc=False)
+        self.use_gc = False
 
-    def syntax_failure(self) -> "UniquenessData":
+    def syntax_failure(self) -> None:
         """Update data after failed syntactic check."""
         # failure of syntax check only relevant if we do not use the local check
         if not self.use_local:
-            return replace(self, use_gc=True)
+            self.use_gc = True
 
-        return self
-
-    def local_condition_failure(self) -> "UniquenessData":
+    def local_condition_failure(self) -> None:
         """Update data after failed check for local precondition (no odd cycles)."""
-        return replace(self, use_gc=True, use_local=False)
+        self.use_gc = True
+        self.use_local = False
 
-    def local_failure(self) -> "UniquenessData":
+    def local_failure(self) -> None:
         """Update data after failed local check."""
-        return replace(self, use_gc=True)
+        self.use_gc = True
 
 
 @dataclass(frozen=True)

@@ -63,12 +63,21 @@ class TestDataUtils(TestCase):
             UniquenessData.from_string("test")
 
     def test_uniqueness_data_functions(self) -> None:
-        """Tests for the UniquenessData dataclass functions."""
-        self.assertEqual(UniquenessData(None, True, True).success(), UniquenessData(False, True, True))
-        self.assertEqual(UniquenessData(None, True, True).syntax_failure(), UniquenessData(None, True, True))
-        self.assertEqual(UniquenessData(None, True, True).local_failure(), UniquenessData(True, True, True))
-        self.assertEqual(UniquenessData(None, True, False).syntax_failure(), UniquenessData(True, True, False))
-        self.assertEqual(UniquenessData(None, True, True).local_condition_failure(), UniquenessData(True, True, False))
+        """Tests for the UniquenessData dataclass functions, which mutate the object in place."""
+        for data, update, expected in [
+            (UniquenessData(None, True, True), UniquenessData.success, UniquenessData(False, True, True)),
+            # a syntax failure does not change the data if the local check is still used
+            (UniquenessData(None, True, True), UniquenessData.syntax_failure, UniquenessData(None, True, True)),
+            (UniquenessData(None, True, False), UniquenessData.syntax_failure, UniquenessData(True, True, False)),
+            (UniquenessData(None, True, True), UniquenessData.local_failure, UniquenessData(True, True, True)),
+            (
+                UniquenessData(None, True, True),
+                UniquenessData.local_condition_failure,
+                UniquenessData(True, True, False),
+            ),
+        ]:
+            update(data)
+            self.assertEqual(data, expected)
 
     def test_auxiliaries(self) -> None:
         """Tests for the Auxiliaries dataclass."""
