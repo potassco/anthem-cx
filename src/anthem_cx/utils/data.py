@@ -63,21 +63,21 @@ class Direction(Enum):
 
 
 @dataclass
-class EVAData:
+class UniquenessData:
     """
-    Dataclass storing info about EVA and EVA checks.
+    Dataclass storing info about uniqueness and uniqueness checks
 
-    use_gc determines whether GC should be used (bool) or if check need to be run (None).
-    The use of which checks is determined by use_syntax and use_runtime.
+    use_gc determines whether GC should be used (bool) or if checks need to be run (None).
+    The use of which checks is determined by use_syntax and use_local.
     """
 
     use_gc: bool | None
     use_syntax: bool
-    use_runtime: bool
+    use_local: bool
 
     @classmethod
-    def from_string(cls, value: str) -> "EVAData":
-        """Create an EVAData object from a string."""
+    def from_string(cls, value: str) -> "UniquenessData":
+        """Create a UniquenessData object from a string."""
         match value:
             case "skip":
                 return cls(False, False, False)
@@ -90,23 +90,26 @@ class EVAData:
             case "local":
                 return cls(None, False, True)
             case _:
-                raise ValueError(f"Invalid EVA data value: {value}")
+                raise ValueError(f"Invalid uniqueness data value: {value}")
 
-    def success(self) -> "EVAData":
+    def success(self) -> None:
         """Update data after successful check."""
-        return replace(self, use_gc=False)
+        self.use_gc = False
 
-    def syntax_failure(self) -> "EVAData":
+    def syntax_failure(self) -> None:
         """Update data after failed syntactic check."""
-        # failure of syntax check only relevant if we do not use the runtime check
-        if not self.use_runtime:
-            return replace(self, use_gc=True)
+        # failure of syntax check only relevant if we do not use the local check
+        if not self.use_local:
+            self.use_gc = True
 
-        return self
+    def local_condition_failure(self) -> None:
+        """Update data after failed check for local precondition (no odd cycles)."""
+        self.use_gc = True
+        self.use_local = False
 
-    def runtime_failure(self) -> "EVAData":
-        """Update data after failed runtime check."""
-        return replace(self, use_gc=True)
+    def local_failure(self) -> None:
+        """Update data after failed local check."""
+        self.use_gc = True
 
 
 @dataclass(frozen=True)
@@ -191,7 +194,7 @@ class Options:  # pylint: disable=too-many-instance-attributes
     solve: bool
     start: int
     max_size: int | None
-    eva: EVAData
+    gc: UniquenessData
     inputs: set[Predicate]
     outputs: set[Predicate]
     clingo_args: list[str]
@@ -211,8 +214,7 @@ class Counterexample:
 
     def __str__(self) -> str:
         """Obtain a string representation of the counterexample."""
-        rep = f"Found a counterexample of size {self.size} in the {self.direction} direction\n"
-        rep += "  Input for the counterexample:\n"
+        rep = "  Input for the counterexample:\n"
         rep += "    " + ", ".join(self.input) + "\n"
         rep += f"  External behavior of {'left' if self.direction == 'forward' else 'right'}:\n"
         rep += "    " + ", ".join(self.output)

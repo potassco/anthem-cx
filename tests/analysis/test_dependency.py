@@ -12,7 +12,9 @@ from anthem_cx.analysis.dependency import (
     _cycles_to_str,
     _edges_to_str,
     _nodes_to_str,
-    has_enough_visible_atoms,
+    _parity_node_to_str,
+    has_negative_cycle,
+    has_odd_negative_cycle,
     has_recursive_aggregates,
 )
 from anthem_cx.utils.data import Predicate
@@ -41,6 +43,19 @@ class TestStringHelpers(TestCase):
         ]:
             self.assertEqual(_edges_to_str(edges, data), expected)
 
+    def test_parity_node_to_str(self) -> None:
+        """Test conversion of a parity-doubled node to str."""
+        for node, expected in [
+            ((Predicate("a", 0), 0), "(a/0, 0)"),
+            ((Predicate("b", 2), 1), "(b/2, 1)"),
+        ]:
+            self.assertEqual(_parity_node_to_str(node), expected)
+
+    def test_edges_to_str_parity_formatter(self) -> None:
+        """Test edge conversion using a custom node formatter."""
+        edges = [((Predicate("a", 0), 0), (Predicate("b", 0), 1))]
+        self.assertEqual(_edges_to_str(edges, to_str=_parity_node_to_str), "[((a/0, 0),(b/0, 1))]")
+
     def test_cycles_to_str(self) -> None:
         """Test conversion of cycles to str."""
         for cycles, expected in [
@@ -51,11 +66,11 @@ class TestStringHelpers(TestCase):
             self.assertEqual(_cycles_to_str(cycles), expected)
 
 
-class TestHasEnoughVisibleAtoms(TestCase):
-    """Tests for has_enough_visible_atoms (signed dependency graph analysis)."""
+class TestHasNegativeCycle(TestCase):
+    """Tests for has_negative_cycle (signed dependency graph analysis)."""
 
-    def test_success(self) -> None:
-        """Test cases that have enough visible atoms."""
+    def test_no_negative_cycle(self) -> None:
+        """Test cases that do not have a negative cycle."""
         for prog, publics in [
             ("", set()),
             ("a :- not b.", {Predicate("a", 0), Predicate("b", 0)}),
@@ -65,16 +80,16 @@ class TestHasEnoughVisibleAtoms(TestCase):
             (":- a.", set()),
             ("a :- 1 <= #count{ 1 : b }.", {Predicate("a", 0), Predicate("b", 0)}),
         ]:
-            self.assertTrue(has_enough_visible_atoms(parse_program(prog), publics))
+            self.assertFalse(has_negative_cycle(parse_program(prog), publics))
 
-    def test_failure(self) -> None:
-        """Test cases that do not have enough visible atoms."""
+    def test_has_negative_cycle(self) -> None:
+        """Test cases that have a negative cycle."""
         for prog, publics in [
             ("{a}.", set()),
             ("a :- not b. b :- not a.", set()),
             ("a :- not a. b :- a.", {Predicate("b", 0)}),
         ]:
-            self.assertFalse(has_enough_visible_atoms(parse_program(prog), publics))
+            self.assertTrue(has_negative_cycle(parse_program(prog), publics))
 
     def test_signed_builder_visit_literal_null_head(self) -> None:
         """visit_Literal returns the node unchanged when current_head is None."""
@@ -92,6 +107,44 @@ class TestHasEnoughVisibleAtoms(TestCase):
         with self.assertRaises(ValueError):
             for n in prog:
                 builder(n)
+
+
+class TestHasOddNegativeCycle(TestCase):
+    """Tests for has_odd_negative_cycle (parity-doubled dependency graph analysis)."""
+
+    def test_no_odd_negative_cycle(self) -> None:
+        """Test cases that do not have an odd negative cycle."""
+        for prog, publics in [
+            # no cycle at all
+            ("", set()),
+            ("a :- not b.", {Predicate("a", 0), Predicate("b", 0)}),
+            # positive cycle (parity 0)
+            ("a :- b. b :- a.", set()),
+            # even negative cycle: two single negations sum to parity 0
+            ("a :- not b. b :- not a.", set()),
+            # double negation counts as two negations -> parity 0
+            ("a :- not not a.", set()),
+            # private choice corresponds to a double negation -> parity 0
+            ("{a}.", set()),
+            # negation of a public predicate is ignored
+            ("a :- not a.", {Predicate("a", 0)}),
+        ]:
+            self.assertFalse(has_odd_negative_cycle(parse_program(prog), publics))
+
+    def test_has_odd_negative_cycle(self) -> None:
+        """Test cases that have an odd negative cycle."""
+        cases: list[tuple[str, set[Predicate]]] = [
+            # single negation self-loop
+            ("a :- not a.", set()),
+            # one single negation, one positive edge -> parity 1
+            ("a :- not b. b :- a.", set()),
+            # three single negations -> parity 1
+            ("a :- not b. b :- not c. c :- not a.", set()),
+            # double negation is necessary to close the loop; parity 0 + 1 = 1
+            ("a :- not not b. b :- not a.", set()),
+        ]
+        for prog, publics in cases:
+            self.assertTrue(has_odd_negative_cycle(parse_program(prog), publics))
 
 
 class TestHasRecursiveAggregates(TestCase):

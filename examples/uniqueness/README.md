@@ -1,10 +1,9 @@
 # Uniqueness examples
 
 This folder contains three examples to show different situations regarding the
-uniqueness condition. All examples are programs that are externally equivalent
-and use the same user guide `uniqueness.ug`. As all examples are propositional
-we only have to consider counterexamples of domain size 0, to do so we add the
-option `--max 0`.
+uniqueness condition. All examples use the same user guide `uniqueness.ug`. As
+all examples are propositional we only have to consider counterexamples of
+domain size 0, to do so we add the option `--max 0`.
 
 ## Uniqueness holds
 
@@ -68,3 +67,36 @@ anthem-cx 3-left.lp 3-right.lp uniqueness.ug --max 0 --uniqueness-check skip
 ```
 
 an incorrect counterexample is produced.
+
+### Local uniqueness
+
+In some cases the uniqueness condition can be replaced by a local version as
+illustrated by example 4 and 5.
+
+In example 4, the programs are externally equivalent. The stratification check
+fails for this example. However, as the programs do not contain odd negative
+loops in their public reducts, we can use the local uniquness criterion.
+Running the command
+
+```bash
+anthem-cx 4-left.lp 4-right.lp uniqueness.ug --max 0
+```
+
+informs us that the precondition for local uniqueness (absence of odd negative
+loops) is satisfied. The counterexample search then proceeds using the
+non-guess-and-check approach. As this finds no counterexamples we also know
+that the guess-and-check approach will not find any counterexamples. Thus, even
+though we can not verify uniqueness here we do not have to use the
+guess-and-check approach.
+
+In example 5, the precondition for local uniqueness are also fulfilled. Running
+the command
+
+```bash
+anthem-cx 5-left.lp 5-right.lp uniqueness.ug --max 0
+```
+
+shows that a potential counterexample is found. This triggers the local
+uniqueness check which fails for this example. As a result the guess-and-check
+approach is then used to search for counterexamples. However, no counterexample
+is found as the programs are externally equivalent.

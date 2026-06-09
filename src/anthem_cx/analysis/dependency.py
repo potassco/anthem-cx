@@ -5,7 +5,7 @@ Module for checking dependencies in a logic program.
 from abc import ABC, abstractmethod
 
 from clingo.ast import AST, ASTType, Sign, Transformer
-from networkx import MultiDiGraph, simple_cycles, strongly_connected_components
+from networkx import DiGraph, MultiDiGraph, simple_cycles, strongly_connected_components
 
 from ..utils.data import Predicate
 from ..utils.logging import get_logger
@@ -14,25 +14,30 @@ from ..utils.transformation import atom_to_predicate
 log = get_logger(__name__)
 
 
-def _nodes_to_str(nodes) -> str:  # type: ignore
+def _parity_node_to_str(node) -> str:  # type: ignore
+    pred, bit = node
+    return f"({pred}, {bit})"
+
+
+def _nodes_to_str(nodes, to_str=str) -> str:  # type: ignore
     ret_str = "["
     for i, n in enumerate(nodes):
         if i > 0:
             ret_str += ", "
-        ret_str += str(n)
+        ret_str += to_str(n)
     ret_str += "]"
     return ret_str
 
 
-def _edges_to_str(edges, data: bool = False) -> str:  # type: ignore
+def _edges_to_str(edges, data: bool = False, to_str=str) -> str:  # type: ignore
     ret_str = "["
     for i, e in enumerate(edges):
         if i > 0:
             ret_str += ", "
         if data:
-            ret_str += "((" + str(e[0]) + "," + str(e[1]) + "), " + str(e[2]["weight"]) + ")"
+            ret_str += "((" + to_str(e[0]) + "," + to_str(e[1]) + "), " + str(e[2]["weight"]) + ")"
         else:
-            ret_str += "(" + str(e[0]) + "," + str(e[1]) + ")"
+            ret_str += "(" + to_str(e[0]) + "," + to_str(e[1]) + ")"
     ret_str += "]"
     return ret_str
 
@@ -47,9 +52,9 @@ def _cycles_to_str(cycles) -> str:  # type: ignore
     return ret_str
 
 
-def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicate]) -> bool:
+def _build_signed_graph(program: list[AST], public_predicates: set[Predicate]) -> "MultiDiGraph[Predicate]":
     """
-    Check if a program has enough visible atoms by checking a modified predicate dependency graph for negative cycles.
+    Build the signed predicate dependency graph and log its nodes and edges.
     """
     graph_builder = SignedDependencyGraphBuilder(public_predicates)
     for n in program:
@@ -60,20 +65,69 @@ def has_enough_visible_atoms(program: list[AST], public_predicates: set[Predicat
     log.debug("Nodes: %s", _nodes_to_str(graph.nodes))
     log.debug("Edges: %s", _edges_to_str(graph.edges(data=True), True))
 
+    return graph
+
+
+def has_negative_cycle(program: list[AST], public_predicates: set[Predicate]) -> bool:
+    """
+    Check if a program fulfills uniqueness by checking a modified predicate dependency graph for negative cycles.
+    """
+    log.debug("Building signed dependency graph for has_negative_cycle")
+    graph = _build_signed_graph(program, public_predicates)
+
     for scc in strongly_connected_components(graph):
         subgraph = graph.subgraph(scc)
         for _, _, data in subgraph.edges(data=True):
             if data.get("weight", 0) < 0:
                 log.debug("SCC with negative loop: %s", _nodes_to_str(scc))
-                return False
+                return True
 
-    return True
+    return False
+
+
+def has_odd_negative_cycle(program: list[AST], public_predicates: set[Predicate]) -> bool:
+    """
+    Check if a program has a negative cycle with an odd number of negations.
+
+    Only negated literals of private predicates are taken into account (exactly as for
+    has_negative_cycle). A single negation counts as one negation while a double negation
+    (including the implicit double negation of a private choice rule) counts as two; the
+    latter therefore does not change the parity of a cycle.
+
+    The check reduces to a parity problem: the number of negations on a cycle is odd iff
+    the number of single-negation private edges on it is odd. To detect such a cycle we
+    build a parity-doubled graph with two copies of every node tagged with a parity bit,
+    where traversing an edge flips the bit by the edge's parity. A directed cycle with odd
+    parity through v then corresponds to (v, 0) and (v, 1) lying in the same strongly
+    connected component of the doubled graph.
+    """
+    log.debug("Building signed dependency graph for has_odd_negative_cycle")
+    graph = _build_signed_graph(program, public_predicates)
+
+    log.debug("Building parity graph for has_odd_negative_cycle")
+    doubled: "DiGraph[tuple[Predicate, int]]" = DiGraph()  # pylint: disable=unsubscriptable-object
+    for u, v, data in graph.edges(data=True):
+        parity = data.get("parity", 0)
+        doubled.add_edge((u, 0), (v, parity))
+        doubled.add_edge((u, 1), (v, 1 - parity))
+
+    log.debug("Parity nodes: %s", _nodes_to_str(doubled.nodes, _parity_node_to_str))
+    log.debug("Parity edges: %s", _edges_to_str(doubled.edges, to_str=_parity_node_to_str))
+
+    for scc in strongly_connected_components(doubled):
+        both = {node for node, bit in scc if bit == 0} & {node for node, bit in scc if bit == 1}
+        if both:
+            log.debug("SCC with odd negative cycle: %s", _nodes_to_str(scc))
+            return True
+
+    return False
 
 
 def has_recursive_aggregates(program: list[AST]) -> bool:
     """
     Check if a program contains recursive aggregates.
     """
+    log.debug("Building aggregate dependency graph for has_rescursive_aggregates")
     graph_builder = AggregateDependencyGraphBuilder()
     for n in program:
         graph_builder(n)
@@ -187,8 +241,9 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
                 case _:  # nocoverage
                     raise ValueError(f"Unexpected choice element: {element}")
 
+            # a private choice corresponds to a double negation, hence parity 0
             if self._is_private(pred):
-                self.graph.add_edge(pred, pred, weight=-1)
+                self.graph.add_edge(pred, pred, weight=-1, parity=0)
 
             self.visit_sequence(node.body)
 
@@ -209,17 +264,20 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
         body_pred = atom_to_predicate(atom)
         self.graph.add_node(body_pred)
 
-        # add all positive dependencies with weight 0
+        # add all positive dependencies with weight 0 and parity 0
         if node.sign == Sign.NoSign:
             weight = 0
-        # add negative dependencies of private predicates with weight -1
+            parity = 0
+        # add negative dependencies of private predicates with weight -1;
+        # a single negation has parity 1, a double negation parity 0
         elif self._is_private(body_pred):
             weight = -1
+            parity = 1 if node.sign == Sign.Negation else 0
         # ignore negative dependencies of public predicates
         else:
             return node
 
-        self.graph.add_edge(self.current_head, body_pred, weight=weight)
+        self.graph.add_edge(self.current_head, body_pred, weight=weight, parity=parity)
 
         return node
 

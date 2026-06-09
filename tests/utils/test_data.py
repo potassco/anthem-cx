@@ -1,5 +1,5 @@
 """
-Tests for utils/data.py: Direction, EVAData, Auxiliaries, Predicate.
+Tests for utils/data.py: Direction, UniquenessData, Auxiliaries, Predicate.
 """
 
 from unittest import TestCase
@@ -10,8 +10,8 @@ from anthem_cx.utils.data import (
     Auxiliaries,
     Counterexample,
     Direction,
-    EVAData,
     Predicate,
+    UniquenessData,
 )
 
 
@@ -48,26 +48,36 @@ class TestDataUtils(TestCase):
             self.assertEqual(direction.includes_forward(), forward)
             self.assertEqual(direction.includes_backward(), backward)
 
-    def test_eva_data_parsing(self) -> None:
-        """Tests for the EVAData dataclass parsing."""
+    def test_uniqueness_data_parsing(self) -> None:
+        """Tests for the UniquenessData dataclass parsing."""
         for string, expected in [
-            ("skip", EVAData(False, False, False)),
-            ("fail", EVAData(True, False, False)),
-            ("auto", EVAData(None, True, True)),
-            ("stratification", EVAData(None, True, False)),
-            ("local", EVAData(None, False, True)),
+            ("skip", UniquenessData(False, False, False)),
+            ("fail", UniquenessData(True, False, False)),
+            ("auto", UniquenessData(None, True, True)),
+            ("stratification", UniquenessData(None, True, False)),
+            ("local", UniquenessData(None, False, True)),
         ]:
-            self.assertEqual(EVAData.from_string(string), expected)
+            self.assertEqual(UniquenessData.from_string(string), expected)
 
         with self.assertRaises(ValueError):
-            EVAData.from_string("test")
+            UniquenessData.from_string("test")
 
-    def test_eva_data_functions(self) -> None:
-        """Tests for the EVAData dataclass functions."""
-        self.assertEqual(EVAData(None, True, True).success(), EVAData(False, True, True))
-        self.assertEqual(EVAData(None, True, True).syntax_failure(), EVAData(None, True, True))
-        self.assertEqual(EVAData(None, True, True).runtime_failure(), EVAData(True, True, True))
-        self.assertEqual(EVAData(None, True, False).syntax_failure(), EVAData(True, True, False))
+    def test_uniqueness_data_functions(self) -> None:
+        """Tests for the UniquenessData dataclass functions, which mutate the object in place."""
+        for data, update, expected in [
+            (UniquenessData(None, True, True), UniquenessData.success, UniquenessData(False, True, True)),
+            # a syntax failure does not change the data if the local check is still used
+            (UniquenessData(None, True, True), UniquenessData.syntax_failure, UniquenessData(None, True, True)),
+            (UniquenessData(None, True, False), UniquenessData.syntax_failure, UniquenessData(True, True, False)),
+            (UniquenessData(None, True, True), UniquenessData.local_failure, UniquenessData(True, True, True)),
+            (
+                UniquenessData(None, True, True),
+                UniquenessData.local_condition_failure,
+                UniquenessData(True, True, False),
+            ),
+        ]:
+            update(data)
+            self.assertEqual(data, expected)
 
     def test_auxiliaries(self) -> None:
         """Tests for the Auxiliaries dataclass."""
@@ -130,10 +140,7 @@ class TestDataUtils(TestCase):
         self.assertEqual(counterexample.output, ["b(1)"])
 
         rep = str(counterexample)
-        self.assertIn("Found a counterexample of size 2 in the forward direction", rep)
-        self.assertIn("a", rep)
-        self.assertIn("b(1)", rep)
-        self.assertIn("left", rep)
+        self.assertEqual("  Input for the counterexample:\n    a\n  External behavior of left:\n    b(1)", rep)
 
         # the backward direction reports the right program's behavior
         self.assertIn("right", str(Counterexample(1, "backward", [], [])))
