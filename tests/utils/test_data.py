@@ -140,10 +140,7 @@ class TestDataUtils(TestCase):
         self.assertEqual(counterexample.output, ["b(1)"])
 
         rep = str(counterexample)
-        self.assertIn("Found a counterexample of size 2 in the forward direction", rep)
-        self.assertIn("a", rep)
-        self.assertIn("b(1)", rep)
-        self.assertIn("left", rep)
+        self.assertEqual("  Input for the counterexample:\n    a\n  External behavior of left:\n    b(1)", rep)
 
         # the backward direction reports the right program's behavior
         self.assertIn("right", str(Counterexample(1, "backward", [], [])))
