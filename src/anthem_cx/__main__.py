@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from . import assemble_and_execute, run_syntactic_checks
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
+from .analysis.local import is_locally_unique
 from .eqt import (
     get_difference_constraint,
     get_difference_program,
@@ -31,7 +32,7 @@ def main() -> None:
 
     # logging
     configure_logging(sys.stderr, args.log, sys.stderr.isatty())
-    get_logger("main")
+    log = get_logger("main")
 
     inputs, outputs = parse_user_guide(args.user_guide)
     left = parse_program(args.left)
@@ -87,6 +88,29 @@ def main() -> None:
     )
 
     counterexample = assemble_and_execute(progs, opts)
+
+    if counterexample and opts.gc.use_gc is None and opts.gc.use_local:
+        log.info("Found a potential counterexample:")
+        log.info(counterexample)
+
+        # run local uniqueness checks on the public reduct
+        # the reduct for the counterexample's direction is guaranteed to exist
+        if counterexample.direction == "forward":
+            assert progs.public_reduct_right is not None
+            if not is_locally_unique(progs.public_reduct_right, counterexample):
+                log.info("Local uniqueness check for right program failed")
+                opts.gc.local_failure()
+        else:
+            assert progs.public_reduct_left is not None
+            if not is_locally_unique(progs.public_reduct_left, counterexample):
+                log.info("Local uniqueness check for left program failed")
+                opts.gc.local_failure()
+
+        # solve gc program if required
+        if opts.gc.use_gc:
+            counterexample = assemble_and_execute(progs, opts)
+        else:
+            log.info("Local uniqueness check for both programs suceeded")
 
     # report the final result if solving
     if opts.solve:
