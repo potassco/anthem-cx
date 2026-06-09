@@ -108,6 +108,7 @@ def main() -> None:
 
         # solve gc program if required
         if opts.gc.use_gc:
+            progs.constraint = get_difference_constraint(True, opts.auxiliaries)
             counterexample = assemble_and_execute(progs, opts)
         else:
             log.info("Local uniqueness check for both programs suceeded")
