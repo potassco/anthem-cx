@@ -214,8 +214,7 @@ class Counterexample:
 
     def __str__(self) -> str:
         """Obtain a string representation of the counterexample."""
-        rep = f"Found a counterexample of size {self.size} in the {self.direction} direction\n"
-        rep += "  Input for the counterexample:\n"
+        rep = "  Input for the counterexample:\n"
         rep += "    " + ", ".join(self.input) + "\n"
         rep += f"  External behavior of {'left' if self.direction == 'forward' else 'right'}:\n"
         rep += "    " + ", ".join(self.output)

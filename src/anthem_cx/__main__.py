@@ -90,7 +90,11 @@ def main() -> None:
     counterexample = assemble_and_execute(progs, opts)
 
     if counterexample and opts.gc.use_gc is None and opts.gc.use_local:
-        log.info("Found a potential counterexample:")
+        log.info(
+            "Found a potential counterexample of size %s in the %s direction",
+            counterexample.size,
+            counterexample.direction,
+        )
         log.info(counterexample)
 
         # run local uniqueness checks on the public reduct
@@ -116,6 +120,7 @@ def main() -> None:
     # report the final result if solving
     if opts.solve:
         if counterexample:
+            print(f"Found a counterexample of size {counterexample.size} in the {counterexample.direction} direction")
             print(counterexample)
         else:
             print(f"No counterexample was found for the domain size max of {opts.max_size}")
