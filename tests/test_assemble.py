@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from clingo.ast import AST, parse_string
 
-from anthem_cx import assemble_and_execute
+from anthem_cx import assemble_and_execute, run_syntactic_checks
 from anthem_cx.utils.data import (
     Auxiliaries,
     Direction,
@@ -110,3 +110,41 @@ class TestAssembleAndExecute(TestCase):
             with patch(patch_target) as mock_solve:
                 assemble_and_execute(programs, options)
                 mock_solve.assert_called_once()
+
+
+class TestRunSyntacticChecks(TestCase):
+    """Tests for run_syntactic_checks."""
+
+    def test_rejects_recursive_aggregates(self) -> None:
+        """A recursive aggregate in either program raises a RuntimeError."""
+        aggregate = _parse("a :- 1 <= #count{ 1 : a }.")
+        for left, right in [(aggregate, _parse("")), (_parse(""), aggregate)]:
+            options = _make_options(gc=UniquenessData(None, True, True))
+            self.assertRaises(RuntimeError, run_syntactic_checks, left, right, options, set())
+
+    def test_updates_uniqueness_data(self) -> None:
+        """The syntactic checks update opts.gc in place depending on their outcome."""
+        # programs and their (negative cycle, odd negative cycle) properties for empty publics:
+        #   ""                -> (False, False)
+        #   "a :- not a."     -> (True, True)
+        #   "{a}."            -> (True, False)
+        #   "a :- b. b :- a." -> (False, False)
+        for left, right, initial, expected in [
+            # auto mode: left has an odd negative cycle -> local precondition fails
+            ("a :- not a.", "", UniquenessData(None, True, True), UniquenessData(True, True, False)),
+            # auto mode: right has an odd negative cycle -> local precondition fails
+            ("", "a :- not a.", UniquenessData(None, True, True), UniquenessData(True, True, False)),
+            # auto mode: both stratified -> stratification succeeds, local check skipped
+            ("a :- b. b :- a.", "", UniquenessData(None, True, True), UniquenessData(False, True, True)),
+            # auto mode: not stratified but no odd negative cycle -> local precondition holds
+            ("{a}.", "", UniquenessData(None, True, True), UniquenessData(None, True, True)),
+            # stratification mode: negative cycle and no local check -> fall back to guess and check
+            ("{a}.", "", UniquenessData(None, True, False), UniquenessData(True, True, False)),
+            # use_gc already decided -> no checks are run
+            ("a :- not a.", "", UniquenessData(False, False, False), UniquenessData(False, False, False)),
+            # local mode (no syntactic checks) -> data is left unchanged
+            ("a :- not a.", "", UniquenessData(None, False, True), UniquenessData(None, False, True)),
+        ]:
+            options = _make_options(gc=initial)
+            run_syntactic_checks(_parse(left), _parse(right), options, set())
+            self.assertEqual(options.gc, expected)

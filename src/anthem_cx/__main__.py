@@ -61,7 +61,9 @@ def main() -> None:
         auxiliaries=auxiliaries,
     )
 
-    opts = run_syntactic_checks(left_normalized, right_normalized, opts, inputs | outputs)
+    # run all syntactic checks
+    # if we use any checks for uniqueness this will change opts.gc in place
+    run_syntactic_checks(left_normalized, right_normalized, opts, inputs | outputs)
 
     assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
 

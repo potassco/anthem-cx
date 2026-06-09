@@ -13,13 +13,11 @@ from .utils.solving import solve_for_counterexample, solve_gc_for_counterexample
 log = get_logger(__name__)
 
 
-def run_syntactic_checks(
-    left: list[AST], right: list[AST], opts: Options, public_predicates: set[Predicate]
-) -> Options:
+def run_syntactic_checks(left: list[AST], right: list[AST], opts: Options, public_predicates: set[Predicate]) -> None:
     """
     Run all syntactic checks: recrusive aggregates, negative cycle (if required), odd negative cycles (if required).
 
-    Returns a changed options object, changes are result of failed/succeeded checks.
+    Updates opts.gc in place depending on the result of the failed/succeeded checks.
     """
     if has_recursive_aggregates(left) or has_recursive_aggregates(right):
         raise RuntimeError("Recursive aggregates are not supported.")
@@ -47,8 +45,6 @@ def run_syntactic_checks(
                 opts.gc.local_condition_failure()
             else:
                 log.info("Local uniqueness precondition for both programs succeeded")
-
-    return opts
 
 
 def assemble_and_execute(programs: Programs, options: Options) -> Counterexample | None:
