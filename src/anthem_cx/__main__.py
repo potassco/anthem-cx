@@ -115,7 +115,7 @@ def main() -> None:
             progs.constraint = get_difference_constraint(True, opts.auxiliaries)
             counterexample = assemble_and_execute(progs, opts)
         else:
-            log.info("Local uniqueness check for both programs suceeded")
+            log.info("Local uniqueness check suceeded")
 
     # report the final result if solving
     if opts.solve:
