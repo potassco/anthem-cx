@@ -13,7 +13,9 @@ are assumptions are given as constraints in `assumptions.lp`.
 The two programs are not externally equivalent. Running the command
 
 ```bash
-anthem-cx left.lp right.lp tiling.ug --assumptions assumptions.lp
+anthem-cx tiling.1.lp tiling.2.lp tiling.ug --assumptions assumptions.lp
 ```
 
-finds a counterexample of size 6.
+finds a counterexample of size 1; the witnessing input is `size(6)`. The
+reported size counts the distinct constants used in the input (here only the
+constant `6`), not the tiling grid size.

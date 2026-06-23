@@ -12,24 +12,23 @@ these examples it is not necessary to use the guess and check approach.
 
 ### Example 1
 
-The example consists of programs `1-left.lp` and `1-right.lp`. Here the
-uniqueness condition can be verified using the syntactic criterion. Running the
-command
+The example consists of programs `1.1.lp` and `1.2.lp`. Here the uniqueness
+condition can be verified using the syntactic criterion. Running the command
 
 ```bash
-anthem-cx 1-left.lp 1-right.lp uniqueness.ug --max 0
+anthem-cx 1.1.lp 1.2.lp uniqueness.ug --max 0
 ```
 
 does not produce any counterexamples.
 
 ### Example 2
 
-The example consists of programs `2-left.lp` and `2-right.lp`. Here the
-uniqueness condition can not be verified using the syntactic criterion. As a
-result the guess and check approach is automatically used. Running the command
+The example consists of programs `2.1.lp` and `2.2.lp`. Here the uniqueness
+condition can not be verified using the syntactic criterion. As a result the
+guess and check approach is automatically used. Running the command
 
 ```bash
-anthem-cx 2-left.lp 2-right.lp uniqueness.ug --max 0
+anthem-cx 2.1.lp 2.2.lp uniqueness.ug --max 0
 ```
 
 prints a warning that the uniqueness condition could not be verified causing
@@ -41,20 +40,19 @@ and check approach by adding the option `--uniqueness-check fail`. As expected
 running the command
 
 ```bash
-anthem-cx 2-left.lp 2-right.lp uniqueness.ug --max 0 --uniqueness-check fail
+anthem-cx 2.1.lp 2.2.lp uniqueness.ug --max 0 --uniqueness-check fail
 ```
 
 also does not produce a counterexample.
 
 ## Uniqueness does not hold
 
-In example 3, consisting of programs `3-left.lp` and `3-right.lp`, the
-uniqueness condition does not hold. Thus, the check of the syntactic criterion
-fails causing the use of the guess and check transformation. Running the
-command
+In example 3, consisting of programs `3.1.lp` and `3.2.lp`, the uniqueness
+condition does not hold. Thus, the check of the syntactic criterion fails
+causing the use of the guess and check transformation. Running the command
 
 ```bash
-anthem-cx 3-left.lp 3-right.lp uniqueness.ug --max 0
+anthem-cx 3.1.lp 3.2.lp uniqueness.ug --max 0
 ```
 
 does not result in a counterexample.
@@ -63,7 +61,7 @@ If we disable the use of the guess and check approach by running the following
 command
 
 ```bash
-anthem-cx 3-left.lp 3-right.lp uniqueness.ug --max 0 --uniqueness-check skip
+anthem-cx 3.1.lp 3.2.lp uniqueness.ug --max 0 --uniqueness-check skip
 ```
 
 an incorrect counterexample is produced.
@@ -79,7 +77,7 @@ loops in their public reducts, we can use the local uniquness criterion.
 Running the command
 
 ```bash
-anthem-cx 4-left.lp 4-right.lp uniqueness.ug --max 0
+anthem-cx 4.1.lp 4.2.lp uniqueness.ug --max 0
 ```
 
 informs us that the precondition for local uniqueness (absence of odd negative
@@ -93,7 +91,7 @@ In example 5, the precondition for local uniqueness are also fulfilled. Running
 the command
 
 ```bash
-anthem-cx 5-left.lp 5-right.lp uniqueness.ug --max 0
+anthem-cx 5.1.lp 5.2.lp uniqueness.ug --max 0
 ```
 
 shows that a potential counterexample is found. This triggers the local
@@ -104,7 +102,7 @@ is found as the programs are externally equivalent.
 In example 6, we again start by running
 
 ```bash
-anthem-cx 6-left.lp 6-right.lp uniqueness.ug --max 0
+anthem-cx 6.1.lp 6.2.lp uniqueness.ug --max 0
 ```
 
 Again the precondition for local uniqueness is fulfilled and a potential
