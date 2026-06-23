@@ -222,21 +222,29 @@ class Counterexample:
         return rep
 
     @classmethod
-    def from_model(  # pylint: disable=too-many-positional-arguments
-        cls, is_forward: bool, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model
+    def from_model(
+        cls, is_forward: bool, inputs: set[Predicate], outputs: set[Predicate], model: Model
     ) -> "Counterexample":
-        """Create a Counterexample object from a model."""
+        """
+        Create a Counterexample object from a model.
+
+        The size is the number of distinct constants actually used in the input atoms, which may
+        differ from the domain size parameter used while solving (e.g. when constants occurring in
+        the programs are added to the domain or when not all domain elements are used).
+        """
         symbols = model.symbols(atoms=True)
         input_atoms = []
         output_atoms = []
+        input_constants = set()
 
         for symbol in symbols:
             pred = Predicate(symbol.name, len(symbol.arguments))
 
             if pred in inputs:
                 input_atoms.append(str(symbol))
+                input_constants.update(symbol.arguments)
 
             if pred in outputs:
                 output_atoms.append(str(symbol))
 
-        return Counterexample(size, is_forward, input_atoms, output_atoms)
+        return Counterexample(len(input_constants), is_forward, input_atoms, output_atoms)

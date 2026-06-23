@@ -51,6 +51,11 @@ Found a counterexample of size 1 in the forward direction
     path(0,0)
 ```
 
+The reported size is the number of distinct constants used in the input of the
+counterexample (here only the constant `0`). This may differ from the domain
+size parameter used while solving, since constants occurring in the programs
+are also added to the domain (see `--no-program-constants` below).
+
 ### Useful options
 
 Optionally an assumption program can be provided to restrict the generated
@@ -69,6 +74,11 @@ guarantee that the counterexample with smallest domain size is found first.
 The maximal domain size to check can be configured with `--max n` for some
 number `n`. By default no such limit is used. If the programs are propositional
 a maximum of `0` should be used.
+
+By default any constants occurring in the two programs are added to the input
+domain so that the generated inputs may use them. This can be disabled with
+`--no-program-constants`, in which case the input domain only consists of the
+elements generated from the domain size parameter.
 
 Solving of the counterexample programs can be disabled with the option
 `--no-solve`. In this case the counterexample programs are printed to the

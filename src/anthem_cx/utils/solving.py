@@ -36,7 +36,7 @@ def _solve_with_size(  # pylint: disable=too-many-positional-arguments
 
     def on_model(model: Model) -> None:
         nonlocal counterexample
-        counterexample = Counterexample.from_model(is_forward, size, inputs, outputs, model)
+        counterexample = Counterexample.from_model(is_forward, inputs, outputs, model)
 
     ctl.solve(on_model=on_model)
 
@@ -68,7 +68,7 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
         if domain_max is not None and domain_size > domain_max:
             return None
 
-        log.info("Solving for counterexample of domain size %s", domain_size)
+        log.info("Solving with domain size parameter %s", domain_size)
 
         if cx_program_forward:
             counterexample = _solve_with_size(
@@ -113,7 +113,7 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
 
     def on_model(model: Model) -> None:
         nonlocal counterexample
-        counterexample = Counterexample.from_model(is_forward, size, inputs, outputs, model)
+        counterexample = Counterexample.from_model(is_forward, inputs, outputs, model)
 
     try:
         solve_guess_and_check(
@@ -188,7 +188,7 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
         if domain_max is not None and domain_size > domain_max:
             return None
 
-        log.info("Solving for counterexample of domain size %s", domain_size)
+        log.info("Solving with domain size parameter %s", domain_size)
 
         if forward_guess and forward_check:
             counterexample = _solve_gc_with_size(

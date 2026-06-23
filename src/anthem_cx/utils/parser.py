@@ -77,6 +77,12 @@ def get_parser() -> ArgumentParser:
         help="control which uniqueness check is used [%(default)s]",
     )
 
+    parser.add_argument(
+        "--no-program-constants",
+        action="store_true",
+        help="do not add constants occurring in the programs to the input domain",
+    )
+
     parser.add_argument("--assumptions", "-a", type=str, help="a file containing an assumption program")
 
     parser.add_argument("left", type=str, help="the left program")
