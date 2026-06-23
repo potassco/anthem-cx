@@ -71,7 +71,7 @@ an incorrect counterexample is produced.
 ### Local uniqueness
 
 In some cases the uniqueness condition can be replaced by a local version as
-illustrated by example 4 and 5.
+illustrated by example 4, 5, and 6.
 
 In example 4, the programs are externally equivalent. The stratification check
 fails for this example. However, as the programs do not contain odd negative
@@ -100,3 +100,14 @@ shows that a potential counterexample is found. This triggers the local
 uniqueness check which fails for this example. As a result the guess-and-check
 approach is then used to search for counterexamples. However, no counterexample
 is found as the programs are externally equivalent.
+
+In example 6, we again start by running
+
+```bash
+anthem-cx 6-left.lp 6-right.lp uniqueness.ug --max 0
+```
+
+Again the precondition for local uniqueness is fulfilled and a potential
+counterexample is found. However, in this example the local uniqueness check
+succeeds. This guarantees that the potential counterexample is valid. And we
+were able to compute it without using the guess-and-check approach.
