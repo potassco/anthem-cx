@@ -7,6 +7,7 @@ from unittest import TestCase
 from anthem_cx.analysis.assumptions import check_assumptions
 from anthem_cx.analysis.conflict import _collect_privates
 from anthem_cx.utils.data import Auxiliaries, Predicate
+from anthem_cx.utils.errors import AnthemCXError
 
 from . import parse_program
 
@@ -53,5 +54,5 @@ class TestCheckAssumptions(TestCase):
             "out(X) :- in(X).",
         ]:
             self.assertRaises(
-                RuntimeError, check_assumptions, parse_program(prg), self.inputs, self.outputs, [], [], self.aux
+                AnthemCXError, check_assumptions, parse_program(prg), self.inputs, self.outputs, [], [], self.aux
             )

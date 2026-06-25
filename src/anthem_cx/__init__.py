@@ -6,6 +6,7 @@ from clingo.ast import AST
 
 from .analysis.dependency import has_negative_cycle, has_odd_negative_cycle, has_recursive_aggregates
 from .utils.data import Counterexample, Options, Predicate, Programs
+from .utils.errors import AnthemCXError
 from .utils.logging import get_logger
 from .utils.output import build_eqt, build_eqt_gc, save_eqt_gc_to_file, save_eqt_to_file
 from .utils.solving import solve_for_counterexample, solve_gc_for_counterexample
@@ -20,7 +21,7 @@ def run_syntactic_checks(left: list[AST], right: list[AST], opts: Options, publi
     Updates opts.uniqueness in place depending on the result of the failed/succeeded checks.
     """
     if has_recursive_aggregates(left) or has_recursive_aggregates(right):
-        raise RuntimeError("Recursive aggregates are not supported.")
+        raise AnthemCXError("recursive aggregates are not supported")
 
     if opts.uniqueness.use_gc is None and opts.uniqueness.use_syntax:
         skip_local = False

@@ -3,6 +3,7 @@ The main entry point for the application.
 """
 
 import sys
+from argparse import Namespace
 from copy import deepcopy
 
 from . import assemble_and_execute, run_syntactic_checks
@@ -18,6 +19,7 @@ from .eqt import (
     normalize_program,
 )
 from .utils.data import Auxiliaries, Direction, Options, Programs, UniquenessData
+from .utils.errors import AnthemCXError
 from .utils.logging import configure_logging, get_logger
 from .utils.output import program_to_str
 from .utils.parse_program import parse_program
@@ -35,6 +37,20 @@ def main() -> None:
 
     # logging
     configure_logging(sys.stderr, args.log, sys.stderr.isatty())
+    log = get_logger("main")
+
+    try:
+        _run(args, clingo_args)
+    except AnthemCXError as e:
+        # expected, user-facing errors are reported without a traceback
+        log.error("%s", e)
+        sys.exit(1)
+
+
+def _run(args: Namespace, clingo_args: list[str]) -> None:
+    """
+    Run the counterexample search for the parsed command line arguments.
+    """
     log = get_logger("main")
 
     inputs, outputs = parse_user_guide(args.user_guide)

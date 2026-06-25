@@ -5,6 +5,7 @@ Module to check that programs do not contain inputs in their rule heads.
 from clingo.ast import AST, Transformer
 
 from ..utils.data import Predicate
+from ..utils.errors import AnthemCXError
 from ..utils.logging import get_logger
 from ..utils.transformation import atom_to_predicate, head_atom
 
@@ -15,14 +16,14 @@ def check_inputs_not_in_heads(left: list[AST], right: list[AST], inputs: set[Pre
     """
     Check that neither program contains an input predicate in a rule head.
 
-    Raises a RuntimeError (causing anthem-cx to exit) if an input predicate occurs in a head.
+    Raises an AnthemCXError (causing anthem-cx to exit) if an input predicate occurs in a head.
     The programs are expected to be normalized.
     """
     for program, name in [(left, "left"), (right, "right")]:
         conflicts = inputs_in_heads(program, inputs)
         if conflicts:
             predicates = ", ".join(str(p) for p in sorted(conflicts, key=str))
-            raise RuntimeError(f"Input predicate(s) in the head of the {name} program: {predicates}")
+            raise AnthemCXError(f"input predicate(s) in the head of the {name} program: {predicates}")
 
 
 def inputs_in_heads(program: list[AST], inputs: set[Predicate]) -> set[Predicate]:

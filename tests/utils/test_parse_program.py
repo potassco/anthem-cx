@@ -6,6 +6,7 @@ import os
 import tempfile
 from unittest import TestCase
 
+from anthem_cx.utils.errors import AnthemCXError
 from anthem_cx.utils.parse_program import parse_program
 
 
@@ -36,3 +37,17 @@ class TestParseProgram(TestCase):
                 self.assertIn(prg, prg_str)
             finally:
                 os.unlink(path)
+
+    def test_syntax_error_raises_anthem_error(self) -> None:
+        """A program with a syntax error raises an AnthemCXError, not a bare RuntimeError."""
+        path = _write_program("p :- :- q.")
+        try:
+            with self.assertRaises(AnthemCXError):
+                parse_program(path)
+        finally:
+            os.unlink(path)
+
+    def test_missing_file_raises_anthem_error(self) -> None:
+        """A missing file raises an AnthemCXError."""
+        with self.assertRaises(AnthemCXError):
+            parse_program("/nonexistent/does-not-exist.lp")

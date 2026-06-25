@@ -15,6 +15,7 @@ from anthem_cx.eqt import (
     normalize_program,
 )
 from anthem_cx.utils.data import Auxiliaries, Predicate
+from anthem_cx.utils.errors import AnthemCXError
 
 
 def _parse(src: str) -> list[AST]:
@@ -39,7 +40,7 @@ class TestNormalizeProgram(TestCase):
             for e in expected:
                 self.assertIn(e, [str(n) for n in result])
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(AnthemCXError):
             normalize_program(_parse("p ; q."))
 
 

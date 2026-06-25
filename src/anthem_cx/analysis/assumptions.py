@@ -5,6 +5,7 @@ Module for checking the optional assumption program.
 from clingo.ast import AST
 
 from ..utils.data import Auxiliaries, Predicate
+from ..utils.errors import AnthemCXError
 from ..utils.logging import get_logger
 from .conflict import _collect_privates, _get_replacements, _replace_predicates
 
@@ -26,7 +27,7 @@ def check_assumptions(  # pylint: disable=too-many-positional-arguments
     Predicates that are not input or output are renamed if they conflict with any private
     predicates of left or right. In addition, the assumptions may use the auxiliary domain predicate.
 
-    Raises a RuntimeError (causing anthem-cx to exit) if an output predicate occurs in the
+    Raises an AnthemCXError (causing anthem-cx to exit) if an output predicate occurs in the
     assumption program. Returns the (possibly renamed) assumption program.
     """
     # the domain predicate is allowed
@@ -37,7 +38,7 @@ def check_assumptions(  # pylint: disable=too-many-positional-arguments
     output_conflicts = assumption_privates & outputs
     if output_conflicts:
         predicates = ", ".join(str(p) for p in sorted(output_conflicts, key=str))
-        raise RuntimeError(f"Output predicate(s) in the assumption program: {predicates}")
+        raise AnthemCXError(f"output predicate(s) in the assumption program: {predicates}")
 
     # ensure the assumption privates are distinct from all predicates of the left/right programs
     # and the auxiliaries; rename conflicting ones

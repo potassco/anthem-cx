@@ -20,6 +20,7 @@ from anthem_cx.utils.data import (
     Programs,
     UniquenessData,
 )
+from anthem_cx.utils.errors import AnthemCXError
 
 
 def _parse(src: str) -> list[AST]:
@@ -116,11 +117,11 @@ class TestRunSyntacticChecks(TestCase):
     """Tests for run_syntactic_checks."""
 
     def test_rejects_recursive_aggregates(self) -> None:
-        """A recursive aggregate in either program raises a RuntimeError."""
+        """A recursive aggregate in either program raises an AnthemCXError."""
         aggregate = _parse("a :- 1 <= #count{ 1 : a }.")
         for left, right in [(aggregate, _parse("")), (_parse(""), aggregate)]:
             options = _make_options(uniqueness=UniquenessData(None, True, True))
-            self.assertRaises(RuntimeError, run_syntactic_checks, left, right, options, set())
+            self.assertRaises(AnthemCXError, run_syntactic_checks, left, right, options, set())
 
     def test_updates_uniqueness_data(self) -> None:
         """The syntactic checks update opts.uniqueness in place depending on their outcome."""
