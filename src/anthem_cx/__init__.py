@@ -17,32 +17,32 @@ def run_syntactic_checks(left: list[AST], right: list[AST], opts: Options, publi
     """
     Run all syntactic checks: recrusive aggregates, negative cycle (if required), odd negative cycles (if required).
 
-    Updates opts.gc in place depending on the result of the failed/succeeded checks.
+    Updates opts.uniqueness in place depending on the result of the failed/succeeded checks.
     """
     if has_recursive_aggregates(left) or has_recursive_aggregates(right):
         raise RuntimeError("Recursive aggregates are not supported.")
 
-    if opts.gc.use_gc is None and opts.gc.use_syntax:
+    if opts.uniqueness.use_gc is None and opts.uniqueness.use_syntax:
         skip_local = False
-        if opts.gc.use_syntax:
+        if opts.uniqueness.use_syntax:
             if has_negative_cycle(left, public_predicates):
                 log.info("Stratification check for left program failed (skip checking right)")
-                opts.gc.syntax_failure()
+                opts.uniqueness.syntax_failure()
             elif has_negative_cycle(right, public_predicates):
                 log.info("Stratification check for right program failed")
-                opts.gc.syntax_failure()
+                opts.uniqueness.syntax_failure()
             else:
                 skip_local = True
                 log.info("Stratification check for both programs succeeded")
-                opts.gc.success()
+                opts.uniqueness.success()
 
-        if not skip_local and opts.gc.use_local:
+        if not skip_local and opts.uniqueness.use_local:
             if has_odd_negative_cycle(left, public_predicates):
                 log.info("Local uniqueness precondition for left program failed (skip checking right)")
-                opts.gc.local_condition_failure()
+                opts.uniqueness.local_condition_failure()
             elif has_odd_negative_cycle(right, public_predicates):
                 log.info("Local uniqueness precondition for right program failed")
-                opts.gc.local_condition_failure()
+                opts.uniqueness.local_condition_failure()
             else:
                 log.info("Local uniqueness precondition for both programs succeeded")
 
@@ -53,7 +53,7 @@ def assemble_and_execute(programs: Programs, options: Options) -> Counterexample
 
     Returns the counterexample if solving is enabled and one is found, otherwise None.
     """
-    if options.gc.use_gc:
+    if options.uniqueness.use_gc:
         log.info("Using the guess and check approach")
         return _assemble_and_execute_gc(programs, options)
 

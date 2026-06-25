@@ -194,7 +194,7 @@ class Options:  # pylint: disable=too-many-instance-attributes
     solve: bool
     start: int
     max_size: int | None
-    gc: UniquenessData
+    uniqueness: UniquenessData
     inputs: set[Predicate]
     outputs: set[Predicate]
     clingo_args: list[str]

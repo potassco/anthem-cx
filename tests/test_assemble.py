@@ -35,7 +35,7 @@ def _make_options(**kwargs: Any) -> Options:
         "solve": False,
         "start": 0,
         "max_size": 0,
-        "gc": UniquenessData(False, False, False),
+        "uniqueness": UniquenessData(False, False, False),
         "inputs": set(),
         "outputs": set(),
         "clingo_args": [],
@@ -74,7 +74,7 @@ class TestAssembleAndExecute(TestCase):
             (Direction.UNIVERSAL, UniquenessData(True, False, False), ["forward", "backward"]),
         ]:
             programs = _make_programs(direction)
-            options = _make_options(direction=direction, gc=gc)
+            options = _make_options(direction=direction, uniqueness=gc)
             out = StringIO()
             with redirect_stdout(out):
                 assemble_and_execute(programs, options)
@@ -94,7 +94,7 @@ class TestAssembleAndExecute(TestCase):
                 ),
             ]:
                 programs = _make_programs(direction)
-                options = _make_options(direction=direction, gc=gc, out_dir=tmpdir)
+                options = _make_options(direction=direction, uniqueness=gc, out_dir=tmpdir)
                 assemble_and_execute(programs, options)
                 for f in expected_files:
                     self.assertTrue(os.path.exists(os.path.join(tmpdir, f)))
@@ -106,7 +106,7 @@ class TestAssembleAndExecute(TestCase):
             (UniquenessData(True, False, False), "anthem_cx.solve_gc_for_counterexample"),
         ]:
             programs = _make_programs(Direction.FORWARD)
-            options = _make_options(direction=Direction.FORWARD, solve=True, gc=gc)
+            options = _make_options(direction=Direction.FORWARD, solve=True, uniqueness=gc)
             with patch(patch_target) as mock_solve:
                 assemble_and_execute(programs, options)
                 mock_solve.assert_called_once()
@@ -119,11 +119,11 @@ class TestRunSyntacticChecks(TestCase):
         """A recursive aggregate in either program raises a RuntimeError."""
         aggregate = _parse("a :- 1 <= #count{ 1 : a }.")
         for left, right in [(aggregate, _parse("")), (_parse(""), aggregate)]:
-            options = _make_options(gc=UniquenessData(None, True, True))
+            options = _make_options(uniqueness=UniquenessData(None, True, True))
             self.assertRaises(RuntimeError, run_syntactic_checks, left, right, options, set())
 
     def test_updates_uniqueness_data(self) -> None:
-        """The syntactic checks update opts.gc in place depending on their outcome."""
+        """The syntactic checks update opts.uniqueness in place depending on their outcome."""
         # programs and their (negative cycle, odd negative cycle) properties for empty publics:
         #   ""                -> (False, False)
         #   "a :- not a."     -> (True, True)
@@ -145,6 +145,6 @@ class TestRunSyntacticChecks(TestCase):
             # local mode (no syntactic checks) -> data is left unchanged
             ("a :- not a.", "", UniquenessData(None, False, True), UniquenessData(None, False, True)),
         ]:
-            options = _make_options(gc=initial)
+            options = _make_options(uniqueness=initial)
             run_syntactic_checks(_parse(left), _parse(right), options, set())
-            self.assertEqual(options.gc, expected)
+            self.assertEqual(options.uniqueness, expected)

@@ -61,7 +61,7 @@ def main() -> None:
         solve=not args.no_solve,
         start=args.start,
         max_size=args.max,
-        gc=UniquenessData.from_string(args.uniqueness_check),
+        uniqueness=UniquenessData.from_string(args.uniqueness_check),
         inputs=inputs,
         outputs=outputs,
         clingo_args=clingo_args,
@@ -69,7 +69,7 @@ def main() -> None:
     )
 
     # run all syntactic checks
-    # if we use any checks for uniqueness this will change opts.gc in place
+    # if we use any checks for uniqueness this will change opts.uniqueness in place
     run_syntactic_checks(left_normalized, right_normalized, opts, inputs | outputs)
 
     assumptions = None
@@ -85,7 +85,7 @@ def main() -> None:
         right=right,
         generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
         difference=get_difference_program(opts.outputs, opts.auxiliaries),
-        constraint=get_difference_constraint(bool(opts.gc.use_gc), opts.auxiliaries),
+        constraint=get_difference_constraint(bool(opts.uniqueness.use_gc), opts.auxiliaries),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs, opts.auxiliaries)
             if opts.direction.includes_backward()
@@ -100,7 +100,7 @@ def main() -> None:
 
     counterexample = assemble_and_execute(progs, opts)
 
-    if counterexample and opts.gc.use_gc is None and opts.gc.use_local:
+    if counterexample and opts.uniqueness.use_gc is None and opts.uniqueness.use_local:
         log.info(
             "Found a potential counterexample of size %s in the %s direction",
             counterexample.size,
@@ -114,19 +114,19 @@ def main() -> None:
             assert progs.public_reduct_right is not None
             if not is_locally_unique(progs.public_reduct_right, counterexample):
                 log.info("Local uniqueness check for right program failed")
-                opts.gc.local_failure()
+                opts.uniqueness.local_failure()
         else:
             assert progs.public_reduct_left is not None
             if not is_locally_unique(progs.public_reduct_left, counterexample):
                 log.info("Local uniqueness check for left program failed")
-                opts.gc.local_failure()
+                opts.uniqueness.local_failure()
 
         # solve gc program if required
-        if opts.gc.use_gc:
+        if opts.uniqueness.use_gc:
             progs.constraint = get_difference_constraint(True, opts.auxiliaries)
             counterexample = assemble_and_execute(progs, opts)
         else:
-            log.info("Local uniqueness check suceeded")
+            log.info("Local uniqueness check succeeded")
 
     # report the final result if solving
     if opts.solve:
