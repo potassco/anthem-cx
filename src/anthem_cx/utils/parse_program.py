@@ -10,16 +10,6 @@ from .output import program_to_str
 log = get_logger(__name__)
 
 
-def parse_program_as_str(filename: str) -> str:
-    """
-    Parse a program into a string.
-    """
-    with open(filename, "r", encoding="utf-8") as f:
-        prog = f.read()
-
-    return prog
-
-
 def parse_program(filename: str) -> list[AST]:
     """
     Parse a file into a list of ASTs.

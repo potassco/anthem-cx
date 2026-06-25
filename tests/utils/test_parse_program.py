@@ -1,12 +1,12 @@
 """
-Tests for utils/parse_program.py: parse_program_as_str and parse_program.
+Tests for utils/parse_program.py: parse_program.
 """
 
 import os
 import tempfile
 from unittest import TestCase
 
-from anthem_cx.utils.parse_program import parse_program, parse_program_as_str
+from anthem_cx.utils.parse_program import parse_program
 
 
 def _write_program(content: str) -> str:
@@ -19,19 +19,6 @@ def _write_program(content: str) -> str:
 
 class TestParseProgram(TestCase):
     """Tests for program parsing."""
-
-    def test_parse_program_as_str(self) -> None:
-        """Test parsing programs into string."""
-        for prg in [
-            "a :- b. b.",
-            "",
-            "a.\nb.\nc :- a, b.",
-        ]:
-            path = _write_program(prg)
-            try:
-                self.assertEqual(parse_program_as_str(path), prg)
-            finally:
-                os.unlink(path)
 
     def test_parse_program(self) -> None:
         """Test parsing programs."""
