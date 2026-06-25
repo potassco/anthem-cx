@@ -12,6 +12,7 @@ from .transformation import (
     ChoiceTermNormalizer,
     HeadAggregateNormalizer,
     NormalizeHead,
+    RejectClassicalNegation,
     RejectDisjunctions,
     RemoveHeadCondition,
     ReplacePositiveOutputPredicates,
@@ -31,6 +32,7 @@ def normalize_program(prog: list[AST]) -> list[AST]:
     """
     for t in [
         RejectDisjunctions,
+        RejectClassicalNegation,
         RemoveHeadCondition,
         HeadAggregateNormalizer,
         ChoiceGuardNormalizer,

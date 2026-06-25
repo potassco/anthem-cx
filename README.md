@@ -33,7 +33,8 @@ output: r/1.
 ### Supported programs
 
 Note that programs containing disjunctions or recursive aggregates are not
-supported.
+supported. Classical negation (e.g. `-p`) is also not supported and is rejected
+with an error.
 
 ### Output
 
