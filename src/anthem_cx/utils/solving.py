@@ -2,6 +2,7 @@
 Module to solve counterexample programs.
 """
 
+import os
 from tempfile import NamedTemporaryFile
 
 from clingo.control import Control
@@ -98,6 +99,8 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
     """
     Solve a guess and check EQT program with the given domain size and return a counterexample if one is found.
     """
+    # delete=False is required because solve_guess_and_check reopens the files by name;
+    # the files are removed in the finally block below
     with (
         NamedTemporaryFile(mode="w", delete=False) as guess_file,
         NamedTemporaryFile(mode="w", delete=False) as check_file,
@@ -111,14 +114,18 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
         nonlocal counterexample
         counterexample = Counterexample.from_model(is_forward, size, inputs, outputs, model)
 
-    solve_guess_and_check(
-        ["-c", f"{size_placeholder}={size}"] + clingo_args,
-        False,
-        False,
-        [guess_file.name],
-        [check_file.name],
-        on_model=on_model,
-    )
+    try:
+        solve_guess_and_check(
+            ["-c", f"{size_placeholder}={size}"] + clingo_args,
+            False,
+            False,
+            [guess_file.name],
+            [check_file.name],
+            on_model=on_model,
+        )
+    finally:
+        os.unlink(guess_file.name)
+        os.unlink(check_file.name)
 
     return counterexample
 
