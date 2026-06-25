@@ -110,7 +110,7 @@ def main() -> None:
 
         # run local uniqueness checks on the public reduct
         # the reduct for the counterexample's direction is guaranteed to exist
-        if counterexample.direction == "forward":
+        if counterexample.is_forward:
             assert progs.public_reduct_right is not None
             if not is_locally_unique(progs.public_reduct_right, counterexample):
                 log.info("Local uniqueness check for right program failed")

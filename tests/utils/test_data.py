@@ -130,11 +130,12 @@ class TestDataUtils(TestCase):
 
         def build_counterexample(model: object) -> None:
             nonlocal counterexample
-            counterexample = Counterexample.from_model("forward", 2, inputs, outputs, model)  # type: ignore[arg-type]
+            counterexample = Counterexample.from_model(True, 2, inputs, outputs, model)  # type: ignore[arg-type]
 
         ctl.solve(on_model=build_counterexample)
         assert counterexample is not None
         self.assertEqual(counterexample.size, 2)
+        self.assertTrue(counterexample.is_forward)
         self.assertEqual(counterexample.direction, "forward")
         self.assertEqual(counterexample.input, ["a"])
         self.assertEqual(counterexample.output, ["b(1)"])
@@ -143,4 +144,4 @@ class TestDataUtils(TestCase):
         self.assertEqual("  Input for the counterexample:\n    a\n  External behavior of left:\n    b(1)", rep)
 
         # the backward direction reports the right program's behavior
-        self.assertIn("right", str(Counterexample(1, "backward", [], [])))
+        self.assertIn("right", str(Counterexample(1, False, [], [])))

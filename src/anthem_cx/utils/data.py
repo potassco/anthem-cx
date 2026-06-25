@@ -208,22 +208,27 @@ class Counterexample:
     """
 
     size: int
-    direction: str
+    is_forward: bool
     input: list[str]
     output: list[str]
+
+    @property
+    def direction(self) -> str:
+        """The direction label of the counterexample ('forward' or 'backward')."""
+        return "forward" if self.is_forward else "backward"
 
     def __str__(self) -> str:
         """Obtain a string representation of the counterexample."""
         rep = "  Input for the counterexample:\n"
         rep += "    " + ", ".join(self.input) + "\n"
-        rep += f"  External behavior of {'left' if self.direction == 'forward' else 'right'}:\n"
+        rep += f"  External behavior of {'left' if self.is_forward else 'right'}:\n"
         rep += "    " + ", ".join(self.output)
 
         return rep
 
     @classmethod
     def from_model(  # pylint: disable=too-many-positional-arguments
-        cls, direction: str, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model
+        cls, is_forward: bool, size: int, inputs: set[Predicate], outputs: set[Predicate], model: Model
     ) -> "Counterexample":
         """Create a Counterexample object from a model."""
         symbols = model.symbols(atoms=True)
@@ -239,4 +244,4 @@ class Counterexample:
             if pred in outputs:
                 output_atoms.append(str(symbol))
 
-        return Counterexample(size, direction, input_atoms, output_atoms)
+        return Counterexample(size, is_forward, input_atoms, output_atoms)

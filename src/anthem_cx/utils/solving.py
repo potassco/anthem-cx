@@ -16,7 +16,7 @@ log = get_logger(__name__)
 
 def _solve_with_size(  # pylint: disable=too-many-positional-arguments
     eqt: str,
-    direction: str,
+    is_forward: bool,
     size: int,
     inputs: set[Predicate],
     outputs: set[Predicate],
@@ -34,7 +34,7 @@ def _solve_with_size(  # pylint: disable=too-many-positional-arguments
 
     def on_model(model: Model) -> None:
         nonlocal counterexample
-        counterexample = Counterexample.from_model(direction, size, inputs, outputs, model)
+        counterexample = Counterexample.from_model(is_forward, size, inputs, outputs, model)
 
     ctl.solve(on_model=on_model)
 
@@ -70,14 +70,14 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
 
         if eqt_forward:
             counterexample = _solve_with_size(
-                eqt_forward, "forward", domain_size, inputs, outputs, clingo_args, size_placeholder
+                eqt_forward, True, domain_size, inputs, outputs, clingo_args, size_placeholder
             )
             if counterexample:
                 return counterexample
 
         if eqt_backward:
             counterexample = _solve_with_size(
-                eqt_backward, "backward", domain_size, inputs, outputs, clingo_args, size_placeholder
+                eqt_backward, False, domain_size, inputs, outputs, clingo_args, size_placeholder
             )
             if counterexample:
                 return counterexample
@@ -88,7 +88,7 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
 def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
     guess: str,
     check: str,
-    direction: str,
+    is_forward: bool,
     size: int,
     inputs: set[Predicate],
     outputs: set[Predicate],
@@ -109,7 +109,7 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
 
     def on_model(model: Model) -> None:
         nonlocal counterexample
-        counterexample = Counterexample.from_model(direction, size, inputs, outputs, model)
+        counterexample = Counterexample.from_model(is_forward, size, inputs, outputs, model)
 
     solve_guess_and_check(
         ["-c", f"{size_placeholder}={size}"] + clingo_args,
@@ -194,14 +194,28 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
 
         if forward_guess and forward_check:
             counterexample = _solve_gc_with_size(
-                forward_guess, forward_check, "forward", domain_size, inputs, outputs, clingo_args, size_placeholder
+                forward_guess,
+                forward_check,
+                True,
+                domain_size,
+                inputs,
+                outputs,
+                clingo_args,
+                size_placeholder,
             )
             if counterexample:
                 return counterexample
 
         if backward_guess and backward_check:
             counterexample = _solve_gc_with_size(
-                backward_guess, backward_check, "backward", domain_size, inputs, outputs, clingo_args, size_placeholder
+                backward_guess,
+                backward_check,
+                False,
+                domain_size,
+                inputs,
+                outputs,
+                clingo_args,
+                size_placeholder,
             )
             if counterexample:
                 return counterexample

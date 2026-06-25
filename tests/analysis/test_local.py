@@ -11,7 +11,7 @@ from . import parse_program
 
 
 def _cx_helper(input_atoms: list[str], output_atoms: list[str]) -> Counterexample:
-    return Counterexample(size=0, direction="forward", input=input_atoms, output=output_atoms)
+    return Counterexample(size=0, is_forward=True, input=input_atoms, output=output_atoms)
 
 
 class TestIsLocallyUnique(TestCase):
