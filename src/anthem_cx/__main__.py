@@ -6,7 +6,9 @@ import sys
 from copy import deepcopy
 
 from . import assemble_and_execute, run_syntactic_checks
+from .analysis.assumptions import check_assumptions
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
+from .analysis.inputs import check_inputs_not_in_heads
 from .analysis.local import is_locally_unique
 from .eqt import (
     get_difference_constraint,
@@ -17,7 +19,8 @@ from .eqt import (
 )
 from .utils.data import Auxiliaries, Direction, Options, Programs, UniquenessData
 from .utils.logging import configure_logging, get_logger
-from .utils.parse_program import parse_program, parse_program_as_str
+from .utils.output import program_to_str
+from .utils.parse_program import parse_program
 from .utils.parse_user_guide import parse_user_guide
 from .utils.parser import get_parser
 
@@ -48,6 +51,9 @@ def main() -> None:
     left_normalized = normalize_program(deepcopy(left))
     right_normalized = normalize_program(deepcopy(right))
 
+    # input predicates must not occur in the rule heads of the normalized programs
+    check_inputs_not_in_heads(left_normalized, right_normalized, inputs)
+
     # collect all options
     opts = Options(
         direction=Direction.from_string(args.direction),
@@ -66,7 +72,12 @@ def main() -> None:
     # if we use any checks for uniqueness this will change opts.gc in place
     run_syntactic_checks(left_normalized, right_normalized, opts, inputs | outputs)
 
-    assumptions = parse_program_as_str(args.assumptions) if args.assumptions else None
+    assumptions = None
+    if args.assumptions:
+        assumption_program = check_assumptions(
+            parse_program(args.assumptions), inputs, outputs, left, right, opts.auxiliaries
+        )
+        assumptions = program_to_str(assumption_program, newline=True)
 
     # collect all program parts
     progs = Programs(

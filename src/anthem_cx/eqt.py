@@ -99,7 +99,7 @@ def get_generate_program(
     prog_str = "\n".join(prog)
 
     if assumptions:
-        prog_str += assumptions
+        prog_str += "\n" + assumptions
 
     log.debug("Generate program")
     log.debug(prog_str + "\n")  # pylint: disable=logging-not-lazy
