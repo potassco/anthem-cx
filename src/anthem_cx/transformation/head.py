@@ -54,7 +54,7 @@ class RemoveHeadCondition(Transformer):
         conditional = head.elements[0]
 
         # add the condition to the body
-        new_body = node.body
+        new_body = list(node.body)
         for cond in conditional.condition:
             new_body.append(cond)
 
@@ -109,7 +109,7 @@ class NormalizeHead(Transformer):
             new_sign = _remove_negation(head.sign)
 
             # new body is obtained by adding the head atom with its new sign
-            new_body = node.body
+            new_body = list(node.body)
             new_body.append(
                 Literal(
                     location=LOC,
@@ -128,7 +128,7 @@ class NormalizeHead(Transformer):
 
         if head.atom.ast_type == ASTType.Comparison:
             empty_head = Disjunction(location=LOC, elements=[])
-            new_body = node.body
+            new_body = list(node.body)
             new_body.append(
                 Literal(
                     location=LOC,

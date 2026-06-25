@@ -155,7 +155,7 @@ class TransformRuleHeads(Transformer):
             # check if the choice atom is a mapped predicate (i.e. was originally an output predicate)
             if is_mapped_predicate(atom, self.suffix):
                 # add the original predicate as a positive literal to the body
-                new_body = node.body
+                new_body = list(node.body)
                 original_atom = unmap_atom(atom, self.suffix)
                 original_literal = Literal(
                     location=LOC,

@@ -315,7 +315,7 @@ class ChoiceConditionNormalizer(Transformer):
             right_guard=None,
         )
 
-        new_body = node.body
+        new_body = list(node.body)
         for cond in element.condition:
             new_body.append(cond)
 
