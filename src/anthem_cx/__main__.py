@@ -11,7 +11,7 @@ from .analysis.assumptions import check_assumptions
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
 from .analysis.inputs import check_inputs_not_in_heads
 from .analysis.local import is_locally_unique
-from .eqt import (
+from .cx_program import (
     get_difference_constraint,
     get_difference_program,
     get_generate_program,

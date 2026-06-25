@@ -84,7 +84,7 @@ class TestAssembleAndExecute(TestCase):
                 self.assertIn(label, text)
 
     def test_saves_to_file_when_out_dir_set(self) -> None:
-        """When out_dir is set the EQT is written to disk instead of stdout."""
+        """When out_dir is set the CX program is written to disk instead of stdout."""
         with tempfile.TemporaryDirectory() as tmpdir:
             for direction, gc, expected_files in [
                 (Direction.FORWARD, UniquenessData(False, False, False), ["forward.lp"]),

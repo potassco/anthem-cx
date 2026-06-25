@@ -17,7 +17,7 @@ log = get_logger(__name__)
 
 
 def _solve_with_size(  # pylint: disable=too-many-positional-arguments
-    eqt: str,
+    cx_program: str,
     is_forward: bool,
     size: int,
     inputs: set[Predicate],
@@ -26,10 +26,10 @@ def _solve_with_size(  # pylint: disable=too-many-positional-arguments
     size_placeholder: str,
 ) -> Counterexample | None:
     """
-    Solve an EQT program with the given domain size and return a counterexample if one is found.
+    Solve a CX program with the given domain size and return a counterexample if one is found.
     """
     ctl = Control(["-c", f"{size_placeholder}={size}"] + clingo_args)
-    ctl.add(eqt)
+    ctl.add(cx_program)
     ctl.ground()
 
     counterexample: Counterexample | None = None
@@ -44,8 +44,8 @@ def _solve_with_size(  # pylint: disable=too-many-positional-arguments
 
 
 def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
-    eqt_forward: str | None,
-    eqt_backward: str | None,
+    cx_program_forward: str | None,
+    cx_program_backward: str | None,
     inputs: set[Predicate],
     outputs: set[Predicate],
     domain_start: int,
@@ -54,13 +54,13 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
     size_placeholder: str,
 ) -> Counterexample | None:
     """
-    Solve the given EQT programs for counterexamples by increasing the domain size from start to max.
+    Solve the given CX programs for counterexamples by increasing the domain size from start to max.
 
     Returns the counterexample if one is found, otherwise None.
     """
     log.debug("solving programs with starting size %s and maximum size %s", domain_start, domain_max)
-    log.debug("forward program:\n%s", eqt_forward)
-    log.debug("backward program:\n%s", eqt_backward)
+    log.debug("forward program:\n%s", cx_program_forward)
+    log.debug("backward program:\n%s", cx_program_backward)
 
     domain_size = domain_start
     while True:
@@ -70,16 +70,16 @@ def solve_for_counterexample(  # pylint: disable=too-many-positional-arguments
 
         log.info("Solving for counterexample of domain size %s", domain_size)
 
-        if eqt_forward:
+        if cx_program_forward:
             counterexample = _solve_with_size(
-                eqt_forward, True, domain_size, inputs, outputs, clingo_args, size_placeholder
+                cx_program_forward, True, domain_size, inputs, outputs, clingo_args, size_placeholder
             )
             if counterexample:
                 return counterexample
 
-        if eqt_backward:
+        if cx_program_backward:
             counterexample = _solve_with_size(
-                eqt_backward, False, domain_size, inputs, outputs, clingo_args, size_placeholder
+                cx_program_backward, False, domain_size, inputs, outputs, clingo_args, size_placeholder
             )
             if counterexample:
                 return counterexample
@@ -98,7 +98,7 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
     size_placeholder: str,
 ) -> Counterexample | None:
     """
-    Solve a guess and check EQT program with the given domain size and return a counterexample if one is found.
+    Solve a guess and check CX program with the given domain size and return a counterexample if one is found.
     """
     # delete=False is required because solve_guess_and_check reopens the files by name;
     # the files are removed in the finally block below
@@ -162,7 +162,7 @@ def solve_gc_for_counterexample(  # pylint: disable=too-many-positional-argument
     size_placeholder: str,
 ) -> Counterexample | None:
     """
-    Solve the given guess and check EQT programs for counterexamples by increasing the domain size from start to max.
+    Solve the given guess and check CX programs for counterexamples by increasing the domain size from start to max.
 
     Returns the counterexample if one is found, otherwise None.
     """

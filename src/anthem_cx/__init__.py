@@ -8,7 +8,7 @@ from .analysis.dependency import has_negative_cycle, has_odd_negative_cycle, has
 from .utils.data import Counterexample, Options, Predicate, Programs
 from .utils.errors import AnthemCXError
 from .utils.logging import get_logger
-from .utils.output import build_eqt, build_eqt_gc, save_eqt_gc_to_file, save_eqt_to_file
+from .utils.output import build_cx_program, build_cx_program_gc, save_cx_program_gc_to_file, save_cx_program_to_file
 from .utils.solving import solve_for_counterexample, solve_gc_for_counterexample
 
 log = get_logger(__name__)
@@ -65,7 +65,7 @@ def _assemble_and_execute(programs: Programs, options: Options) -> Counterexampl
     forward = None
     backward = None
     if options.direction.includes_forward():
-        forward = build_eqt(
+        forward = build_cx_program(
             programs.generate,
             programs.left,
             programs.public_reduct_right,  # type: ignore
@@ -73,7 +73,7 @@ def _assemble_and_execute(programs: Programs, options: Options) -> Counterexampl
             programs.constraint,
         )
     if options.direction.includes_backward():
-        backward = build_eqt(
+        backward = build_cx_program(
             programs.generate,
             programs.right,
             programs.public_reduct_left,  # type: ignore
@@ -95,8 +95,8 @@ def _assemble_and_execute(programs: Programs, options: Options) -> Counterexampl
         )
 
     if options.out_dir:
-        save_eqt_to_file(forward, options.out_dir)
-        save_eqt_to_file(backward, options.out_dir, False)
+        save_cx_program_to_file(forward, options.out_dir)
+        save_cx_program_to_file(backward, options.out_dir, False)
     else:
         print(f"{forward}\n")
         print(f"{backward}\n")
@@ -108,7 +108,7 @@ def _assemble_and_execute_gc(programs: Programs, options: Options) -> Counterexa
     forward_guess, forward_check = None, None
     backward_guess, backward_check = None, None
     if options.direction.includes_forward():
-        forward_guess, forward_check = build_eqt_gc(
+        forward_guess, forward_check = build_cx_program_gc(
             programs.generate,
             programs.left,
             programs.public_reduct_right,  # type: ignore
@@ -116,7 +116,7 @@ def _assemble_and_execute_gc(programs: Programs, options: Options) -> Counterexa
             programs.constraint,
         )
     if options.direction.includes_backward():
-        backward_guess, backward_check = build_eqt_gc(
+        backward_guess, backward_check = build_cx_program_gc(
             programs.generate,
             programs.right,
             programs.public_reduct_left,  # type: ignore
@@ -140,8 +140,8 @@ def _assemble_and_execute_gc(programs: Programs, options: Options) -> Counterexa
         )
 
     if options.out_dir:
-        save_eqt_gc_to_file(forward_guess, forward_check, options.out_dir)
-        save_eqt_gc_to_file(backward_guess, backward_check, options.out_dir, False)
+        save_cx_program_gc_to_file(forward_guess, forward_check, options.out_dir)
+        save_cx_program_gc_to_file(backward_guess, backward_check, options.out_dir, False)
     else:
         print(f"{forward_guess}\n")
         print(f"{forward_check}\n")

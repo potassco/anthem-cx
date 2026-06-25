@@ -1,5 +1,5 @@
 """
-Tests for eqt.py: normalize_program, get_generate_program,
+Tests for cx_program.py: normalize_program, get_generate_program,
 get_difference_program, and get_public_reduct.
 """
 
@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from clingo.ast import AST, parse_string
 
-from anthem_cx.eqt import (
+from anthem_cx.cx_program import (
     get_difference_constraint,
     get_difference_program,
     get_generate_program,
