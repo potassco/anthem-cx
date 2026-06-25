@@ -21,9 +21,6 @@ from clingo.ast import (
 )
 
 from .data import Predicate
-from .logging import get_logger
-
-log = get_logger(__name__)
 
 LOC = Location(Position("<string>", 1, 1), Position("<string>", 1, 1))
 
@@ -81,9 +78,7 @@ def map_atom(atom: AST, suffix: str) -> AST:
             new_atom = SymbolicAtom(symbol=Pool(location=LOC, arguments=new_arguments))
             return new_atom
         case _:
-            log.error("term %s with unexpected type %s", term, term.ast_type)
-
-    return atom
+            raise RuntimeError(f"Term of atom is not a function or pool: {atom}")
 
 
 def _map_function(function: AST, suffix: str) -> AST:
@@ -152,9 +147,7 @@ def is_mapped_predicate(atom: AST, suffix: str) -> bool:
             name = function.name
             return name.endswith(suffix)
         case _:
-            log.error("term %s with unexpected type %s", term, term.ast_type)
-
-    return False
+            raise RuntimeError(f"Term of atom is not a function or pool: {atom}")
 
 
 def choice_rule_for_elements(elements: Sequence[AST], body: Sequence[AST]) -> AST:
@@ -214,8 +207,7 @@ def replace_predicate(atom: AST, new_pred: Predicate) -> AST:
             new_fun = atom.symbol.update(name=new_pred.name)
             return atom.update(symbol=new_fun)
         case ASTType.Pool:
-            log.error("replace predicate not yet implemented for pools")
-            raise NotImplementedError()
+            raise NotImplementedError("replace predicate not yet implemented for pools")
         case _:
             raise RuntimeError(f"Unexpected type of symbolic atom {atom} ({atom.symbol.ast_type})")
 

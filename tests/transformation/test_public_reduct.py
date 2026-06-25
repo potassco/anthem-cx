@@ -77,16 +77,6 @@ TRANSFORM_RULE_HEADS_CASES = [
         "{ p(X) } :- q(X).",
         "{ p(X) } :- q(X).",
     ),
-    # negated literal in choice head passes through unchanged
-    (
-        "{ not p__(X) } :- q(X).",
-        "{ not p__(X) } :- q(X).",
-    ),
-    # multi-element choice head passes through unchanged
-    (
-        "{ p__(X) ; q(X) } :- r.",
-        "{ p__(X) ; q(X) } :- r.",
-    ),
 ]
 
 
@@ -109,7 +99,16 @@ class TestTransformRuleHeads(TestCase):
             with self.subTest(input=input_str):
                 assert_transform(self, TransformRuleHeads(OUTPUTS, AUX), input_str, expected_str)
 
-    def test_raises_on_nonempty_disjunction(self) -> None:
-        """Non-empty disjunction head raises RuntimeError."""
-        with self.assertRaises(RuntimeError):
-            assert_transform(self, TransformRuleHeads(OUTPUTS, AUX), "p(X) ; q(X) :- r(X).", "")
+    def test_raises(self) -> None:
+        """Heads that violate the normal-form expectations raise RuntimeError."""
+        for input_str in [
+            # non-empty disjunction head
+            "p(X) ; q(X) :- r(X).",
+            # negated literal in choice head
+            "{ not p__(X) } :- q(X).",
+            # multi-element choice head
+            "{ p__(X) ; q(X) } :- r.",
+        ]:
+            with self.subTest(input=input_str):
+                with self.assertRaises(RuntimeError):
+                    assert_transform(self, TransformRuleHeads(OUTPUTS, AUX), input_str, "")
