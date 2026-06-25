@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from . import assemble_and_execute, run_syntactic_checks
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
+from .analysis.inputs import check_inputs_not_in_heads
 from .analysis.local import is_locally_unique
 from .eqt import (
     get_difference_constraint,
@@ -47,6 +48,9 @@ def main() -> None:
 
     left_normalized = normalize_program(deepcopy(left))
     right_normalized = normalize_program(deepcopy(right))
+
+    # input predicates must not occur in the rule heads of the normalized programs
+    check_inputs_not_in_heads(left_normalized, right_normalized, inputs)
 
     # collect all options
     opts = Options(
