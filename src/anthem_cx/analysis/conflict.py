@@ -39,7 +39,7 @@ def check_and_rename_auxiliaries(
     placeholders = _collect_placeholders(left + right)
     if aux.size in placeholders or aux.size in ground_terms:
         new_placeholder = _get_fresh_placeholder(aux.size, placeholders | ground_terms)
-        log.debug("new size placegolder is %s", new_placeholder)
+        log.debug("new size placeholder is %s", new_placeholder)
         aux = aux.replace(size=new_placeholder)
 
     if _contains_suffix(publics | privates, aux.suffix):
@@ -158,7 +158,7 @@ class _VariableChecker(Transformer):
         self.has_variable: bool = False
 
     def visit_Variable(self, node: AST) -> AST:  # pylint: disable=invalid-name
-        """If visiting a variable set the has_varibale to True."""
+        """If visiting a variable set the has_variable to True."""
         self.has_variable = True
         return node
 

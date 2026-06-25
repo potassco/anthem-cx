@@ -127,7 +127,7 @@ def has_recursive_aggregates(program: list[AST]) -> bool:
     """
     Check if a program contains recursive aggregates.
     """
-    log.debug("Building aggregate dependency graph for has_rescursive_aggregates")
+    log.debug("Building aggregate dependency graph for has_recursive_aggregates")
     graph_builder = AggregateDependencyGraphBuilder()
     for n in program:
         graph_builder(n)
@@ -251,7 +251,7 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
 
     def visit_Literal(self, node: AST) -> AST:  # pylint: disable=invalid-name
         """
-        Process body literals: add a edge for body predicats.
+        Process body literals: add a edge for body predicates.
         """
         if self.current_head is None:
             return node
