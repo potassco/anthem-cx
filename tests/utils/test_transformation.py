@@ -9,13 +9,14 @@ exercised indirectly by the transformation tests.
 
 from unittest import TestCase
 
-from clingo.ast import Aggregate, ASTType, Function, Literal, Sign
+from clingo.ast import AST, Aggregate, ASTType, Function, Literal, Sign, parse_string
 
 from anthem_cx.utils.data import Predicate
 from anthem_cx.utils.transformation import (
     LOC,
     aggregate_constraint,
     atom_to_predicate,
+    head_atom,
     is_mapped_predicate,
     map_atom,
     replace_predicate,
@@ -25,6 +26,44 @@ from anthem_cx.utils.transformation import (
 from . import make_function_atom, make_pool_atom, make_unexpected_symbol_atom, make_variable_pool_atom
 
 SUFFIX = "__"
+
+
+def _parse_rule(src: str) -> AST:
+    """Parse a single rule, returning its AST (skipping the #program directive)."""
+    nodes: list[AST] = []
+    parse_string(src, nodes.append)
+    return nodes[1]
+
+
+class TestHeadAtom(TestCase):
+    """Tests for head_atom."""
+
+    def test_cases(self) -> None:
+        """head_atom returns the head predicate for literal/choice heads, None otherwise."""
+        for src, expected in [
+            # literal head -> its symbolic atom
+            ("p :- q.", Predicate("p", 0)),
+            # single-element choice head -> its symbolic atom
+            ("{ p(X) } :- q(X).", Predicate("p", 1)),
+            # constraint (non-symbolic literal head) -> None
+            (":- q.", None),
+            # head that is neither a literal nor a choice -> None
+            ("a ; b :- c.", None),
+        ]:
+            with self.subTest(input=src):
+                atom = head_atom(_parse_rule(src))
+                predicate = atom_to_predicate(atom) if atom is not None else None
+                self.assertEqual(predicate, expected)
+
+    def test_raises(self) -> None:
+        """Malformed choice heads raise ValueError."""
+        for src in [
+            # choice head with more than one element
+            "{ p ; q } :- r.",
+        ]:
+            with self.subTest(input=src):
+                with self.assertRaises(ValueError):
+                    head_atom(_parse_rule(src))
 
 
 class TestAtomToPredicate(TestCase):
@@ -62,11 +101,10 @@ class TestMapAtom(TestCase):
         with self.assertRaises(RuntimeError):
             map_atom(Function(LOC, "p", [], False), SUFFIX)
 
-    def test_unexpected_symbol_type_logs_and_returns_atom(self) -> None:
-        """SymbolicAtom with unexpected symbol type logs an error and returns the original atom."""
-        atom = make_unexpected_symbol_atom()
-        result = map_atom(atom, SUFFIX)
-        self.assertIs(result, atom)
+    def test_unexpected_symbol_type_raises(self) -> None:
+        """SymbolicAtom whose symbol is neither Function nor Pool raises RuntimeError."""
+        with self.assertRaises(RuntimeError):
+            map_atom(make_unexpected_symbol_atom(), SUFFIX)
 
     def test_pool_with_variable_raises(self) -> None:
         """Pool that contains a Variable (not a Function) raises RuntimeError."""
@@ -117,9 +155,10 @@ class TestIsMappedPredicate(TestCase):
         with self.assertRaises(RuntimeError):
             is_mapped_predicate(Function(LOC, "p", [], False), SUFFIX)
 
-    def test_unexpected_symbol_type_logs_and_returns_false(self) -> None:
-        """SymbolicAtom with unexpected symbol type logs an error and returns False."""
-        self.assertFalse(is_mapped_predicate(make_unexpected_symbol_atom(), SUFFIX))
+    def test_unexpected_symbol_type_raises(self) -> None:
+        """SymbolicAtom whose symbol is neither Function nor Pool raises RuntimeError."""
+        with self.assertRaises(RuntimeError):
+            is_mapped_predicate(make_unexpected_symbol_atom(), SUFFIX)
 
 
 class TestAggregateConstraint(TestCase):

@@ -9,7 +9,7 @@ from networkx import DiGraph, MultiDiGraph, simple_cycles, strongly_connected_co
 
 from ..utils.data import Predicate
 from ..utils.logging import get_logger
-from ..utils.transformation import atom_to_predicate
+from ..utils.transformation import atom_to_predicate, head_atom
 
 log = get_logger(__name__)
 
@@ -171,28 +171,19 @@ class DependencyGraphBuilder(Transformer, ABC):
         """
         self.current_head = None
 
-        if node.head.ast_type == ASTType.Literal:
-            if node.head.atom.ast_type == ASTType.SymbolicAtom:
-                self._add_node_and_set_current(node.head.atom)
-                self.visit_sequence(node.body)
-
-        elif node.head.ast_type == ASTType.Aggregate:
-            if len(node.head.elements) > 1:
-                raise ValueError(f"Choice rule should not have more than 1 element: {node}")
-
-            element = node.head.elements[0]
-
-            match element.ast_type:
-                case ASTType.ConditionalLiteral:
-                    self._add_node_and_set_current(element.literal.atom)
-                case ASTType.Literal:  # nocoverage
-                    self._add_node_and_set_current(element.atom)
-                case _:  # nocoverage
-                    raise ValueError(f"Unexpected choice element: {element}")
-
+        atom = head_atom(node)
+        if atom is not None:
+            pred = self._add_node_and_set_current(atom)
+            if node.head.ast_type == ASTType.Aggregate:
+                self._on_choice_head(pred)
             self.visit_sequence(node.body)
 
         return node
+
+    def _on_choice_head(self, pred: Predicate) -> None:
+        """
+        Hook called for the head predicate of a choice rule. Default is a no-op.
+        """
 
     @abstractmethod
     def visit_Literal(self, node: AST) -> AST:  # pylint: disable=invalid-name
@@ -214,40 +205,14 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
     def _is_private(self, pred: Predicate) -> bool:
         return pred not in self._public_predicates
 
-    def visit_Rule(self, node: AST) -> AST:  # pylint: disable=invalid-name
+    def _on_choice_head(self, pred: Predicate) -> None:
         """
-        Process each rule: add head predicate as node and process body.
+        Add a self edge for a private choice head.
 
-        If head is a choice add a self edge.
+        A private choice corresponds to a double negation, hence parity 0.
         """
-        self.current_head = None
-
-        if node.head.ast_type == ASTType.Literal:
-            if node.head.atom.ast_type == ASTType.SymbolicAtom:
-                self._add_node_and_set_current(node.head.atom)
-                self.visit_sequence(node.body)
-
-        elif node.head.ast_type == ASTType.Aggregate:
-            if len(node.head.elements) > 1:
-                raise ValueError(f"Choice rule should not have more than 1 element: {node}")
-
-            element = node.head.elements[0]
-
-            match element.ast_type:
-                case ASTType.ConditionalLiteral:
-                    pred = self._add_node_and_set_current(element.literal.atom)
-                case ASTType.Literal:  # nocoverage
-                    pred = self._add_node_and_set_current(element.atom)
-                case _:  # nocoverage
-                    raise ValueError(f"Unexpected choice element: {element}")
-
-            # a private choice corresponds to a double negation, hence parity 0
-            if self._is_private(pred):
-                self.graph.add_edge(pred, pred, weight=-1, parity=0)
-
-            self.visit_sequence(node.body)
-
-        return node
+        if self._is_private(pred):
+            self.graph.add_edge(pred, pred, weight=-1, parity=0)
 
     def visit_Literal(self, node: AST) -> AST:  # pylint: disable=invalid-name
         """

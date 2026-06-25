@@ -2,11 +2,11 @@
 Module to check that programs do not contain inputs in their rule heads.
 """
 
-from clingo.ast import AST, ASTType, Transformer
+from clingo.ast import AST, Transformer
 
 from ..utils.data import Predicate
 from ..utils.logging import get_logger
-from ..utils.transformation import atom_to_predicate
+from ..utils.transformation import atom_to_predicate, head_atom
 
 log = get_logger(__name__)
 
@@ -61,23 +61,8 @@ class HeadPredicateCollector(Transformer):
         Handles literal heads and (normalized) choice heads; empty heads
         (constraints) contribute no predicate.
         """
-        head = node.head
-
-        if head.ast_type == ASTType.Literal:
-            if head.atom.ast_type == ASTType.SymbolicAtom:
-                self.predicates.add(atom_to_predicate(head.atom))
-
-        elif head.ast_type == ASTType.Aggregate:
-            if len(head.elements) > 1:
-                raise ValueError(f"Choice rule should not have more than 1 element: {node}")
-
-            element = head.elements[0]
-            match element.ast_type:
-                case ASTType.ConditionalLiteral:
-                    self.predicates.add(atom_to_predicate(element.literal.atom))
-                case ASTType.Literal:  # nocoverage
-                    self.predicates.add(atom_to_predicate(element.atom))
-                case _:  # nocoverage
-                    raise ValueError(f"Unexpected choice element: {element}")
+        atom = head_atom(node)
+        if atom is not None:
+            self.predicates.add(atom_to_predicate(atom))
 
         return node

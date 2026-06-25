@@ -58,6 +58,42 @@ def atom_to_predicate(atom: AST) -> Predicate:
     return Predicate(fun.name, len(fun.arguments))
 
 
+def head_atom(node: AST) -> AST | None:
+    """
+    Get the symbolic atom of a (normalized) rule head.
+
+    Returns:
+        AST | None: the head atom for basic or choice rules heads, None for constraints
+
+    Raises:
+        ValueError: for malformed heads (e.g., choice with more than one element)
+    """
+    head = node.head
+
+    if head.ast_type == ASTType.Literal:
+        if head.atom.ast_type == ASTType.SymbolicAtom:
+            atom: AST = head.atom
+            return atom
+        return None
+
+    if head.ast_type == ASTType.Aggregate:
+        if len(head.elements) > 1:
+            raise ValueError(f"Choice rule should not have more than 1 element: {node}")
+
+        element = head.elements[0]
+        match element.ast_type:
+            case ASTType.ConditionalLiteral:
+                literal_atom: AST = element.literal.atom
+                return literal_atom
+            case ASTType.Literal:  # nocoverage
+                element_atom: AST = element.atom
+                return element_atom
+            case _:  # nocoverage
+                raise ValueError(f"Unexpected choice element: {element}")
+
+    return None
+
+
 def map_atom(atom: AST, suffix: str) -> AST:
     """
     Map an atom to its auxiliary version.
