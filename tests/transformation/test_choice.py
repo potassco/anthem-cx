@@ -4,6 +4,8 @@ Tests for choice rule transformers.
 
 from unittest import TestCase
 
+from clingo.ast import ASTType
+
 from anthem_cx.transformation import (
     ChoiceConditionNormalizer,
     ChoiceElementNormalizer,
@@ -11,8 +13,9 @@ from anthem_cx.transformation import (
     ChoicePoolNormalizer,
     ChoiceTermNormalizer,
 )
+from anthem_cx.utils.transformation import apply_transformer
 
-from . import assert_transform
+from . import assert_transform, parse_program
 
 CHOICE_GUARD_CASES = [
     (
@@ -124,6 +127,15 @@ CHOICE_CONDITION_CASES = [
         "p(X) :- q(X).",
         "p(X) :- q(X).",
     ),
+    # a negated head literal is vacuous, so the choice rule is dropped
+    (
+        "{ not p } :- q.",
+        "",
+    ),
+    (
+        "{ not not p }.",
+        "",
+    ),
 ]
 
 
@@ -191,3 +203,20 @@ class TestChoiceConditionNormalizer(TestCase):
         """Multi-element choice raises RuntimeError."""
         with self.assertRaises(RuntimeError):
             assert_transform(self, ChoiceConditionNormalizer(), "{ p(X) ; q(X) } :- r.", "")
+
+    def test_head_element_is_conditional_literal(self) -> None:
+        """
+        The normalized choice head element must be a ConditionalLiteral.
+
+        AST requires aggregate element to be conditional literals, a plain literal
+        is accepted by the constructors but may break things later (e.g., when
+        accessing element.literal).
+        """
+        for input_str in ["{ p } :- q.", "{ p(X) : q(X) } :- r.", "{ p(1) }."]:
+            with self.subTest(input=input_str):
+                result = apply_transformer(ChoiceConditionNormalizer(), parse_program(input_str))
+                # result[0] is the #program directive; the rule follows
+                head = result[1].head
+                self.assertEqual(head.ast_type, ASTType.Aggregate)
+                self.assertEqual(len(head.elements), 1)
+                self.assertEqual(head.elements[0].ast_type, ASTType.ConditionalLiteral)

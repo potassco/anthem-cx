@@ -80,16 +80,10 @@ def head_atom(node: AST) -> AST | None:
         if len(head.elements) > 1:
             raise ValueError(f"Choice rule should not have more than 1 element: {node}")
 
+        # the elements of an aggregate are always conditional literals
         element = head.elements[0]
-        match element.ast_type:
-            case ASTType.ConditionalLiteral:
-                literal_atom: AST = element.literal.atom
-                return literal_atom
-            case ASTType.Literal:  # nocoverage
-                element_atom: AST = element.atom
-                return element_atom
-            case _:  # nocoverage
-                raise ValueError(f"Unexpected choice element: {element}")
+        choice_atom: AST = element.literal.atom
+        return choice_atom
 
     return None
 
