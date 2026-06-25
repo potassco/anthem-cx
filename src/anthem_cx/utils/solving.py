@@ -11,6 +11,7 @@ from guess_and_check import solve_guess_and_check
 
 from .data import Counterexample, Predicate
 from .logging import get_logger
+from .output import atom_str
 
 log = get_logger(__name__)
 
@@ -137,21 +138,11 @@ def _get_holds(predicates: set[Predicate], undo: bool = False) -> str:
     prog = ["#defined holds/1."]
 
     for pred in predicates:
-        variables = ""
-        for i in range(pred.arity):
-            if i > 0:
-                variables += ","
-            variables += f"X{i}"
+        atom = atom_str(pred.name, pred.arity)
         if not undo:
-            if pred.arity == 0:
-                prog.append(f"holds({pred.name}) :- {pred.name}.")
-            else:
-                prog.append(f"holds({pred.name}({variables})) :- {pred.name}({variables}).")
+            prog.append(f"holds({atom}) :- {atom}.")
         else:
-            if pred.arity == 0:
-                prog.append(f"{pred.name} :- holds({pred.name}).")
-            else:
-                prog.append(f"{pred.name}({variables}) :- holds({pred.name}({variables})).")
+            prog.append(f"{atom} :- holds({atom}).")
 
     prog_str = "\n".join(prog)
 
