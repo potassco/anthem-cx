@@ -11,6 +11,24 @@ from .logging import get_logger
 log = get_logger(__name__)
 
 
+def variable_names(arity: int) -> list[str]:
+    """
+    Get the list of variable names X0, ..., X{arity-1} for the given arity.
+    """
+    return [f"X{i}" for i in range(arity)]
+
+
+def atom_str(name: str, arity: int) -> str:
+    """
+    Get the string representation of an atom with the given predicate name and arity.
+
+    For arity 0 this is just the name, otherwise it is name(X0,...,X{arity-1}).
+    """
+    if arity == 0:
+        return name
+    return f"{name}({','.join(variable_names(arity))})"
+
+
 def save_eqt_gc_to_file(eqt_guess: str | None, eqt_check: str | None, out_dir: str, forward: bool = True) -> None:
     """
     Save the guess and check EQT program to the output directory.
