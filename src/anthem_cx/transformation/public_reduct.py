@@ -40,11 +40,9 @@ class ReplacePositiveOutputPredicates(Transformer):
                 return node
 
             case ASTType.Aggregate | ASTType.BodyAggregate:
-                # transform the elements of aggregates
+                # transform the elements of aggregates without mutating the shared node
                 new_elements = self.visit_sequence(atom.elements)
-                atom.elements = new_elements
-
-                return node
+                return node.update(atom=atom.update(elements=new_elements))
 
             case ASTType.SymbolicAtom:
                 # change positive literals
