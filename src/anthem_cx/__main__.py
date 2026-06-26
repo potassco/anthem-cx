@@ -3,21 +3,23 @@ The main entry point for the application.
 """
 
 import sys
+from argparse import Namespace
 from copy import deepcopy
 
-from . import assemble_and_execute, run_syntactic_checks
+from . import assemble_and_execute, determine_uniqueness, reject_recursive_aggregates
 from .analysis.assumptions import check_assumptions
 from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
 from .analysis.inputs import check_inputs_not_in_heads
 from .analysis.local import is_locally_unique
-from .eqt import (
+from .cx_program import (
     get_difference_constraint,
     get_difference_program,
     get_generate_program,
     get_public_reduct,
     normalize_program,
 )
-from .utils.data import Auxiliaries, Direction, Options, Programs, UniquenessData
+from .utils.data import Auxiliaries, Direction, Options, Programs, UniquenessCheck, UniquenessVerdict
+from .utils.errors import AnthemCXError
 from .utils.logging import configure_logging, get_logger
 from .utils.output import program_to_str
 from .utils.parse_program import parse_program
@@ -35,6 +37,20 @@ def main() -> None:
 
     # logging
     configure_logging(sys.stderr, args.log, sys.stderr.isatty())
+    log = get_logger("main")
+
+    try:
+        _run(args, clingo_args)
+    except AnthemCXError as e:
+        # expected, user-facing errors are reported without a traceback
+        log.error("%s", e)
+        sys.exit(1)
+
+
+def _run(args: Namespace, clingo_args: list[str]) -> None:
+    """
+    Run the counterexample search for the parsed command line arguments.
+    """
     log = get_logger("main")
 
     inputs, outputs = parse_user_guide(args.user_guide)
@@ -61,16 +77,18 @@ def main() -> None:
         solve=not args.no_solve,
         start=args.start,
         max_size=args.max,
-        gc=UniquenessData.from_string(args.uniqueness_check),
+        uniqueness=UniquenessCheck.from_string(args.uniqueness_check),
         inputs=inputs,
         outputs=outputs,
         clingo_args=clingo_args,
         auxiliaries=auxiliaries,
     )
 
-    # run all syntactic checks
-    # if we use any checks for uniqueness this will change opts.gc in place
-    run_syntactic_checks(left_normalized, right_normalized, opts, inputs | outputs)
+    # recursive aggregates are unsupported
+    reject_recursive_aggregates(left_normalized, right_normalized)
+
+    # decide how to solve based on the selected uniqueness check
+    verdict = determine_uniqueness(left_normalized, right_normalized, inputs | outputs, opts.uniqueness)
 
     assumptions = None
     if args.assumptions:
@@ -85,7 +103,7 @@ def main() -> None:
         right=right,
         generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
         difference=get_difference_program(opts.outputs, opts.auxiliaries),
-        constraint=get_difference_constraint(bool(opts.gc.use_gc), opts.auxiliaries),
+        constraint=get_difference_constraint(verdict.uses_gc(), opts.auxiliaries),
         public_reduct_left=(
             get_public_reduct(left_normalized, opts.outputs, opts.auxiliaries)
             if opts.direction.includes_backward()
@@ -98,9 +116,9 @@ def main() -> None:
         ),
     )
 
-    counterexample = assemble_and_execute(progs, opts)
+    counterexample = assemble_and_execute(progs, opts, verdict)
 
-    if counterexample and opts.gc.use_gc is None and opts.gc.use_local:
+    if counterexample and verdict is UniquenessVerdict.NEEDS_LOCAL_CHECK:
         log.info(
             "Found a potential counterexample of size %s in the %s direction",
             counterexample.size,
@@ -110,23 +128,23 @@ def main() -> None:
 
         # run local uniqueness checks on the public reduct
         # the reduct for the counterexample's direction is guaranteed to exist
-        if counterexample.direction == "forward":
+        if counterexample.is_forward:
             assert progs.public_reduct_right is not None
             if not is_locally_unique(progs.public_reduct_right, counterexample):
                 log.info("Local uniqueness check for right program failed")
-                opts.gc.local_failure()
+                verdict = UniquenessVerdict.GUESS_CHECK
         else:
             assert progs.public_reduct_left is not None
             if not is_locally_unique(progs.public_reduct_left, counterexample):
                 log.info("Local uniqueness check for left program failed")
-                opts.gc.local_failure()
+                verdict = UniquenessVerdict.GUESS_CHECK
 
         # solve gc program if required
-        if opts.gc.use_gc:
+        if verdict.uses_gc():
             progs.constraint = get_difference_constraint(True, opts.auxiliaries)
-            counterexample = assemble_and_execute(progs, opts)
+            counterexample = assemble_and_execute(progs, opts, verdict)
         else:
-            log.info("Local uniqueness check suceeded")
+            log.info("Local uniqueness check succeeded")
 
     # report the final result if solving
     if opts.solve:

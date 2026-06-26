@@ -4,20 +4,11 @@ Module to parse a file into an AST.
 
 from clingo.ast import AST, parse_files
 
+from .errors import AnthemCXError
 from .logging import get_logger
 from .output import program_to_str
 
 log = get_logger(__name__)
-
-
-def parse_program_as_str(filename: str) -> str:
-    """
-    Parse a program into a string.
-    """
-    with open(filename, "r", encoding="utf-8") as f:
-        prog = f.read()
-
-    return prog
 
 
 def parse_program(filename: str) -> list[AST]:
@@ -25,7 +16,12 @@ def parse_program(filename: str) -> list[AST]:
     Parse a file into a list of ASTs.
     """
     prog: list[AST] = []
-    parse_files([filename], prog.append)
+    # clingo prints the underlying detail (missing file, syntax error, ...) to
+    # stderr and raises a RuntimeError; turn it into a clean user-facing error
+    try:
+        parse_files([filename], prog.append)
+    except RuntimeError as e:
+        raise AnthemCXError(f"could not parse program '{filename}': {e}") from e
     log.debug("Parsed program %s", filename)
     log.debug(program_to_str(prog, True))
     return prog

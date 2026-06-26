@@ -5,7 +5,6 @@ Module to transform a program into its public reduct.
 from clingo.ast import AST, ASTType, Function, Literal, Rule, Sign, SymbolicAtom, Transformer
 
 from ..utils.data import Auxiliaries, Predicate
-from ..utils.logging import get_logger
 from ..utils.transformation import (
     LOC,
     atom_to_predicate,
@@ -13,8 +12,6 @@ from ..utils.transformation import (
     map_atom,
     unmap_atom,
 )
-
-log = get_logger(__name__)
 
 
 class ReplacePositiveOutputPredicates(Transformer):
@@ -43,11 +40,9 @@ class ReplacePositiveOutputPredicates(Transformer):
                 return node
 
             case ASTType.Aggregate | ASTType.BodyAggregate:
-                # transform the elements of aggregates
+                # transform the elements of aggregates without mutating the shared node
                 new_elements = self.visit_sequence(atom.elements)
-                atom.elements = new_elements
-
-                return node
+                return node.update(atom=atom.update(elements=new_elements))
 
             case ASTType.SymbolicAtom:
                 # change positive literals
@@ -68,8 +63,7 @@ class ReplacePositiveOutputPredicates(Transformer):
                 return node
 
             case _:  # nocoverage
-                log.warning("Unexpected atom type %s for literal %s", atom.ast_type, node)  # nocoverage
-                return node  # nocoverage
+                raise RuntimeError(f"Unexpected atom type {atom.ast_type} for literal {node}")
 
 
 class TransformRuleHeads(Transformer):
@@ -108,7 +102,6 @@ class TransformRuleHeads(Transformer):
         ):
             # the only type of disjunction should be the empty disjunction
             if head.ast_type == ASTType.Disjunction and len(head.elements) != 0:
-                log.error("Unexpected disjunctive rule %s", node)
                 raise RuntimeError(f"Unexpected disjunctive rule {node}")
 
             # new head is the unsat predicate
@@ -133,29 +126,21 @@ class TransformRuleHeads(Transformer):
 
         # 3: choice rule
         if head.ast_type == ASTType.Aggregate and len(head.elements) == 1:
-            # the choice rue should contain exactly one element and no guards
-            if len(head.elements) != 1:  # nocoverage
-                log.error("Unexpected choice rule with multiple elements %s", node)
-                raise RuntimeError(f"Unexpected choice rule with multiple elements {node}")
+            # the choice rule should not contain any guards
             if head.left_guard is not None or head.right_guard is not None:  # nocoverage
-                log.error("Unexpected choice rule with guards %s", node)
                 raise RuntimeError(f"Unexpected choice rule with guards {node}")
 
-            element = head.elements[0]
-            if element.ast_type == ASTType.ConditionalLiteral:
-                literal = element.literal
-            else:
-                literal = element  # nocoverage
+            # the elements of an aggregate are always conditional literals
+            literal = head.elements[0].literal
 
             if literal.sign != Sign.NoSign:
-                log.warning("Unexpected negation in choice head %s", node)
-                return node
+                raise RuntimeError(f"Unexpected negation in choice head {node}")
 
             atom = literal.atom
             # check if the choice atom is a mapped predicate (i.e. was originally an output predicate)
             if is_mapped_predicate(atom, self.suffix):
                 # add the original predicate as a positive literal to the body
-                new_body = node.body
+                new_body = list(node.body)
                 original_atom = unmap_atom(atom, self.suffix)
                 original_literal = Literal(
                     location=LOC,
@@ -175,5 +160,4 @@ class TransformRuleHeads(Transformer):
 
             return node
 
-        log.warning("Unexpected rule head %s", node)
-        return node
+        raise RuntimeError(f"Unexpected rule head {node}")

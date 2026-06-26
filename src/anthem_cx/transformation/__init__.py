@@ -12,10 +12,12 @@ from .choice import (
 )
 from .head import NormalizeHead, RemoveHeadCondition
 from .public_reduct import ReplacePositiveOutputPredicates, TransformRuleHeads
+from .reject_classical_negation import RejectClassicalNegation
 from .reject_disjunction import RejectDisjunctions
 
 __all__ = [
     "RejectDisjunctions",
+    "RejectClassicalNegation",
     "RemoveHeadCondition",
     "HeadAggregateNormalizer",
     "ChoiceConditionNormalizer",

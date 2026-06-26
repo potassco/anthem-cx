@@ -21,9 +21,6 @@ from clingo.ast import (
 )
 
 from .data import Predicate
-from .logging import get_logger
-
-log = get_logger(__name__)
 
 LOC = Location(Position("<string>", 1, 1), Position("<string>", 1, 1))
 
@@ -61,6 +58,36 @@ def atom_to_predicate(atom: AST) -> Predicate:
     return Predicate(fun.name, len(fun.arguments))
 
 
+def head_atom(node: AST) -> AST | None:
+    """
+    Get the symbolic atom of a (normalized) rule head.
+
+    Returns:
+        AST | None: the head atom for basic or choice rules heads, None for constraints
+
+    Raises:
+        ValueError: for malformed heads (e.g., choice with more than one element)
+    """
+    head = node.head
+
+    if head.ast_type == ASTType.Literal:
+        if head.atom.ast_type == ASTType.SymbolicAtom:
+            atom: AST = head.atom
+            return atom
+        return None
+
+    if head.ast_type == ASTType.Aggregate:
+        if len(head.elements) > 1:
+            raise ValueError(f"Choice rule should not have more than 1 element: {node}")
+
+        # the elements of an aggregate are always conditional literals
+        element = head.elements[0]
+        choice_atom: AST = element.literal.atom
+        return choice_atom
+
+    return None
+
+
 def map_atom(atom: AST, suffix: str) -> AST:
     """
     Map an atom to its auxiliary version.
@@ -81,9 +108,7 @@ def map_atom(atom: AST, suffix: str) -> AST:
             new_atom = SymbolicAtom(symbol=Pool(location=LOC, arguments=new_arguments))
             return new_atom
         case _:
-            log.error("term %s with unexpected type %s", term, term.ast_type)
-
-    return atom
+            raise RuntimeError(f"Term of atom is not a function or pool: {atom}")
 
 
 def _map_function(function: AST, suffix: str) -> AST:
@@ -152,9 +177,7 @@ def is_mapped_predicate(atom: AST, suffix: str) -> bool:
             name = function.name
             return name.endswith(suffix)
         case _:
-            log.error("term %s with unexpected type %s", term, term.ast_type)
-
-    return False
+            raise RuntimeError(f"Term of atom is not a function or pool: {atom}")
 
 
 def choice_rule_for_elements(elements: Sequence[AST], body: Sequence[AST]) -> AST:
@@ -214,9 +237,8 @@ def replace_predicate(atom: AST, new_pred: Predicate) -> AST:
             new_fun = atom.symbol.update(name=new_pred.name)
             return atom.update(symbol=new_fun)
         case ASTType.Pool:
-            log.error("replace predicate not yet implemented for pools")
-            raise NotImplementedError()
+            # every function pooled in the atom shares the same predicate, so rename them all
+            new_args = [arg.update(name=new_pred.name) for arg in atom.symbol.arguments]
+            return atom.update(symbol=atom.symbol.update(arguments=new_args))
         case _:
             raise RuntimeError(f"Unexpected type of symbolic atom {atom} ({atom.symbol.ast_type})")
-
-    return atom

@@ -6,6 +6,7 @@ from unittest import TestCase
 
 from anthem_cx.analysis.inputs import check_inputs_not_in_heads, collect_head_predicates, inputs_in_heads
 from anthem_cx.utils.data import Predicate
+from anthem_cx.utils.errors import AnthemCXError
 
 from . import parse_program
 
@@ -59,11 +60,11 @@ class TestCheckInputsNotInHeads(TestCase):
         inputs = {Predicate("q", 1)}
         left = parse_program("q(X) :- p(X).")
         right = parse_program("")
-        self.assertRaises(RuntimeError, check_inputs_not_in_heads, left, right, inputs)
+        self.assertRaises(AnthemCXError, check_inputs_not_in_heads, left, right, inputs)
 
     def test_right_fails(self) -> None:
         """An input predicate in the right program head raises."""
         inputs = {Predicate("q", 1)}
         left = parse_program("")
         right = parse_program("{ q(X) } :- p(X).")
-        self.assertRaises(RuntimeError, check_inputs_not_in_heads, left, right, inputs)
+        self.assertRaises(AnthemCXError, check_inputs_not_in_heads, left, right, inputs)

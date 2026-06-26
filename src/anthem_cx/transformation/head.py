@@ -4,10 +4,7 @@ Module to normalize rule heads.
 
 from clingo.ast import AST, ASTType, Disjunction, Literal, Rule, Sign, Transformer
 
-from ..utils.logging import get_logger
 from ..utils.transformation import LOC
-
-log = get_logger(__name__)
 
 
 def _remove_negation(sign: Sign) -> Sign:
@@ -16,8 +13,7 @@ def _remove_negation(sign: Sign) -> Sign:
     """
     match sign:
         case Sign.NoSign:
-            log.warning("Unexpected no sign")  # nocoverage
-            return sign  # nocoverage
+            raise RuntimeError("Unexpected no sign")  # nocoverage
         case Sign.Negation:
             return Sign.NoSign
         case Sign.DoubleNegation:
@@ -48,13 +44,12 @@ class RemoveHeadCondition(Transformer):
 
         # ensure that the head only has one (disjunctive) element
         if len(head.elements) > 1:
-            log.error("Unexpected disjunctive rule %s", node)
             raise RuntimeError(f"Unexpected disjunctive rule {node}")
 
         conditional = head.elements[0]
 
         # add the condition to the body
-        new_body = node.body
+        new_body = list(node.body)
         for cond in conditional.condition:
             new_body.append(cond)
 
@@ -109,7 +104,7 @@ class NormalizeHead(Transformer):
             new_sign = _remove_negation(head.sign)
 
             # new body is obtained by adding the head atom with its new sign
-            new_body = node.body
+            new_body = list(node.body)
             new_body.append(
                 Literal(
                     location=LOC,
@@ -128,7 +123,7 @@ class NormalizeHead(Transformer):
 
         if head.atom.ast_type == ASTType.Comparison:
             empty_head = Disjunction(location=LOC, elements=[])
-            new_body = node.body
+            new_body = list(node.body)
             new_body.append(
                 Literal(
                     location=LOC,

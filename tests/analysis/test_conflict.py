@@ -6,15 +6,13 @@ from unittest import TestCase
 
 from clingo.ast import Function, Variable
 
+from anthem_cx.analysis import PredicateReplacer, collect_privates, get_replacement_predicate
 from anthem_cx.analysis.conflict import (
-    PredicateReplacer,
     _collect_placeholders,
-    _collect_privates,
     _conflicting_predicates,
     _contains_suffix,
     _get_fresh_placeholder,
     _get_fresh_suffix,
-    _get_replacement_predicate,
     _is_ground,
     check_and_rename_auxiliaries,
     check_and_rename_privates,
@@ -81,7 +79,7 @@ class TestPrivatePredicateCollector(TestCase):
             ("a :- b.", {Predicate("a", 0)}, {Predicate("b", 0)}),
             ("{p;q}.", set(), {Predicate("p", 0), Predicate("q", 0)}),
         ]:
-            self.assertEqual(_collect_privates(parse_program(prg), publics), result)
+            self.assertEqual(collect_privates(parse_program(prg), publics), result)
 
 
 class TestPredicateReplacer(TestCase):
@@ -141,7 +139,7 @@ class TestHelperFunctions(TestCase):
             (Predicate("p", 0), {Predicate("p__0", 0)}, Predicate("p__1", 0)),
             (Predicate("p", 0), {Predicate("p__0", 1)}, Predicate("p__0", 0)),
         ]:
-            self.assertEqual(_get_replacement_predicate(base, preds), result)
+            self.assertEqual(get_replacement_predicate(base, preds), result)
 
 
 class TestCheckAndRenameAuxiliaries(TestCase):

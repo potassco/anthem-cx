@@ -308,14 +308,27 @@ class ChoiceConditionNormalizer(Transformer):
 
         element = head.elements[0]
 
+        # choice rules with negated literals can be dropped
+        if element.literal.sign != Sign.NoSign:
+            log.warning("Dropping choice rule with a negated head literal (it has no effect): %s", node)
+            return []
+
+        # keep the head element a conditional literal (with an empty condition)
+        # as required by the AST; the condition is moved into the rule body
         new_head = Aggregate(
             location=LOC,
             left_guard=None,
-            elements=[element.literal],
+            elements=[
+                ConditionalLiteral(
+                    location=LOC,
+                    literal=element.literal,
+                    condition=[],
+                )
+            ],
             right_guard=None,
         )
 
-        new_body = node.body
+        new_body = list(node.body)
         for cond in element.condition:
             new_body.append(cond)
 

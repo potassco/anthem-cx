@@ -1,5 +1,5 @@
 """
-Tests for eqt.py: normalize_program, get_generate_program,
+Tests for cx_program.py: normalize_program, get_generate_program,
 get_difference_program, and get_public_reduct.
 """
 
@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from clingo.ast import AST, parse_string
 
-from anthem_cx.eqt import (
+from anthem_cx.cx_program import (
     get_difference_constraint,
     get_difference_program,
     get_generate_program,
@@ -15,6 +15,7 @@ from anthem_cx.eqt import (
     normalize_program,
 )
 from anthem_cx.utils.data import Auxiliaries, Predicate
+from anthem_cx.utils.errors import AnthemCXError
 
 
 def _parse(src: str) -> list[AST]:
@@ -39,7 +40,7 @@ class TestNormalizeProgram(TestCase):
             for e in expected:
                 self.assertIn(e, [str(n) for n in result])
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(AnthemCXError):
             normalize_program(_parse("p ; q."))
 
 

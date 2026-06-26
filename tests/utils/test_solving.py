@@ -51,17 +51,17 @@ class TestSolve(TestCase):
             (":- #true.", 0, False),
             ("#const n=0. a :- n > 1.", 2, True),
         ]:
-            result = _solve_with_size(prog, "forward", size, set(), set(), [], "n")
+            result = _solve_with_size(prog, True, size, set(), set(), [], "n")
             if sat:
                 self.assertIsInstance(result, Counterexample)
             else:
                 self.assertIsNone(result)
 
         # the returned counterexample carries the size, direction, and matching input atoms
-        result = _solve_with_size("a.", "forward", 0, {Predicate("a", 0)}, set(), [], "n")
+        result = _solve_with_size("a.", True, 0, {Predicate("a", 0)}, set(), [], "n")
         assert result is not None
         self.assertEqual(result.size, 0)
-        self.assertEqual(result.direction, "forward")
+        self.assertTrue(result.is_forward)
         self.assertEqual(result.input, ["a"])
 
     def test_solve_for_counterexample(self) -> None:
@@ -75,13 +75,13 @@ class TestSolve(TestCase):
             self.assertIsNone(solve_for_counterexample(fwd, bwd, set(), set(), start, max_size, [], "n"))
 
         # a satisfiable program yields a counterexample in the corresponding direction
-        for fwd, bwd, direction in [
-            ("a.", None, "forward"),
-            (":- #true.", "a.", "backward"),
+        for fwd, bwd, is_forward in [
+            ("a.", None, True),
+            (":- #true.", "a.", False),
         ]:
             result = solve_for_counterexample(fwd, bwd, set(), set(), 0, None, [], "n")
             assert result is not None
-            self.assertEqual(result.direction, direction)
+            self.assertEqual(result.is_forward, is_forward)
 
 
 class TestSolveGC(TestCase):
@@ -98,7 +98,7 @@ class TestSolveGC(TestCase):
                 return model_found
 
             with patch("anthem_cx.utils.solving.solve_guess_and_check", side_effect=fake_solve):
-                result = _solve_gc_with_size("a.", "b.", "forward", 0, set(), set(), [], "n")
+                result = _solve_gc_with_size("a.", "b.", True, 0, set(), set(), [], "n")
             if model_found:
                 self.assertIsInstance(result, Counterexample)
             else:
@@ -115,7 +115,7 @@ class TestSolveGC(TestCase):
             self.assertIsNone(result)
 
         # a found counterexample is returned in the corresponding direction
-        cex = Counterexample(0, "forward", [], [])
+        cex = Counterexample(0, True, [], [])
         with patch("anthem_cx.utils.solving._solve_gc_with_size", return_value=cex):
             for fg, fc, bg, bc in [
                 ("g.", "c.", None, None),

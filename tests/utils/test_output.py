@@ -1,5 +1,5 @@
 """
-Tests for utils/output.py: program_to_str, save_eqt_to_file, save_eqt_gc_to_file.
+Tests for utils/output.py: program_to_str, save_cx_program_to_file, save_cx_program_gc_to_file.
 """
 
 import os
@@ -8,7 +8,13 @@ from unittest import TestCase
 
 from clingo.ast import AST, parse_string
 
-from anthem_cx.utils.output import build_eqt, build_eqt_gc, program_to_str, save_eqt_gc_to_file, save_eqt_to_file
+from anthem_cx.utils.output import (
+    build_cx_program,
+    build_cx_program_gc,
+    program_to_str,
+    save_cx_program_gc_to_file,
+    save_cx_program_to_file,
+)
 
 
 def _parse(src: str) -> list[AST]:
@@ -25,14 +31,14 @@ class TestBuild(TestCase):
         self.left = _parse("a :- b.")
         self.right = _parse("b :- a.")
 
-    def test_build_eqt(self) -> None:
+    def test_build_cx_program(self) -> None:
         """Test building counterexample programs."""
         for forward, expected in [
             (
                 True,
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT forward\n"
+                    "% CX forward program\n"
                     "% input generation\n\n\n"
                     "% left program\n"
                     "#program base.\na :- b.\n\n"
@@ -47,7 +53,7 @@ class TestBuild(TestCase):
                 False,
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT backward\n"
+                    "% CX backward program\n"
                     "% input generation\n\n\n"
                     "% right program\n"
                     "#program base.\na :- b.\n\n"
@@ -59,24 +65,24 @@ class TestBuild(TestCase):
                 ),
             ),
         ]:
-            result = build_eqt("", self.left, self.right, "", ":- not __diff.", forward=forward)
+            result = build_cx_program("", self.left, self.right, "", ":- not __diff.", forward=forward)
             self.assertEqual(result, expected)
 
-    def test_build_eqt_gc(self) -> None:
+    def test_build_cx_program_gc(self) -> None:
         """Test building guess and check counterexample programs."""
         for forward, expected_guess, expected_check in [
             (
                 True,
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT forward guess\n"
+                    "% CX forward program guess\n"
                     "% input generation\n\n\n"
                     "% left program\n"
                     "#program base.\na :- b.\n"
                 ),
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT forward check\n"
+                    "% CX forward program check\n"
                     "% public reduct of right program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
@@ -88,14 +94,14 @@ class TestBuild(TestCase):
                 False,
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT backward guess\n"
+                    "% CX backward program guess\n"
                     "% input generation\n\n\n"
                     "% right program\n"
                     "#program base.\na :- b.\n"
                 ),
                 (
                     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-                    "% EQT backward check\n"
+                    "% CX backward program check\n"
                     "% public reduct of left program\n"
                     "#program base.\nb :- a.\n\n"
                     "% difference detection\n"
@@ -104,7 +110,7 @@ class TestBuild(TestCase):
                 ),
             ),
         ]:
-            guess, check = build_eqt_gc("", self.left, self.right, "", ":- __diff.", forward=forward)
+            guess, check = build_cx_program_gc("", self.left, self.right, "", ":- __diff.", forward=forward)
             self.assertEqual(guess, expected_guess)
             self.assertEqual(check, expected_check)
 
@@ -128,11 +134,11 @@ class TestOutput(TestCase):
             prg_out = program_to_str(prg_parsed)
             self.assertEqual(prg_out, base_str + out)
 
-    def test_save_eqt_to_file(self) -> None:
+    def test_save_cx_program_to_file(self) -> None:
         """Test saving counterexample program to file."""
         with tempfile.TemporaryDirectory() as tmp:
             # skip if no program provided
-            save_eqt_to_file(None, tmp)
+            save_cx_program_to_file(None, tmp)
             self.assertEqual(os.listdir(tmp), [])
 
             for prg, forward, postfix, expected in [
@@ -141,7 +147,7 @@ class TestOutput(TestCase):
                 ("p.", True, "_test", "forward_test.lp"),
                 ("p.", False, "_test", "backward_test.lp"),
             ]:
-                save_eqt_to_file(prg, tmp, forward, postfix)
+                save_cx_program_to_file(prg, tmp, forward, postfix)
                 expected = os.path.join(tmp, expected)
                 self.assertTrue(os.path.exists(expected))
                 with open(expected, encoding="utf-8") as f:
@@ -149,23 +155,23 @@ class TestOutput(TestCase):
 
             # create output directory
             new_dir = os.path.join(tmp, "nested", "out")
-            save_eqt_to_file("a.", new_dir)
+            save_cx_program_to_file("a.", new_dir)
             self.assertTrue(os.path.exists(os.path.join(new_dir, "forward.lp")))
 
-    def test_save_eqt_gc_to_file(self) -> None:
+    def test_save_cx_program_gc_to_file(self) -> None:
         """Test saving guess and check counterexample program to file."""
         with tempfile.TemporaryDirectory() as tmp:
             # skip if guess or check program not provided
-            save_eqt_gc_to_file(None, "q.", tmp)
+            save_cx_program_gc_to_file(None, "q.", tmp)
             self.assertEqual(os.listdir(tmp), [])
-            save_eqt_gc_to_file("p.", None, tmp)
+            save_cx_program_gc_to_file("p.", None, tmp)
             self.assertEqual(os.listdir(tmp), [])
 
             for guess, check, forward, expected_guess, expected_check in [
                 ("p.", "q.", True, "forward_guess.lp", "forward_check.lp"),
                 ("p.", "q.", False, "backward_guess.lp", "backward_check.lp"),
             ]:
-                save_eqt_gc_to_file(guess, check, tmp, forward)
+                save_cx_program_gc_to_file(guess, check, tmp, forward)
                 expected_guess = os.path.join(tmp, expected_guess)
                 expected_check = os.path.join(tmp, expected_check)
                 self.assertTrue(os.path.exists(expected_guess))
