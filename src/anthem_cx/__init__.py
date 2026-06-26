@@ -134,8 +134,10 @@ def _assemble_and_execute(programs: Programs, options: Options) -> Counterexampl
         save_cx_program_to_file(forward, options.out_dir)
         save_cx_program_to_file(backward, options.out_dir, False)
     else:
-        print(f"{forward}\n")
-        print(f"{backward}\n")
+        if forward:
+            print(f"{forward}\n")
+        if backward:
+            print(f"{backward}\n")
 
     return None
 
@@ -179,9 +181,11 @@ def _assemble_and_execute_gc(programs: Programs, options: Options) -> Counterexa
         save_cx_program_gc_to_file(forward_guess, forward_check, options.out_dir)
         save_cx_program_gc_to_file(backward_guess, backward_check, options.out_dir, False)
     else:
-        print(f"{forward_guess}\n")
-        print(f"{forward_check}\n")
-        print(f"{backward_guess}\n")
-        print(f"{backward_check}\n")
+        if forward_guess and forward_check:
+            print(f"{forward_guess}\n")
+            print(f"{forward_check}\n")
+        if backward_guess and backward_check:
+            print(f"{backward_guess}\n")
+            print(f"{backward_check}\n")
 
     return None

@@ -84,6 +84,9 @@ class TestAssembleAndExecute(TestCase):
             for label in expected:
                 self.assertIn(label, text)
 
+            # absent directions must not be printed as a literal "None"
+            self.assertNotIn("None", text)
+
     def test_saves_to_file_when_out_dir_set(self) -> None:
         """When out_dir is set the CX program is written to disk instead of stdout."""
         with tempfile.TemporaryDirectory() as tmpdir:
