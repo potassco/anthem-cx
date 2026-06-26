@@ -201,10 +201,12 @@ class TestReplacePredicate(TestCase):
         self.assertEqual(result.ast_type, ASTType.SymbolicAtom)
         self.assertEqual(result.symbol.name, "r")
 
-    def test_pool_raises_not_implemented(self) -> None:
-        """Pool SymbolicAtom raises NotImplementedError."""
-        with self.assertRaises(NotImplementedError):
-            replace_predicate(make_pool_atom(["p", "q"]), Predicate("r", 0))
+    def test_pool(self) -> None:
+        """Pool SymbolicAtom renames the predicate of every pooled function."""
+        result = replace_predicate(make_pool_atom(["p", "q"]), Predicate("r", 0))
+        self.assertEqual(result.ast_type, ASTType.SymbolicAtom)
+        self.assertEqual(result.symbol.ast_type, ASTType.Pool)
+        self.assertEqual([f.name for f in result.symbol.arguments], ["r", "r"])
 
     def test_non_symbolic_atom_raises(self) -> None:
         """Non-SymbolicAtom raises RuntimeError."""

@@ -237,8 +237,8 @@ def replace_predicate(atom: AST, new_pred: Predicate) -> AST:
             new_fun = atom.symbol.update(name=new_pred.name)
             return atom.update(symbol=new_fun)
         case ASTType.Pool:
-            raise NotImplementedError("replace predicate not yet implemented for pools")
+            # every function pooled in the atom shares the same predicate, so rename them all
+            new_args = [arg.update(name=new_pred.name) for arg in atom.symbol.arguments]
+            return atom.update(symbol=atom.symbol.update(arguments=new_args))
         case _:
             raise RuntimeError(f"Unexpected type of symbolic atom {atom} ({atom.symbol.ast_type})")
-
-    return atom
