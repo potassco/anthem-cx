@@ -1,5 +1,5 @@
 """
-Tests for utils/data.py: Direction, UniquenessData, Auxiliaries, Predicate.
+Tests for utils/data.py: Direction, UniquenessCheck, UniquenessVerdict, Auxiliaries, Predicate.
 """
 
 from unittest import TestCase
@@ -11,7 +11,8 @@ from anthem_cx.utils.data import (
     Counterexample,
     Direction,
     Predicate,
-    UniquenessData,
+    UniquenessCheck,
+    UniquenessVerdict,
 )
 
 
@@ -48,36 +49,28 @@ class TestDataUtils(TestCase):
             self.assertEqual(direction.includes_forward(), forward)
             self.assertEqual(direction.includes_backward(), backward)
 
-    def test_uniqueness_data_parsing(self) -> None:
-        """Tests for the UniquenessData dataclass parsing."""
+    def test_uniqueness_check_parsing(self) -> None:
+        """Tests for the UniquenessCheck enum parsing."""
         for string, expected in [
-            ("skip", UniquenessData(False, False, False)),
-            ("fail", UniquenessData(True, False, False)),
-            ("auto", UniquenessData(None, True, True)),
-            ("stratification", UniquenessData(None, True, False)),
-            ("local", UniquenessData(None, False, True)),
+            ("skip", UniquenessCheck.SKIP),
+            ("fail", UniquenessCheck.FAIL),
+            ("auto", UniquenessCheck.AUTO),
+            ("stratification", UniquenessCheck.STRATIFICATION),
+            ("local", UniquenessCheck.LOCAL),
         ]:
-            self.assertEqual(UniquenessData.from_string(string), expected)
+            self.assertEqual(UniquenessCheck.from_string(string), expected)
 
         with self.assertRaises(ValueError):
-            UniquenessData.from_string("test")
+            UniquenessCheck.from_string("test")
 
-    def test_uniqueness_data_functions(self) -> None:
-        """Tests for the UniquenessData dataclass functions, which mutate the object in place."""
-        for data, update, expected in [
-            (UniquenessData(None, True, True), UniquenessData.success, UniquenessData(False, True, True)),
-            # a syntax failure does not change the data if the local check is still used
-            (UniquenessData(None, True, True), UniquenessData.syntax_failure, UniquenessData(None, True, True)),
-            (UniquenessData(None, True, False), UniquenessData.syntax_failure, UniquenessData(True, True, False)),
-            (UniquenessData(None, True, True), UniquenessData.local_failure, UniquenessData(True, True, True)),
-            (
-                UniquenessData(None, True, True),
-                UniquenessData.local_condition_failure,
-                UniquenessData(True, True, False),
-            ),
+    def test_uniqueness_verdict_uses_gc(self) -> None:
+        """uses_gc is true only for the guess and check verdict."""
+        for verdict, expected in [
+            (UniquenessVerdict.DIRECT, False),
+            (UniquenessVerdict.GUESS_CHECK, True),
+            (UniquenessVerdict.NEEDS_LOCAL_CHECK, False),
         ]:
-            update(data)
-            self.assertEqual(data, expected)
+            self.assertEqual(verdict.uses_gc(), expected)
 
     def test_auxiliaries(self) -> None:
         """Tests for the Auxiliaries dataclass."""

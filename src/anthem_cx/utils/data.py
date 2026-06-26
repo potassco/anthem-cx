@@ -62,54 +62,49 @@ class Direction(Enum):
                 raise ValueError(f"Invalid direction: {value}")
 
 
-@dataclass
-class UniquenessData:
+class UniquenessCheck(Enum):
     """
-    Dataclass storing info about uniqueness and uniqueness checks
+    The uniqueness check selected on the command line.
 
-    use_gc determines whether GC should be used (bool) or if checks need to be run (None).
-    The use of which checks is determined by use_syntax and use_local.
+    The decision on whether to use guess-and-check is stored separately in UniquenessVerdict.
     """
 
-    use_gc: bool | None
-    use_syntax: bool
-    use_local: bool
+    SKIP = auto()  # assume uniqueness, solve directly
+    FAIL = auto()  # assume non-uniqueness, force guess and check
+    AUTO = auto()  # stratification, then local
+    STRATIFICATION = auto()  # stratification only
+    LOCAL = auto()  # local only
 
     @classmethod
-    def from_string(cls, value: str) -> "UniquenessData":
-        """Create a UniquenessData object from a string."""
+    def from_string(cls, value: str) -> "UniquenessCheck":
+        """Create a UniquenessCheck object from a string."""
         match value:
             case "skip":
-                return cls(False, False, False)
+                return cls.SKIP
             case "fail":
-                return cls(True, False, False)
+                return cls.FAIL
             case "auto":
-                return cls(None, True, True)
+                return cls.AUTO
             case "stratification":
-                return cls(None, True, False)
+                return cls.STRATIFICATION
             case "local":
-                return cls(None, False, True)
+                return cls.LOCAL
             case _:
-                raise ValueError(f"Invalid uniqueness data value: {value}")
+                raise ValueError(f"Invalid uniqueness check value: {value}")
 
-    def success(self) -> None:
-        """Update data after successful check."""
-        self.use_gc = False
 
-    def syntax_failure(self) -> None:
-        """Update data after failed syntactic check."""
-        # failure of syntax check only relevant if we do not use the local check
-        if not self.use_local:
-            self.use_gc = True
+class UniquenessVerdict(Enum):
+    """
+    The outcome of the uniqueness analysis.
+    """
 
-    def local_condition_failure(self) -> None:
-        """Update data after failed check for local precondition (no odd cycles)."""
-        self.use_gc = True
-        self.use_local = False
+    DIRECT = auto()  # solve directly, no further checks
+    GUESS_CHECK = auto()  # use the guess and check approach
+    NEEDS_LOCAL_CHECK = auto()  # solve directly; if a potential counterexample is found, run the local check
 
-    def local_failure(self) -> None:
-        """Update data after failed local check."""
-        self.use_gc = True
+    def uses_gc(self) -> bool:
+        """Check whether the verdict requires the guess and check approach."""
+        return self is UniquenessVerdict.GUESS_CHECK
 
 
 @dataclass(frozen=True)
@@ -183,7 +178,7 @@ class Auxiliaries:
         return preds
 
 
-@dataclass
+@dataclass(frozen=True)
 class Options:  # pylint: disable=too-many-instance-attributes
     """
     Dataclass storing the options of the counterexample problem.
@@ -194,7 +189,7 @@ class Options:  # pylint: disable=too-many-instance-attributes
     solve: bool
     start: int
     max_size: int | None
-    uniqueness: UniquenessData
+    uniqueness: UniquenessCheck
     inputs: set[Predicate]
     outputs: set[Predicate]
     clingo_args: list[str]
