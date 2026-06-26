@@ -54,7 +54,7 @@ def normalize_program(prog: list[AST]) -> list[AST]:
 
 def get_public_reduct(prog: list[AST], outputs: set[Predicate], auxiliaries: Auxiliaries) -> list[AST]:
     """
-    Compute the public reduct of a program with respest to a set of output predicates.
+    Compute the public reduct of a program with respect to a set of output predicates.
     """
     for t in [ReplacePositiveOutputPredicates, TransformRuleHeads]:
         prog = apply_transformer(t(outputs, auxiliaries), prog)
