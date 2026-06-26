@@ -7,7 +7,7 @@ from clingo.ast import AST
 from ..utils.data import Auxiliaries, Predicate
 from ..utils.errors import AnthemCXError
 from ..utils.logging import get_logger
-from .conflict import _collect_privates, _get_replacements, _replace_predicates
+from . import collect_privates, get_replacements, replace_predicates
 
 log = get_logger(__name__)
 
@@ -34,7 +34,7 @@ def check_assumptions(  # pylint: disable=too-many-positional-arguments
     allowed_publics = inputs | {Predicate(aux.domain, 1)}
 
     # reject output predicates occurring anywhere in the assumption program
-    assumption_privates = _collect_privates(assumptions, allowed_publics)
+    assumption_privates = collect_privates(assumptions, allowed_publics)
     output_conflicts = assumption_privates & outputs
     if output_conflicts:
         predicates = ", ".join(str(p) for p in sorted(output_conflicts, key=str))
@@ -42,12 +42,12 @@ def check_assumptions(  # pylint: disable=too-many-positional-arguments
 
     # ensure the assumption privates are distinct from all predicates of the left/right programs
     # and the auxiliaries; rename conflicting ones
-    taken = inputs | outputs | _collect_privates(left + right, inputs | outputs) | aux.predicates()
+    taken = inputs | outputs | collect_privates(left + right, inputs | outputs) | aux.predicates()
     conflicts = assumption_privates & taken
     if conflicts:
         for pred in conflicts:
             log.warning("found conflicting assumption predicate %s, applying renaming", pred)
-        replacements, _ = _get_replacements(conflicts, taken | assumption_privates)
-        assumptions = _replace_predicates(assumptions, replacements)
+        replacements = get_replacements(conflicts, taken | assumption_privates)
+        assumptions = replace_predicates(assumptions, replacements)
 
     return assumptions

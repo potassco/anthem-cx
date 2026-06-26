@@ -4,8 +4,8 @@ Tests for analysis/assumptions.py.
 
 from unittest import TestCase
 
+from anthem_cx.analysis import collect_privates
 from anthem_cx.analysis.assumptions import check_assumptions
-from anthem_cx.analysis.conflict import _collect_privates
 from anthem_cx.utils.data import Auxiliaries, Predicate
 from anthem_cx.utils.errors import AnthemCXError
 
@@ -45,7 +45,7 @@ class TestCheckAssumptions(TestCase):
                 assumptions, self.inputs, self.outputs, parse_program(left), parse_program(right), self.aux
             )
             # the clashing private must no longer occur in the assumptions
-            self.assertNotIn(renamed, _collect_privates(result, self.inputs | self.outputs))
+            self.assertNotIn(renamed, collect_privates(result, self.inputs | self.outputs))
 
     def test_output_rejected(self) -> None:
         """An output predicate in the assumption program raises."""
