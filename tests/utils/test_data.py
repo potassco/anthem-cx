@@ -129,14 +129,14 @@ class TestDataUtils(TestCase):
 
         ctl.solve(on_model=build_counterexample)
         assert counterexample is not None
-        self.assertEqual(counterexample.size, 2)
+        self.assertEqual(counterexample.size, 3)
         self.assertTrue(counterexample.is_forward)
         self.assertEqual(counterexample.direction, "forward")
         self.assertEqual(sorted(counterexample.input), ["a", "c(2,3)", "d(3,4)"])
         self.assertEqual(counterexample.output, ["b(1)"])
 
         # __str__ reports the input and the external behavior of the relevant program
-        rep = str(Counterexample(1, "forward", ["a"], ["b(1)"]))
+        rep = str(Counterexample(1, True, ["a"], ["b(1)"]))
         self.assertEqual("  Input for the counterexample:\n    a\n  External behavior of left:\n    b(1)", rep)
 
         # the backward direction reports the right program's behavior
