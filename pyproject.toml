@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "anthem-cx"
 authors = [{ name = "Jan Heuer", email = "jan.heuer@uni-potsdam.de" }]
 description = "A tool to automatically find counterexamples to external equivalence problems."
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "clingo>=5.7.1",
     "networkx",
@@ -20,12 +20,19 @@ readme = "README.md"
 Homepage = "https://github.com/potassco/anthem-cx.git"
 
 [project.optional-dependencies]
-format = ["black", "isort", "autoflake"]
-lint_pylint = ["pylint"]
-typecheck = ["types-setuptools", "mypy", "types-networkx"]
-test = ["coverage[toml]"]
-doc = ["mkdocs", "mkdocs-material", "mkdocstrings[python]", "mkdoclingo"]
-dev = ["anthem_cx[test,typecheck,lint_pylint]"]
+lint = ["ruff"]
+typecheck = ["ty"]
+test = ["pytest", "pytest-cov", "coverage[toml]"]
+doc = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings>=1.0.4",
+    "mkdocstrings-python>=2.0",
+    "clindocs>=1.5.1",
+    "mkdocs-literate-nav",
+    "pygments_clingo",
+]
+dev = ["anthem_cx[test,typecheck,lint]"]
 
 [project.scripts]
 anthem-cx = "anthem_cx.__main__:main"
@@ -37,42 +44,46 @@ where = ["src"]
 version_scheme = "python-simplified-semver"
 local_scheme = "no-local-version"
 
-[tool.isort]
-profile = "black"
-line_length = 120
-
-[tool.black]
+[tool.ruff]
 line-length = 120
+target-version = "py310"
+exclude = [
+    "/usr/**",
+    "**/site-packages/**",
+    "**/node_modules/**",
+    "**/typeshed-fallback/**",
+]
 
-[tool.pylint.format]
-max-line-length = 120
+[tool.ruff.lint]
+extend-select = ["I", "E", "F", "B", "C4", "D", "ARG", "SIM", "ANN", "Q"]
+ignore = [
+    "E741",
+    "D200",
+    "D203",
+    "D212",
+    "D413",
+    "B023", # broken lint
+]
 
-[tool.pylint.design]
-max-args = 10
-max-attributes = 7
-max-bool-expr = 5
-max-branches = 12
-max-locals = 30
-max-parents = 7
-max-public-methods = 20
-max-returns = 10
-max-statements = 50
-min-public-methods = 1
+[tool.ruff.lint.per-file-ignores]
+"noxfile.py" = ["ANN"]
 
-[tool.pylint.similarities]
-ignore-comments = true
-ignore-docstrings = true
-ignore-imports = true
-ignore-signatures = true
-
-[tool.pylint.basic]
-argument-rgx = "^[a-z][a-z0-9]*((_[a-z0-9]+)*_?)?$"
-variable-rgx = "^[a-z][a-z0-9]*((_[a-z0-9]+)*_?)?$"
-good-names = ["_"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
 
 [tool.coverage.run]
 source = ["anthem_cx", "tests"]
-omit = ["*/anthem_cx/__main__.py"]
+omit = ["*/anthem_cx/__main__.py", "*/anthem_cx/utils/logging.py"]
 
 [tool.coverage.report]
-exclude_lines = ["assert", "nocoverage"]
+show_missing = true
+fail_under = 100
+exclude_lines = [
+    "raise NotImplementedError",
+    "raise TypeError",
+    "nocoverage",
+    "assert",
+    "\\.\\.\\.",
+]
