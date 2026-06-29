@@ -19,4 +19,4 @@ A successful installation will make the `anthem-cx` command available in your te
 anthem-cx -h
 ```
 
-This will display the help message with available options and usage instructions, for detailed CLI information refer to the [CLI documentation](../reference/cli/index.md).
+This will display the help message with available options and usage instructions, for detailed CLI information refer to the [CLI documentation](../reference/cli.md).

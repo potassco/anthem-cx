@@ -8,10 +8,14 @@ learn about specific components, or access essential resources.
 
 ## What’s Inside
 
+- **External equivalence:** The notion of equivalence that anthem-cx reasons
+  about, and what counts as a counterexample.
+- **Counterexample search:** How the counterexample (CX) program is built and
+  solved.
+- **Language:** The fragment of ASP that anthem-cx supports, and the
+  constructs it rejects.
 - **API Documentation:** Comprehensive details on general classes.
-- **ASP Encodings:** Explore the encodings used in our system.
-- **Problem Specifications:** Detailed description and definitions of the
-  problem.
+- **CLI:** The command-line interface and its options.
 
 <!-- - **Advanced Topics:** Gain insights into complex use cases and integrations. -->
 

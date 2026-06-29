@@ -4,9 +4,11 @@
     * [Help](use/help.md)
 * Reference
     * [Reference](reference/index.md)
-    * [Encodings](reference/encodings/index.md)
+    * [External equivalence](reference/external-equivalence.md)
+    * [Counterexample search](reference/counterexample-search.md)
+    * [Input language](reference/language.md)
+    * [CLI](reference/cli.md)
     * [API](reference/api/index.md)
-    * [CLI](reference/cli/index.md)
 * Examples
     * [Examples](examples/index.md)
     * [Graph coloring](examples/coloring.md)
