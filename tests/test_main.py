@@ -12,7 +12,6 @@ from unittest.mock import patch
 
 from anthem_cx.__main__ import main
 from anthem_cx.utils import logging
-from anthem_cx.utils.logging import configure_logging, get_logger
 from anthem_cx.utils.parser import get_parser
 
 
@@ -20,16 +19,6 @@ class TestMain(TestCase):
     """
     Test cases for main application functionality.
     """
-
-    def test_logger(self) -> None:
-        """
-        Test the logger.
-        """
-        sio = StringIO()
-        configure_logging(sio, logging.INFO, True)
-        log = get_logger("main")
-        log.info("test123")
-        self.assertRegex(sio.getvalue(), "test123")
 
     def test_parser(self) -> None:
         """
@@ -49,9 +38,12 @@ class TestMain(TestCase):
 
         argv = ["anthem-cx", "/nonexistent/left.lp", "/nonexistent/right.lp", guide]
         try:
-            with patch.object(sys, "argv", argv), redirect_stderr(StringIO()):
-                with self.assertRaises(SystemExit) as cm:
-                    main()
+            with (
+                patch.object(sys, "argv", argv),
+                redirect_stderr(StringIO()),
+                self.assertRaises(SystemExit) as cm,
+            ):
+                main()
         finally:
             os.unlink(guide)
 

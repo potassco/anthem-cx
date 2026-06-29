@@ -94,6 +94,7 @@ class ChoiceTermNormalizer(Transformer):
     """
 
     def __init__(self) -> None:
+        """Initialize the variable counter and used-variable set."""
         super().__init__()
         self._var_counter = 0
         self.used_vars: set[str] = set()

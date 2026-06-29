@@ -66,6 +66,7 @@ class PrivatePredicateCollector(Transformer):
     """
 
     def __init__(self, publics: set[Predicate]) -> None:
+        """Store the public predicates and prepare the private set."""
         super().__init__()
         self.publics = publics
         self.privates: set[Predicate] = set()
@@ -88,6 +89,7 @@ class PredicateReplacer(Transformer):
     """
 
     def __init__(self, replacements: dict[Predicate, Predicate]) -> None:
+        """Store the predicate replacement mapping."""
         super().__init__()
         self.replacements = replacements
 

@@ -94,7 +94,7 @@ class TestSolveGC(TestCase):
             def fake_solve(*_args: object, on_model: object = None, **_kwargs: object) -> bool:
                 # pylint: disable=cell-var-from-loop
                 if model_found and on_model is not None:
-                    on_model(_FakeModel())  # type: ignore[operator]
+                    on_model(_FakeModel())  # type: ignore
                 return model_found
 
             with patch("anthem_cx.utils.solving.solve_guess_and_check", side_effect=fake_solve):

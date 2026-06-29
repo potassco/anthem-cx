@@ -125,7 +125,7 @@ class TestDataUtils(TestCase):
 
         def build_counterexample(model: object) -> None:
             nonlocal counterexample
-            counterexample = Counterexample.from_model(True, inputs, outputs, model)  # type: ignore[arg-type]
+            counterexample = Counterexample.from_model(True, inputs, outputs, model)  # type: ignore
 
         ctl.solve(on_model=build_counterexample)
         assert counterexample is not None

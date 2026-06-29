@@ -104,10 +104,7 @@ def get_difference_constraint(use_gc: bool, aux: Auxiliaries) -> str:
     """
     Get the difference constraint.
     """
-    if not use_gc:
-        constraint = f":- not {aux.diff}."
-    else:
-        constraint = f":- {aux.diff}."
+    constraint = f":- {aux.diff}." if use_gc else f":- not {aux.diff}."
 
     log.debug("Difference constraint")
     log.debug(constraint + "\n")  # pylint: disable=logging-not-lazy

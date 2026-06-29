@@ -4,7 +4,6 @@ Utility data structures.
 
 from dataclasses import dataclass, fields, replace
 from enum import Enum, auto
-from typing import Any
 
 from clingo.ast import AST
 from clingo.solving import Model
@@ -117,8 +116,8 @@ class Predicate:
     arity: int
 
     def __str__(self) -> str:
-        """Returns a string with the name/arity notation."""
-        return f"{self.name}/{str(self.arity)}"
+        """Return the name/arity notation as a string."""
+        return f"{self.name}/{self.arity}"
 
 
 @dataclass(frozen=True)
@@ -144,7 +143,7 @@ class Auxiliaries:
             suffix=PREDICATE_SUFFIX,
         )
 
-    def replace(self, **kwargs: Any) -> "Auxiliaries":
+    def replace(self, **kwargs: str) -> "Auxiliaries":
         """
         Get an Auxiliaries object with certain values replaced.
 

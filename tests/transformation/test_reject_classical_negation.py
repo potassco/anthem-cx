@@ -39,6 +39,5 @@ class TestRejectClassicalNegation(TestCase):
     def test_raises(self) -> None:
         """Classically negated atoms raise AnthemCXError."""
         for input_str in RAISES_CASES:
-            with self.subTest(input=input_str):
-                with self.assertRaises(AnthemCXError):
-                    assert_transform(self, RejectClassicalNegation(), input_str, "")
+            with self.subTest(input=input_str), self.assertRaises(AnthemCXError):
+                assert_transform(self, RejectClassicalNegation(), input_str, "")
