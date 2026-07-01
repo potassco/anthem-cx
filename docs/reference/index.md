@@ -14,7 +14,9 @@ learn about specific components, or access essential resources.
   solved.
 - **Language:** The fragment of ASP that *anthem-cx* supports, and the
   constructs it rejects.
-- **API Documentation:** Comprehensive details on general classes.
+- **API Documentation:** Module-by-module reference, organized to mirror the
+  package structure (`analysis`, `transformation`, `utils`, and the top-level
+  modules).
 - **CLI:** The command-line interface and its options.
 
 <!-- - **Advanced Topics:** Gain insights into complex use cases and integrations. -->
