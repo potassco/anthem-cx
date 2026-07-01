@@ -5,7 +5,7 @@ icon: material/magnify
 # Counterexample search
 
 To compute counterexamples to the [external equivalence](./external-equivalence.md) of two programs,
-anthem-cx constructs a **counterexample (CX) program**.
+*anthem-cx* constructs a **counterexample (CX) program**.
 The stable models of the CX program correspond to counterexamples.
 
 ## The CX program
@@ -23,7 +23,7 @@ The counterexample program performs the following tasks
 The generation of inputs is parameterized by a **domain size parameter**.
 This parameter is step-wise increased until a counterexample if found (or a optional maximum is reached).
 
-anthem-cx uses two different solving modes to compute counterexamples: **standard** and **guess-and-check**.
+*anthem-cx* uses two different solving modes to compute counterexamples: **standard** and **guess-and-check**.
 The choice between the two is made based on the **uniqueness condition**.
 This is a condition of the public reduct.
 
@@ -35,7 +35,7 @@ Uniqueness is satisfied if private predicates are uniquely defined by input and 
 
 If one of the programs does not fulfill uniqueness the **guess-and-check** approach has to be used.
 
-anthem-cx implements two sufficient criteria to check uniqueness
+*anthem-cx* implements two sufficient criteria to check uniqueness
 
 - stratification
 - local uniqueness
@@ -48,5 +48,5 @@ This local approach is only correct if the public reduct does not contain odd ne
 !!! example
     Check out the [uniqueness examples](../examples/uniqueness.md) to see programs fulfilling the different criteria.
 
-By default anthem-cx combines the two criteria.
+By default *anthem-cx* combines the two criteria.
 Using the [command line options](./cli.md) it is possible to further control the uniqueness check.

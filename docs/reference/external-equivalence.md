@@ -4,6 +4,13 @@ icon: material/equal
 
 # External equivalence
 
+The notions of external behavior and external equivalence used here are based on
+
+> Jorge Fandinno, Zachary Hansen, Yuliya Lierler, Vladimir Lifschitz, Nathan
+> Temple. External Behavior of a Logic Program and Verification of Refactoring.
+> TPLP 23(4): 933-947 (2023).
+> [doi:10.1017/S1471068423000200](https://doi.org/10.1017/S1471068423000200)
+
 External equivalence is a form of equivalence of ASP programs
 that takes the intended use of a program into account.
 That is, external equivalence takes into account what the intended inputs to a program are
@@ -30,7 +37,7 @@ Any other predicates occurring in a program are **private**
 and are not taken into account for external equivalence.
 
 !!! tip
-    anthem-cx ensures that private predicates are unique to a program
+    *anthem-cx* ensures that private predicates are unique to a program
     by applying a renaming to conflicting predicates.
 
 !!! warning
@@ -42,7 +49,7 @@ Without assumptions,
 any set of atoms over the input predicates is a valid input.
 Through the use of assumptions the set of valid inputs can be further constrained.
 
-For anthem-cx assumptions are specified as ASP programs.
+For *anthem-cx* assumptions are specified as ASP programs.
 
 !!! example
     For example, to specify that `q/1` can only hold for values greater than `0`

@@ -11,11 +11,17 @@
     * [API](reference/api/index.md)
 * Examples
     * [Examples](examples/index.md)
+    * [Frame](examples/frame.md)
     * [Graph coloring](examples/coloring.md)
     * [Maximal independent set](examples/independent.md)
+    * [n-Queens](examples/queens.md)
     * [Orphans](examples/orphan.md)
     * [Path finding](examples/path.md)
+    * [Reachability](examples/reachability.md)
+    * [Tiling](examples/tiling.md)
     * [Transitive closure](examples/transitive.md)
+    * [Two elements](examples/two-elements.md)
+    * [Uniqueness](examples/uniqueness.md)
 * Community
     * [Community](community/index.md)
     * [Contributing](community/CONTRIBUTING.md)
