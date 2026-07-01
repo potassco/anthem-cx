@@ -19,7 +19,8 @@ class ReplacePositiveOutputPredicates(Transformer):
     Replace all positive output predicates by their auxiliary version.
     """
 
-    def __init__(self, outputs: set[Predicate], auxiliaries: Auxiliaries):
+    def __init__(self, outputs: set[Predicate], auxiliaries: Auxiliaries) -> None:
+        """Store the output predicates and auxiliary suffix."""
         super().__init__()
         self.outputs = outputs
         self.suffix = auxiliaries.suffix
@@ -82,7 +83,8 @@ class TransformRuleHeads(Transformer):
       l'   :- body, l.
     """
 
-    def __init__(self, outputs: set[Predicate], auxiliaries: Auxiliaries):
+    def __init__(self, outputs: set[Predicate], auxiliaries: Auxiliaries) -> None:
+        """Store the output predicates and auxiliary names."""
         super().__init__()
         self.outputs = outputs
         self.unsat = auxiliaries.unsat
@@ -96,9 +98,7 @@ class TransformRuleHeads(Transformer):
 
         # 1: empty head, i.e. empty disjunction or the literal #false
         if head.ast_type == ASTType.Disjunction or (
-            head.ast_type == ASTType.Literal
-            and head.atom.ast_type == ASTType.BooleanConstant
-            and head.atom.value == False  # pylint: disable=singleton-comparison
+            head.ast_type == ASTType.Literal and head.atom.ast_type == ASTType.BooleanConstant and head.atom.value == 0
         ):
             # the only type of disjunction should be the empty disjunction
             if head.ast_type == ASTType.Disjunction and len(head.elements) != 0:

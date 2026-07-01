@@ -1,18 +1,18 @@
 # Orphan example
 
-This folder contains a version of the orphan example from
-
-> Jorge Fandinno, Zachary Hansen, Yuliya Lierler, Vladimir Lifschitz, Nathan
-> Temple. External Behavior of a Logic Program and Verification of Refactoring.
-> TPLP 23(4): 933-947 (2023). https://doi.org/10.1017/S1471068423000200
-
-The two programs `left.lp` and `right.lp` are not externally equivalent as
-there exists a counterexample of domain size 1.
-
-To generate this counterexample run
+Two programs deciding which living people are orphans, differing on people with
+unrecorded parents.
 
 ```bash
-anthem-cx left.lp right.lp orphan.ug
+# Find a counterexample
+anthem-cx orphan.1.lp orphan.2.lp orphan.ug
+
+# No counterexample when every living person has one father and one mother
+anthem-cx orphan.1.lp orphan.2.lp orphan.ug --assumptions assumptions.lp --max 5
+
+# Verify equivalence under the assumptions with anthem
+anthem verify --equivalence external orphan.1.lp orphan.2.lp orphan-assumptions.ug
 ```
 
-Only under an additional assumption the two programs are equivalent.
+See the [documentation](https://docs.potassco.org/anthem-cx/examples/orphan/)
+for a detailed explanation.

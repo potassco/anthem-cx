@@ -30,7 +30,7 @@ def _parse(src: str) -> list[AST]:
     return nodes
 
 
-def _make_options(**kwargs: Any) -> Options:
+def _make_options(**kwargs: object) -> Options:
     defaults: dict[str, Any] = {
         "direction": Direction.FORWARD,
         "out_dir": None,

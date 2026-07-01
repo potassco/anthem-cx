@@ -61,9 +61,8 @@ class TestHeadAtom(TestCase):
             # choice head with more than one element
             "{ p ; q } :- r.",
         ]:
-            with self.subTest(input=src):
-                with self.assertRaises(ValueError):
-                    head_atom(_parse_rule(src))
+            with self.subTest(input=src), self.assertRaises(ValueError):
+                head_atom(_parse_rule(src))
 
 
 class TestAtomToPredicate(TestCase):

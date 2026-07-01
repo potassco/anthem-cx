@@ -102,10 +102,7 @@ def _conflicting_predicates(left: set[Predicate], right: set[Predicate]) -> set[
 
 
 def _contains_suffix(predicates: set[Predicate], suffix: str) -> bool:
-    for p in predicates:
-        if p.name.endswith(suffix):
-            return True
-    return False
+    return any(p.name.endswith(suffix) for p in predicates)
 
 
 class _VariableChecker(Transformer):
@@ -131,6 +128,7 @@ class GroundTermCollector(Transformer):
     """
 
     def __init__(self) -> None:
+        """Initialize an empty set of ground terms."""
         super().__init__()
         self.terms: set[str] = set()
 
@@ -190,6 +188,7 @@ class PlaceholderCollector(Transformer):
     """
 
     def __init__(self) -> None:
+        """Initialize an empty set of placeholders."""
         super().__init__()
         self.placeholders: set[str] = set()
 

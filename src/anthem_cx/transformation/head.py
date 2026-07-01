@@ -22,7 +22,7 @@ def _remove_negation(sign: Sign) -> Sign:
 
 class RemoveHeadCondition(Transformer):
     """
-    Remove conditional literals in rule heads
+    Remove conditional literals in rule heads.
 
     h : c :- body. is turned into
     h :- body, c.
@@ -65,8 +65,7 @@ class RemoveHeadCondition(Transformer):
 
 class NormalizeHead(Transformer):
     """
-    Normalize (non-choice) rule heads,
-    i.e. remove negated heads and comparisons.
+    Normalize (non-choice) rule heads, i.e. remove negated heads and comparisons.
 
     1. single negation:
     not l :- body. is turned into

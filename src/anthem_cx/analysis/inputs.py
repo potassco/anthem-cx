@@ -52,6 +52,7 @@ class HeadPredicateCollector(Transformer):
     """
 
     def __init__(self) -> None:
+        """Initialize an empty set of head predicates."""
         super().__init__()
         self.predicates: set[Predicate] = set()
 

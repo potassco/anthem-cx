@@ -120,7 +120,6 @@ class TestOutput(TestCase):
 
     def test_program_to_str(self) -> None:
         """Test output of program as str."""
-
         # test empty list of AST
         self.assertEqual(program_to_str([]), "")
         self.assertEqual(program_to_str([], newline=True), "\n")

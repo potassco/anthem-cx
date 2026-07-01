@@ -3,6 +3,7 @@ Module for checking dependencies in a logic program.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable
 
 from clingo.ast import AST, ASTType, Sign, Transformer
 from networkx import DiGraph, MultiDiGraph, simple_cycles, strongly_connected_components
@@ -14,12 +15,12 @@ from ..utils.transformation import atom_to_predicate, head_atom
 log = get_logger(__name__)
 
 
-def _parity_node_to_str(node) -> str:  # type: ignore
+def _parity_node_to_str(node: tuple[Predicate, int]) -> str:
     pred, bit = node
     return f"({pred}, {bit})"
 
 
-def _nodes_to_str(nodes, to_str=str) -> str:  # type: ignore
+def _nodes_to_str(nodes: Iterable[object], to_str: Callable[..., str] = str) -> str:
     ret_str = "["
     for i, n in enumerate(nodes):
         if i > 0:
@@ -29,20 +30,20 @@ def _nodes_to_str(nodes, to_str=str) -> str:  # type: ignore
     return ret_str
 
 
-def _edges_to_str(edges, data: bool = False, to_str=str) -> str:  # type: ignore
+def _edges_to_str(edges: Iterable[tuple[object, ...]], data: bool = False, to_str: Callable[..., str] = str) -> str:
     ret_str = "["
     for i, e in enumerate(edges):
         if i > 0:
             ret_str += ", "
         if data:
-            ret_str += "((" + to_str(e[0]) + "," + to_str(e[1]) + "), " + str(e[2]["weight"]) + ")"
+            ret_str += "((" + to_str(e[0]) + "," + to_str(e[1]) + "), " + str(e[2]["weight"]) + ")"  # type: ignore
         else:
             ret_str += "(" + to_str(e[0]) + "," + to_str(e[1]) + ")"
     ret_str += "]"
     return ret_str
 
 
-def _cycles_to_str(cycles) -> str:  # type: ignore
+def _cycles_to_str(cycles: Iterable[Iterable[object]]) -> str:
     ret_str = "{"
     for i, c in enumerate(cycles):
         if i > 0:
@@ -151,6 +152,7 @@ class DependencyGraphBuilder(Transformer, ABC):
     """
 
     def __init__(self) -> None:
+        """Initialize the dependency graph builder."""
         super().__init__()
         self.graph: MultiDiGraph[Predicate] = MultiDiGraph()  # pylint: disable=unsubscriptable-object
         self.current_head: Predicate | None = None
@@ -182,13 +184,13 @@ class DependencyGraphBuilder(Transformer, ABC):
 
     def _on_choice_head(self, pred: Predicate) -> None:
         """
-        Hook called for the head predicate of a choice rule. Default is a no-op.
+        Handle the head predicate of a choice rule (default is a no-op).
         """
 
     @abstractmethod
     def visit_Literal(self, node: AST) -> AST:  # pylint: disable=invalid-name
         """
-        Subclasses implement adding dependencies for literals.
+        Add dependencies for literals (implemented by subclasses).
         """
         raise NotImplementedError  # nocoverage
 
@@ -199,6 +201,7 @@ class SignedDependencyGraphBuilder(DependencyGraphBuilder):
     """
 
     def __init__(self, public_predicates: set[Predicate]) -> None:
+        """Initialize the builder with the set of public predicates."""
         super().__init__()
         self._public_predicates = public_predicates
 

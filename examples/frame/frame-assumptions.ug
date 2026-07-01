@@ -1,0 +1,7 @@
+input: horizon/1.
+input: in0/2.
+input: goto/3.
+input: person/1.
+output: in/3.
+assumption: forall X Y (exists Z Z1 (Z = X and Z1 = Y and in0(Z, Z1)) and exists Z (Z = X and not person(Z)) -> #false).
+assumption: forall X Y Z (exists Z1 Z2 Z3 (Z1 = X and Z2 = Y and Z3 = Z and goto(Z1, Z2, Z3)) and exists Z (Z = X and not person(Z)) -> #false).

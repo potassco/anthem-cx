@@ -34,6 +34,5 @@ class TestRejectDisjunctions(TestCase):
     def test_raises(self) -> None:
         """Disjunctive rules raise AnthemCXError."""
         for input_str in RAISES_CASES:
-            with self.subTest(input=input_str):
-                with self.assertRaises(AnthemCXError):
-                    assert_transform(self, RejectDisjunctions(), input_str, "")
+            with self.subTest(input=input_str), self.assertRaises(AnthemCXError):
+                assert_transform(self, RejectDisjunctions(), input_str, "")

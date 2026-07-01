@@ -1,15 +1,18 @@
 # Frame example
 
-This folder contains a version of the frame example from
-
-> Jorge Fandinno, Vladimir Lifschitz, Nathan Temple. Locally Tight Programs.
-> TPLP 24(5): 942-972 (2024). https://doi.org/10.1017/S147106842300039X
-
-The two programs `left.lp` and `right.lp` are not externally equivalent. To
-generate a counterexample run the command
+Two encodings of the frame axiom (inertia) for people moving between rooms over
+time, differing in how they encode that a person stays put.
 
 ```bash
-anthem-cx left.lp right.lp frame.ug
+# Find a counterexample
+anthem-cx frame.1.lp frame.2.lp frame.ug
+
+# No counterexample when every individual is declared as a person
+anthem-cx frame.1.lp frame.2.lp frame.ug --assumptions assumptions.lp --max 5
+
+# Verify equivalence under the assumptions with anthem
+anthem verify --equivalence external frame.1.lp frame.2.lp frame-assumptions.ug frame.po -m 8
 ```
 
-Only under the addition of two assumptions the two programs become equivalent.
+See the [documentation](https://docs.potassco.org/anthem-cx/examples/frame/)
+for a detailed explanation.

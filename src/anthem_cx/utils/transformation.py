@@ -2,7 +2,7 @@
 Module containing utilities for transformations.
 """
 
-from typing import Sequence
+from typing import Sequence, cast
 
 from clingo.ast import (
     AST,
@@ -29,11 +29,11 @@ def apply_transformer(transformer: Transformer, prog: list[AST]) -> list[AST]:
     """
     Apply a transformer to a logic program.
     """
-    ret = []
+    ret: list[AST] = []
     for n in prog:
         x = transformer(n)
         if isinstance(x, list):
-            ret.extend(x)
+            ret.extend(cast("list[AST]", x))
         else:
             ret.append(x)
 

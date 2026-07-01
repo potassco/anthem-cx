@@ -109,6 +109,5 @@ class TestTransformRuleHeads(TestCase):
             # multi-element choice head
             "{ p__(X) ; q(X) } :- r.",
         ]:
-            with self.subTest(input=input_str):
-                with self.assertRaises(RuntimeError):
-                    assert_transform(self, TransformRuleHeads(OUTPUTS, AUX), input_str, "")
+            with self.subTest(input=input_str), self.assertRaises(RuntimeError):
+                assert_transform(self, TransformRuleHeads(OUTPUTS, AUX), input_str, "")

@@ -61,6 +61,15 @@ def _run(args: Namespace, clingo_args: list[str]) -> None:
 
     ground_terms = collect_ground_terms(left + right)
 
+    # constants from the programs are added to the input domain unless disabled
+    domain_constants = set() if args.no_program_constants else ground_terms
+    if not args.no_program_constants:
+        log.info(
+            "Collected %s domain constant(s) from the programs: %s",
+            len(ground_terms),
+            ", ".join(sorted(ground_terms)) or "none",
+        )
+
     auxiliaries = Auxiliaries.default()
     auxiliaries = check_and_rename_auxiliaries(left, right, inputs | outputs, auxiliaries, ground_terms)
 
@@ -101,7 +110,7 @@ def _run(args: Namespace, clingo_args: list[str]) -> None:
     progs = Programs(
         left=left,
         right=right,
-        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, ground_terms),
+        generate=get_generate_program(opts.inputs, assumptions, opts.auxiliaries, domain_constants),
         difference=get_difference_program(opts.outputs, opts.auxiliaries),
         constraint=get_difference_constraint(verdict.uses_gc(), opts.auxiliaries),
         public_reduct_left=(

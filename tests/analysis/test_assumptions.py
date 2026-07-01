@@ -16,6 +16,7 @@ class TestCheckAssumptions(TestCase):
     """Tests for check_assumptions."""
 
     def setUp(self) -> None:
+        """Set up inputs, outputs, and auxiliaries for the tests."""
         self.inputs = {Predicate("in", 1)}
         self.outputs = {Predicate("out", 1)}
         self.aux = Auxiliaries.default()

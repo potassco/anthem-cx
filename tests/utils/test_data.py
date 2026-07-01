@@ -114,26 +114,29 @@ class TestDataUtils(TestCase):
     def test_counterexample_from_model(self) -> None:
         """from_model collects input and output atoms from the model and __str__ reports them."""
         ctl = Control()
-        ctl.add("a. b(1). c(2,3).")
+        ctl.add("a. b(1). c(2,3). d(3,4).")
         ctl.ground()
 
-        inputs = {Predicate("a", 0)}
+        # inputs include a propositional atom and atoms sharing the constant 3,
+        # so the distinct input constants are {2, 3, 4} -> size 3
+        inputs = {Predicate("a", 0), Predicate("c", 2), Predicate("d", 2)}
         outputs = {Predicate("b", 1)}
         counterexample: Counterexample | None = None
 
         def build_counterexample(model: object) -> None:
             nonlocal counterexample
-            counterexample = Counterexample.from_model(True, 2, inputs, outputs, model)  # type: ignore[arg-type]
+            counterexample = Counterexample.from_model(True, inputs, outputs, model)  # type: ignore
 
         ctl.solve(on_model=build_counterexample)
         assert counterexample is not None
-        self.assertEqual(counterexample.size, 2)
+        self.assertEqual(counterexample.size, 3)
         self.assertTrue(counterexample.is_forward)
         self.assertEqual(counterexample.direction, "forward")
-        self.assertEqual(counterexample.input, ["a"])
+        self.assertEqual(sorted(counterexample.input), ["a", "c(2,3)", "d(3,4)"])
         self.assertEqual(counterexample.output, ["b(1)"])
 
-        rep = str(counterexample)
+        # __str__ reports the input and the external behavior of the relevant program
+        rep = str(Counterexample(1, True, ["a"], ["b(1)"]))
         self.assertEqual("  Input for the counterexample:\n    a\n  External behavior of left:\n    b(1)", rep)
 
         # the backward direction reports the right program's behavior

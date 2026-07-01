@@ -1,7 +1,4 @@
-"""
-Tests for cx_program.py: normalize_program, get_generate_program,
-get_difference_program, and get_public_reduct.
-"""
+"""Tests for cx_program.py: normalize_program, get_generate_program, get_difference_program, and get_public_reduct."""
 
 from unittest import TestCase
 
