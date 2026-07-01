@@ -6,14 +6,7 @@ the two programs behave differently and reports it as a counterexample.
 
 ## Installation
 
-*anthem-cx* is available on [PyPI](https://pypi.org/project/anthem-cx/).
-Install it with
-
-```bash
-pip install anthem-cx
-```
-
-Alternatively, install it from source by cloning the repository and running
+Install *anthem-cx* from source by cloning the repository and running
 
 ```bash
 pip install .
