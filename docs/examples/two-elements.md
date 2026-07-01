@@ -19,7 +19,7 @@ maps the values of `q` to `p`.
 
 === "two-elements.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/two-elements/two-elements.1.lp"
     ```
 
@@ -30,7 +30,7 @@ value from `q` to `p` if there are two distinct elements for which `q` holds.
 
 === "two-elements.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/two-elements/two-elements.2.lp"
     ```
 
@@ -50,7 +50,7 @@ constraint forbidding that `p` holds for two different values.
 
 === "two-elements.3.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/two-elements/two-elements.3.lp"
     ```
 

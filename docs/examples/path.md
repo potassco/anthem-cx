@@ -18,13 +18,13 @@ the start is reached.
 
 === "path.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/path/path.1.lp"
     ```
 
 === "path.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/path/path.2.lp"
     ```
 
@@ -45,7 +45,7 @@ node and exactly one goal node.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/path/assumptions.lp"
     ```
 

@@ -15,13 +15,13 @@ constraint forbidding one particular solution of the 100-queens problem.
 
 === "queens.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/queens/queens.1.lp"
     ```
 
 === "queens.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/queens/queens.2.lp"
     ```
 

@@ -22,13 +22,13 @@ is reachable and then requires `ok` to hold.
 
 === "reachability.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/reachability/reachability.1.lp"
     ```
 
 === "reachability.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/reachability/reachability.2.lp"
     ```
 
@@ -50,7 +50,7 @@ node.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/reachability/assumptions.lp"
     ```
 

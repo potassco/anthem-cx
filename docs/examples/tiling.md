@@ -12,7 +12,7 @@ constraints in `assumptions.lp`.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/tiling/assumptions.lp"
     ```
 
@@ -26,13 +26,13 @@ The two programs use different encodings of the tiling problem.
 
 === "tiling.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/tiling/tiling.1.lp"
     ```
 
 === "tiling.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/tiling/tiling.2.lp"
     ```
 

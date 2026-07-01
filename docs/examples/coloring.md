@@ -22,13 +22,13 @@ the edges and then forbids two connected nodes from sharing a color.
 
 === "coloring.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/coloring/coloring.1.lp"
     ```
 
 === "coloring.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/coloring/coloring.2.lp"
     ```
 
@@ -50,7 +50,7 @@ The program `assumptions.lp` forbids self-loops in the input.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/coloring/assumptions.lp"
     ```
 

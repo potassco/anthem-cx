@@ -27,13 +27,13 @@ instead uses a choice rule allowing a person to remain in their room.
 
 === "frame.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/frame/frame.1.lp"
     ```
 
 === "frame.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/frame/frame.2.lp"
     ```
 
@@ -55,7 +55,7 @@ individual occurring in `in0/2` or `goto/3` is a person.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/frame/assumptions.lp"
     ```
 

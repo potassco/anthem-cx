@@ -24,13 +24,13 @@ Here uniqueness can be verified using the syntactic (stratification) criterion.
 
 === "1.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/1.1.lp"
     ```
 
 === "1.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/1.2.lp"
     ```
 
@@ -49,13 +49,13 @@ guess-and-check approach is used automatically.
 
 === "2.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/2.1.lp"
     ```
 
 === "2.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/2.2.lp"
     ```
 
@@ -88,13 +88,13 @@ fails and the guess-and-check transformation is used.
 
 === "3.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/3.1.lp"
     ```
 
 === "3.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/3.2.lp"
     ```
 
@@ -127,13 +127,13 @@ local uniqueness criterion can be used.
 
 === "4.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/4.1.lp"
     ```
 
 === "4.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/4.2.lp"
     ```
 
@@ -154,13 +154,13 @@ Here the precondition for local uniqueness is also fulfilled.
 
 === "5.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/5.1.lp"
     ```
 
 === "5.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/5.2.lp"
     ```
 
@@ -182,13 +182,13 @@ counterexample is found.
 
 === "6.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/6.1.lp"
     ```
 
 === "6.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/uniqueness/6.2.lp"
     ```
 

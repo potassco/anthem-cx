@@ -16,13 +16,13 @@ program tight (i.e., it removes positive recursion by adding double negation).
 
 === "transitive.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/transitive/transitive.1.lp"
     ```
 
 === "transitive.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/transitive/transitive.2.lp"
     ```
 
@@ -43,7 +43,7 @@ arguments and it prevents self-edges (i.e. `edge(1,1)`).
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/transitive/assumptions.lp"
     ```
 

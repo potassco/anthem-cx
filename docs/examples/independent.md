@@ -21,13 +21,13 @@ successors of a node in the independent set.
 
 === "independent.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/independent/independent.1.lp"
     ```
 
 === "independent.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/independent/independent.2.lp"
     ```
 
@@ -46,7 +46,7 @@ The program `assumptions.lp` requires that the edge relation is symmetric.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/independent/assumptions.lp"
     ```
 

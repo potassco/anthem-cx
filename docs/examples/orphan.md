@@ -25,13 +25,13 @@ person as an orphan if it has a father and a mother that are both not living.
 
 === "orphan.1.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/orphan/orphan.1.lp"
     ```
 
 === "orphan.2.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/orphan/orphan.2.lp"
     ```
 
@@ -53,7 +53,7 @@ exactly one father and exactly one mother.
 
 === "assumptions.lp"
 
-    ```
+    ```clingo
     --8<-- "examples/orphan/assumptions.lp"
     ```
 
