@@ -1,21 +1,11 @@
-# Tiling examples
+# Tiling example
 
-This folder contains an adaptation of the tiling example from
-
-> Vladimir Lifschitz. An Experiment with Anthem: Semantic Equivalence of Tiling
-> Programs. JELIA (1): 357-363 (2025).
-
-The input to the problem is given by `size/1` and the output by `place/3`.
-Furthermore, we have two assumptions on the input: the predicate `size` has to
-be true for exactly one value and this value has to be greater than 3. These
-are assumptions are given as constraints in `assumptions.lp`.
-
-The two programs are not externally equivalent. Running the command
+Two encodings of a tiling problem, checked under input assumptions on `size/1`.
 
 ```bash
+# Find a counterexample (input size(6))
 anthem-cx tiling.1.lp tiling.2.lp tiling.ug --assumptions assumptions.lp
 ```
 
-finds a counterexample of size 1; the witnessing input is `size(6)`. The
-reported size counts the distinct constants used in the input (here only the
-constant `6`), not the tiling grid size.
+See the [documentation](https://docs.potassco.org/anthem-cx/examples/tiling/)
+for a detailed explanation.

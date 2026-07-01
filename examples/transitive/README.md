@@ -1,35 +1,16 @@
 # Transitive closure example
 
-In this example we compute the transitive closure of a graph. The input is a
-graph specified by its nodes (`node/1`) and edges (`egde/2`). The output is the
-transitive closure of the graph given by the predicate `t/2`.
-
-The program `transitive.1.lp` uses standard rules for computing the transitive
-closure.
-
-Program `transitive.2.lp` changes the rules slightly to make the program tight
-(i.e. removes positive recursion by adding double negation).
-
-Of course this is not an equivalent transformation as witnessed by the
-counterexample produced with
+Two programs computing the transitive closure of a graph: a standard encoding
+and a tight variant using double negation.
 
 ```bash
+# Find a counterexample
 anthem-cx transitive.1.lp transitive.2.lp transitive.ug
-```
 
-which is a graph with two nodes including a self-loop.
-
-## Including assumptions
-
-The program `assumptions.lp` contains some additional assumptions on the input.
-In particular it ensures that any `edge/2` atom only contains nodes as its
-arguments and it prevents self-edges (i.e. `edge(1,1)`).
-
-To check for counterexamples under these assumptions run
-
-```bash
+# Find a (larger) counterexample under additional input assumptions
 anthem-cx transitive.1.lp transitive.2.lp transitive.ug --assumptions assumptions.lp
 ```
 
-Note that the generated counterexample is larger than the one generated without
-assumptions.
+See the
+[documentation](https://docs.potassco.org/anthem-cx/examples/transitive/) for a
+detailed explanation.
