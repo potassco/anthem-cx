@@ -5,6 +5,7 @@ The main entry point for the application.
 import sys
 from argparse import Namespace
 from copy import deepcopy
+from dataclasses import replace
 
 from . import assemble_and_execute, determine_uniqueness, reject_recursive_aggregates
 from .analysis.assumptions import check_assumptions
@@ -151,7 +152,8 @@ def _run(args: Namespace, clingo_args: list[str]) -> None:
         # solve gc program if required
         if verdict.uses_gc():
             progs.constraint = get_difference_constraint(True, opts.auxiliaries)
-            counterexample = assemble_and_execute(progs, opts, verdict)
+            # resume the search at the size of the potential counterexample
+            counterexample = assemble_and_execute(progs, replace(opts, start=counterexample.size), verdict)
         else:
             log.info("Local uniqueness check succeeded")
 
