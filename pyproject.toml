@@ -7,11 +7,7 @@ name = "anthem-cx"
 authors = [{ name = "Jan Heuer", email = "jan.heuer@uni-potsdam.de" }]
 description = "A tool to automatically find counterexamples to external equivalence problems."
 requires-python = ">=3.10"
-dependencies = [
-    "clingo>=5.7.1",
-    "networkx",
-    "guess_and_check@git+https://github.com/potassco/guess_and_check.git",
-]
+dependencies = ["clingo>=5.7.1", "networkx"]
 license = { file = "LICENSE" }
 dynamic = ["version"]
 readme = "README.md"
@@ -51,6 +47,8 @@ exclude = [
     "**/site-packages/**",
     "**/node_modules/**",
     "**/typeshed-fallback/**",
+    # vendored code, see the header of the file
+    "src/anthem_cx/utils/guess_and_check.py",
 ]
 
 [tool.ruff.lint]
@@ -67,6 +65,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "noxfile.py" = ["ANN"]
 
+[tool.ty.src]
+# vendored code, see the header of the file
+exclude = ["src/anthem_cx/utils/guess_and_check.py"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
@@ -74,7 +76,12 @@ python_functions = "test_*"
 
 [tool.coverage.run]
 source = ["anthem_cx", "tests"]
-omit = ["*/anthem_cx/__main__.py", "*/anthem_cx/utils/logging.py"]
+omit = [
+    "*/anthem_cx/__main__.py",
+    "*/anthem_cx/utils/logging.py",
+    # vendored code, see the header of the file
+    "*/anthem_cx/utils/guess_and_check.py",
+]
 
 [tool.coverage.report]
 show_missing = true

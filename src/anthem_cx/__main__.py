@@ -8,7 +8,11 @@ from copy import deepcopy
 
 from . import assemble_and_execute, determine_uniqueness, reject_recursive_aggregates
 from .analysis.assumptions import check_assumptions
-from .analysis.conflict import check_and_rename_auxiliaries, check_and_rename_privates, collect_ground_terms
+from .analysis.conflict import (
+    check_and_rename_auxiliaries,
+    check_and_rename_privates,
+    collect_ground_terms,
+)
 from .analysis.inputs import check_inputs_not_in_heads
 from .analysis.local import is_locally_unique
 from .cx_program import (
@@ -18,7 +22,14 @@ from .cx_program import (
     get_public_reduct,
     normalize_program,
 )
-from .utils.data import Auxiliaries, Direction, Options, Programs, UniquenessCheck, UniquenessVerdict
+from .utils.data import (
+    Auxiliaries,
+    Direction,
+    Options,
+    Programs,
+    UniquenessCheck,
+    UniquenessVerdict,
+)
 from .utils.errors import AnthemCXError
 from .utils.logging import configure_logging, get_logger
 from .utils.output import program_to_str
@@ -102,7 +113,12 @@ def _run(args: Namespace, clingo_args: list[str]) -> None:
     assumptions = None
     if args.assumptions:
         assumption_program = check_assumptions(
-            parse_program(args.assumptions), inputs, outputs, left, right, opts.auxiliaries
+            parse_program(args.assumptions),
+            inputs,
+            outputs,
+            left,
+            right,
+            opts.auxiliaries,
         )
         assumptions = program_to_str(assumption_program, newline=True)
 
