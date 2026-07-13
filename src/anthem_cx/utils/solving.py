@@ -7,9 +7,9 @@ from tempfile import NamedTemporaryFile
 
 from clingo.control import Control
 from clingo.solving import Model
-from guess_and_check import solve_guess_and_check
 
 from .data import Counterexample, Predicate
+from .guess_and_check import solve_guess_and_check
 from .logging import get_logger
 from .output import atom_str
 
@@ -118,8 +118,6 @@ def _solve_gc_with_size(  # pylint: disable=too-many-positional-arguments
     try:
         solve_guess_and_check(
             ["-c", f"{size_placeholder}={size}"] + clingo_args,
-            False,
-            False,
             [guess_file.name],
             [check_file.name],
             on_model=on_model,

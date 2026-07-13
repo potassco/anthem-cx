@@ -26,7 +26,8 @@ repos:
     rev: v0.0.46
     hooks:
       - id: ty-check
+        # vendored code, see the header of the file
+        exclude: ^src/anthem_cx/utils/guess_and_check\.py$
         additional_dependencies:
           - clingo>=5.7.1
           - networkx
-          - guess_and_check@git+https://github.com/potassco/guess_and_check.git
