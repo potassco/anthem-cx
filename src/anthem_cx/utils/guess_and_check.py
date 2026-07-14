@@ -377,7 +377,7 @@ class Observer:
 
 def observe(program):
     observer = Observer()
-    control = clingo.Control()
+    control = clingo.Control(["--warn=no-atom-undefined"])
     control.register_observer(observer, replace=True)
     control.add("base", [], program)
     control.ground([("base", [])])

@@ -6,7 +6,7 @@ from clingo.ast import AST
 from clingo.control import Control
 from clingo.solving import Model
 
-from ..utils.data import Counterexample
+from ..utils.data import CLINGO_ARGS, Counterexample
 from ..utils.output import program_to_str
 
 
@@ -23,7 +23,7 @@ def is_locally_unique(prg: list[AST], counterexample: Counterexample) -> bool:
     program = program_to_str(prg, newline=True) + facts
 
     # enumerating two stable models is enough to decide local uniqueness
-    ctl = Control(["-n", "2"])
+    ctl = Control(["-n", "2"] + CLINGO_ARGS)
     ctl.add(program)
     ctl.ground()
 

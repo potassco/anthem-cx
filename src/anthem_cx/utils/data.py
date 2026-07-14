@@ -14,6 +14,8 @@ DIFF_PREDICATE = "__diff"
 DOMAIN_PREDICATE = "__dom"
 SIZE_PLACEHOLDER = "__domain_size"
 
+CLINGO_ARGS = ["--warn=no-atom-undefined"]
+
 
 @dataclass
 class Programs:
